@@ -77,7 +77,7 @@ class StartupStore{
     self.on(riot.EVT.startupStore.in.fetchConfigResult, (result,myTrigger) => {
       console.log(self.name,riot.EVT.startupStore.in.fetchConfigResult,result,myTrigger);
       if(result.error || !result.response.ok){
-        riot.control.trigger('ErrorStore:error-catch-all',{code:'startup-config1234'});
+        riot.control.trigger(riot.EVT.errorStore.in.errorCatchAll,{code:'startup-config1234'});
       }else{
         riot.control.trigger(riot.EVT.componentLoaderStore.in.addDynamicComponents
           ,result.json.components,{evt:riot.EVT.startupStore.in.componentsAdded,

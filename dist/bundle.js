@@ -16232,7 +16232,7 @@ riot.tag2('app', '<loading-indicator></loading-indicator> <header></header> <div
 
 
 var riot = __webpack_require__(0);
-riot.tag2('header', '<div class="navbar navbar-default navbar-fixed-top"> <div class="container"> <div class="navbar-header"> <a href="../" class="navbar-brand">Bootswatch</a> <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main"> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button> </div> <div class="navbar-collapse collapse" id="navbar-main"> <ul class="nav navbar-nav"> <li> <a href="https://github.com/ghstahl/riotjs-bootstrap-startkit-sidebar">github</a> </li> </ul> <ul class="nav navbar-nav navbar-right"> <li each="{navItems}" onclick="{parent.route}" class="{active : parent.routeState.route === this.route}"> <a>{this.title}</a> </li> </ul> </div> </div> </nav>', '', '', function (opts) {
+riot.tag2('header', '<div class="navbar navbar-default navbar-fixed-top"> <div class="container"> <div class="navbar-header"> <a href="../" class="navbar-brand">Bootswatch</a> <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main"> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button> </div> <div class="navbar-collapse collapse" id="navbar-main"> <ul class="nav navbar-nav"> <li> <a href="https://github.com/ghstahl/P7-riotjs-host">github</a> </li> </ul> <ul class="nav navbar-nav navbar-right"> <li each="{navItems}" onclick="{parent.route}" class="{active : parent.routeState.route === this.route}"> <a>{this.title}</a> </li> </ul> </div> </div> </nav>', '', '', function (opts) {
   var self = this;
   self.routeState = riot.routeState;
 

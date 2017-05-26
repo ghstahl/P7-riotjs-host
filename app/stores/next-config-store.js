@@ -34,7 +34,7 @@ class NextConfigStore{
     self.on(riot.EVT.nextConfigStore.in.fetchConfigResult, (result,myTrigger) => {
       console.log(self.name,riot.EVT.nextConfigStore.in.fetchConfigResult,result,myTrigger);
       if(result.error || !result.response.ok){
-        riot.control.trigger('ErrorStore:error-catch-all',{code:'startup-config1234'});
+        riot.control.trigger(riot.EVT.errorStore.in.errorCatchAll,{code:'startup-config1234'});
       }else{
         riot.control.trigger(myTrigger.ack.evt,myTrigger.ack);
       }

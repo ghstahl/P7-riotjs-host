@@ -14,7 +14,7 @@
     <div class="navbar-collapse collapse" id="navbar-main">
       <ul class="nav navbar-nav">
         <li>
-              <a href="https://github.com/ghstahl/riotjs-bootstrap-startkit-sidebar">github</a>
+              <a href="https://github.com/ghstahl/P7-riotjs-host">github</a>
         </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
