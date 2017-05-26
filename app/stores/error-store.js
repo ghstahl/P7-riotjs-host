@@ -6,7 +6,7 @@ class ErrorStore{
     self.namespace = self.name+':';
     riot.EVT.errorStore ={
         in:{
-          errorCatchAll:self.namespace+'error-catch-all'
+          errorCatchAll:self.namespace+'error-catch-all:'+riot.state._internal.hash
         },
         out:{
          

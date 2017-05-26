@@ -101,7 +101,7 @@ import '../components/itemlist.tag';
     })
 
 	self.generateAnError = () => {
-  		riot.control.trigger('ErrorStore:error-catch-all',{code:'dancingLights-143523'});
+  		riot.control.trigger(riot.EVT.errorStore.in.errorCatchAll,{code:'dancingLights-143523'});
   	};
 </script>
 

@@ -1,14 +1,22 @@
 import 'bootswatch/slate/bootstrap.css';
-import "./css/index.css";
+import 'bootstrap';
+import './css/index.css';
 import './event-helper';
 import './components/startup.tag';
 import './components/my-next-startup.tag';
 
 import route from 'riot-route';
 
+import RandomString from './utils/random-string.js';
+var randomString = new RandomString();
+var hash = randomString.randomHash();
+
 riot.route = route;
 riot.routeState = {};
 riot.state = {
+  _internal:{
+    hash:hash,
+  },
 	error:{code:'unknown'},
 	route:{
 		defaultRoute:'/main/home/'
