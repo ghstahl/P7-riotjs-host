@@ -25,27 +25,29 @@ function ProgressStore() {
 
     self.count = 0;
 
-    self.on(riot.EVT.progressStore.in.inprogressStart, function() {
-        if(self.count == 0){
-            self.trigger(riot.EVT.progressStore.out.progressStart)
-        }
-        ++self.count;
-        self.trigger(riot.EVT.progressStore.out.progressCount,self.count);
-    })
-
-    self.on(riot.EVT.progressStore.in.inprogressDone, function() {
-        if(self.count == 0){
-            // very bad.
-            console.error(riot.EVT.progressStore.in.inprogressDone,'someone has their inprogress_done mismatched with thier inprogress_start');
-        }
-        if(self.count > 0){
-            --self.count;
-        }
-        self.trigger(riot.EVT.progressStore.out.progressCount,self.count);
-        if(self.count == 0){
-            self.trigger(riot.EVT.progressStore.out.progressDone)
-        }
-    })
+    self.bindEvents = () =>{
+        self.on(riot.EVT.progressStore.in.inprogressStart, function() {
+            if(self.count == 0){
+                self.trigger(riot.EVT.progressStore.out.progressStart)
+            }
+            ++self.count;
+            self.trigger(riot.EVT.progressStore.out.progressCount,self.count);
+        })
+        self.on(riot.EVT.progressStore.in.inprogressDone, function() {
+            if(self.count == 0){
+                // very bad.
+                console.error(riot.EVT.progressStore.in.inprogressDone,'someone has their inprogress_done mismatched with thier inprogress_start');
+            }
+            if(self.count > 0){
+                --self.count;
+            }
+            self.trigger(riot.EVT.progressStore.out.progressCount,self.count);
+            if(self.count == 0){
+                self.trigger(riot.EVT.progressStore.out.progressDone)
+            }
+        })
+    }
+  
 }
 
 

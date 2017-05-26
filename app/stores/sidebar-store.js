@@ -14,10 +14,9 @@ class SidebarStore{
         }
     }
 
-    riot.observable(self);
-    self.itemsSet = new Set();
-    self.bindEvents();
     self.state = riot.state.sidebar;
+    self.itemsSet = new Set();
+
     self._loadFromState();
   }
 
@@ -71,6 +70,7 @@ class SidebarStore{
 
   bindEvents(){
     var self = this;
+    riot.observable(self);
     self.on(riot.EVT.sidebarStore.in.sidebarAddItem,     self._onSidebarAddItem);
     self.on(riot.EVT.sidebarStore.in.sidebarRemoveItem,  self._onSidebarRemoveItem);
   }

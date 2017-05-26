@@ -12,13 +12,12 @@ class NextConfigStore{
         out:{
         }
     }
-    riot.observable(self);
-    self._bindEvents();
+
   }
 
-  _bindEvents(){
+  bindEvents(){
     var self = this;
-     
+    riot.observable(self);
     //------------------------------------------------------------
     self.on(riot.EVT.nextConfigStore.in.fetchConfig, (path,ack) => {
       console.log(self.name,riot.EVT.nextConfigStore.in.fetchConfig,path);

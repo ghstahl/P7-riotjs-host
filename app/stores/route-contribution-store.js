@@ -5,10 +5,8 @@ import '../pages/error.tag'
 class RouteContributionStore{
   constructor(){
     var self = this;
-    self.name = "RouteContributionStore";
-    riot.observable(self);
+    self.name = "RouteContributionStore"; 
     self._initializeViewSet();
-    self.bindEvents();
   }
 
   _initializeViewSet(){
@@ -22,6 +20,7 @@ class RouteContributionStore{
   }
   bindEvents(){
     var self = this;
+    riot.observable(self);
     self.on(riot.EVT.router.out.contributeRoutes, (r) => {
       console.log(self.name,riot.EVT.router.out.contributeRoutes,r)
       r('/main/*', (name)=>{

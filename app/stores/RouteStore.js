@@ -13,16 +13,14 @@ class RouteStore{
           riotRouteDispatchAck:'riot-route-dispatch-ack'
         }
     }
-
-    riot.observable(self);
-    self.bindEvents();
     self.postResetRoute = null;
   }
 
  
   bindEvents(){
     var self = this;
-
+    
+    riot.observable(self);
     self.on(riot.EVT.contributeCatchAllRoute, (r) => {
       console.log(self.name,riot.EVT.contributeRoutes,r)
       if(riot.state.componentLoaderState && riot.state.componentLoaderState.components){

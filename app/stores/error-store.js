@@ -12,12 +12,11 @@ class ErrorStore{
          
         }
     }
-    riot.observable(self);
     self._error = {}
-    self._bindEvents();
   }
-  _bindEvents(){
+  bindEvents(){
     var self = this;
+    riot.observable(self);
     self.on(riot.EVT.errorStore.in.errorCatchAll, (error) => {
       console.log(self.name,riot.EVT.errorStore.in.errorCatchAll,error);
       self._error = error;

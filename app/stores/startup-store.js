@@ -22,11 +22,12 @@ class StartupStore{
     }
 
     self._startupComplete = false;
-    riot.observable(self);
-    self._bindEvents();
+    
+    
   }
-  _bindEvents(){
+  bindEvents(){
     var self = this;
+    riot.observable(self);
     self._done = false;
     //------------------------------------------------------------
     self.on(riot.EVT.startupStore.in.start, (nextTag) => {

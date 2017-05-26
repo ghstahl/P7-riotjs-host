@@ -12,23 +12,22 @@ class RiotControlStore{
         },
         out:{}
     }
-    riot.observable(this);
-    this.bindEvents();
-    this._stores = {};
-   
+    self._stores = {};
   }
 
   bindEvents(){
-    this.on(riot.EVT.riotControlStore.in.riotContolAddStore, (name,store) => {
+    var self = this;
+    riot.observable(self);
+    self.on(riot.EVT.riotControlStore.in.riotContolAddStore, (name,store) => {
       var tempStore = riot.control._stores;
-      this._stores[name] = store;
+      self._stores[name] = store;
       console.log(riot.EVT.riotControlStore.in.riotContolAddStore,store)
       riot.control.addStore(store)
     });
 
-    this.on(riot.EVT.riotControlStore.in.riotContolRemoveStore, (name) => {
+    self.on(riot.EVT.riotControlStore.in.riotContolRemoveStore, (name) => {
       console.log(riot.EVT.riotControlStore.in.riotContolRemoveStore,name)
-      var store = this._stores[name];
+      var store = self._stores[name];
       while (riot.control._stores.indexOf(store) !== -1) {
         riot.control._stores.splice(riot.control._stores.indexOf(store), 1);
       }

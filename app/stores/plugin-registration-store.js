@@ -23,12 +23,12 @@ class PluginRegistrationStore{
 
   constructor(){
     var self = this;
-    riot.observable(self);
-    self.bindEvents();
     self._registeredPlugins = new Set();
+
   }
   bindEvents(){
     var self = this;
+    riot.observable(self);
     self.on('plugin-registration', self._registerPlugin);
     self.on('plugin-unregistration', self._unregisterPlugin);
   }

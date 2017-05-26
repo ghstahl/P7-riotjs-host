@@ -6,95 +6,49 @@ import './event-helper';
 import './components/startup.tag';
 import './components/my-next-startup.tag';
 
-import route from 'riot-route';
 
-import RandomString from './utils/random-string.js';
-var randomString = new RandomString();
-var hash = randomString.randomHash();
-window.riot = riot; 
-riot.route = route;
-riot.routeState = {};
-riot.state = {
-  _internal:{
-    hash:hash,
-  },
-	error:{code:'unknown'},
-	route:{
-		defaultRoute:'/main/home/'
-	},
-	sidebar:{
+
+
+
+import P7HostCore from './p7-host-core.js';
+var p7HostCore = new P7HostCore();
+p7HostCore.Initialize();
+
+
+riot.state.sidebar = {
 		touch:0,
 		items:[
 			{ title : 'Home', route : '/main/home'},
 			{ title : 'Projects', route : '/main/projects'}
 		]
-	}
-};
-// Put RiotControl first in the startup flow
-import RiotControl from 'riotcontrol';
-riot.control = RiotControl;
+  };
 
 
-import RiotRouteExtension            	from './extensions/riot-route-extension.js';
-new RiotRouteExtension();
 
 // Add the mixings
 ////////////////////////////////////////////////////////
 import OptsMixin                            from './mixins/opts-mixin.js'
 riot.mixin("opts-mixin",OptsMixin);
 
-
 // Add the stores
 ////////////////////////////////////////////////////////
-import ProgressStore            	from './stores/progress-store.js';
-riot.control.addStore(new ProgressStore());
-
-import LocalStorageStore         	from './stores/localstorage-store.js';
-riot.control.addStore(new LocalStorageStore());
-
-import RiotControlStore 			from './stores/RiotControlStore.js';
-riot.control.addStore(new RiotControlStore());
-
-import RouteStore 					from './stores/RouteStore.js';
-riot.control.addStore(new RouteStore());
-
-import ErrorStore            		from './stores/error-store.js';
-riot.control.addStore(new ErrorStore());
 
 import RouteContributionStore 		from './stores/route-contribution-store.js';
-riot.control.addStore(new RouteContributionStore());
-
-import DynamicJsCssLoaderStore 		from './stores/dynamic-jscss-loader-store.js';
-riot.control.addStore(new DynamicJsCssLoaderStore());
-
-import PluginRegistrationStore 		from './stores/plugin-registration-store.js';
-riot.control.addStore(new PluginRegistrationStore());
-
-import ComponentLoaderStore 		from './stores/component-loader-store.js';
-riot.control.addStore(new ComponentLoaderStore());
-
-import StartupStore 				from './stores/startup-store.js';
-riot.control.addStore(new StartupStore());
-
-
-import RiotControlDispatcherStore 	from './stores/RiotControlDispatcherStore.js';
-riot.control.addStore(new RiotControlDispatcherStore());
-
-import FetchStore 					from './stores/fetch-store.js';
-riot.control.addStore(new FetchStore());
-
-
-
-
-import ItemStore 					from './stores/itemstore.js';
-riot.control.addStore(new ItemStore());
-
-import SidebarStore 				from './stores/sidebar-store.js';
-riot.control.addStore(new SidebarStore());
+var routeContributionStore = new RouteContributionStore();
 
 import NextConfigStore         from './stores/next-config-store.js';
-riot.control.addStore(new NextConfigStore());
+var nextConfigStore = new NextConfigStore();
 
+import SidebarStore 				from './stores/sidebar-store.js';
+var sidebarStore = new SidebarStore();
+
+nextConfigStore.bindEvents();
+routeContributionStore.bindEvents();
+sidebarStore.bindEvents();
+
+riot.control.addStore(nextConfigStore);
+riot.control.addStore(routeContributionStore);
+riot.control.addStore(sidebarStore);
 
 var testComponent = {
         key:'typicode-component',

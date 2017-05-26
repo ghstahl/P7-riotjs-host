@@ -65,9 +65,7 @@ class DynamicJsCssLoaderStore{
 	        	unloadExternalJsCssAck:self.namespace + 'unload-external-jscss-ack'
 	        }
 	    }
-		riot.observable(this);
-		this._bindEvents();
-		this._componentsAddedSet = new Set();
+		self._componentsAddedSet = new Set();
 	}
 
 
@@ -178,11 +176,11 @@ class DynamicJsCssLoaderStore{
 	   
 	}
 
-  	_bindEvents(){
-  		
-    	this.on(riot.EVT.dynamicJsCssLoaderStore.in.loadExternalJsCss,	this._safeLoadExternal);
-    	this.on(riot.EVT.dynamicJsCssLoaderStore.in.unloadExternalJsCss,this._removeExternal);
-    	
+  	bindEvents(){
+  		var self = this;
+  		riot.observable(self);
+    	self.on(riot.EVT.dynamicJsCssLoaderStore.in.loadExternalJsCss,	self._safeLoadExternal);
+    	self.on(riot.EVT.dynamicJsCssLoaderStore.in.unloadExternalJsCss,self._removeExternal);
     }
   
 }

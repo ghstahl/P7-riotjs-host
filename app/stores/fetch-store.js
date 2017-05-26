@@ -20,10 +20,34 @@ function FetchStore() {
         }
     }
 
-    riot.observable(self) // Riot provides our event emitter.
+    
 
     self.fetchException = null;
    
+    self.bindEvents = () =>{
+        riot.observable(self) // Riot provides our event emitter.
+
+        self.on(riot.EVT.app.out.appMount, function() {
+            console.log(self.name,riot.EVT.app.out.appMount);
+            riot.control.on('riot-trigger', self.onRiotTrigger);
+        })
+
+        self.on(riot.EVT.app.out.appUnmount, function() {
+            console.log(self.name,'app-unmount');
+            riot.control.off('riot-trigger', self.onRiotTrigger);
+        })
+
+        // Our store's event handlers / API.
+        // This is where we would use AJAX calls to interface with the server.
+        // Any number of views can emit actions/events without knowing the specifics of the back-end.
+        // This store can easily be swapped for another, while the view components remain untouched.
+
+        self.on(riot.EVT.fetchStore.in.fetch, function(input,init,trigger,jsonFixup = true) {
+            console.log(riot.EVT.fetchStore.in.fetch,input,init,trigger,jsonFixup);
+            self.doRiotControlFetchRequest(input,init,trigger,jsonFixup);
+        })
+    }
+
     /**
      * Reset tag attributes to hide the errors and cleaning the results list
      */
@@ -38,15 +62,7 @@ function FetchStore() {
             riot.control.trigger(query.evt);
         }
     }
-    self.on(riot.EVT.app.out.appMount, function() {
-        console.log(self.name,riot.EVT.app.out.appMount);
-        riot.control.on('riot-trigger', self.onRiotTrigger);
-    })
-
-    self.on(riot.EVT.app.out.appUnmount, function() {
-        console.log(self.name,'app-unmount');
-        riot.control.off('riot-trigger', self.onRiotTrigger);
-    })
+    
     self.doRiotControlFetchRequest = function(input,init,trigger,jsonFixup ) {
         // we are a json shop
 
@@ -109,16 +125,6 @@ function FetchStore() {
             riot.control.trigger(riot.EVT.fetchStore.out.inprogressDone);
         });
     }
-
-    // Our store's event handlers / API.
-    // This is where we would use AJAX calls to interface with the server.
-    // Any number of views can emit actions/events without knowing the specifics of the back-end.
-    // This store can easily be swapped for another, while the view components remain untouched.
-
-    self.on(riot.EVT.fetchStore.in.fetch, function(input,init,trigger,jsonFixup = true) {
-        console.log(riot.EVT.fetchStore.in.fetch,input,init,trigger,jsonFixup);
-        self.doRiotControlFetchRequest(input,init,trigger,jsonFixup);
-    })
 
     // The store emits change events to any listening views, so that they may react and redraw themselves.
 

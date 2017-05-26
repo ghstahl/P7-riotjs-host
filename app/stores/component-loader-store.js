@@ -71,9 +71,6 @@ class ComponentLoaderStore {
         self._components = new Set();
         riot.state.componentLoaderState = {}
         self.state = riot.state.componentLoaderState;
-        riot.observable(self);
-        self.bindEvents();
-
     }
 
     _commitToState() {
@@ -217,6 +214,7 @@ class ComponentLoaderStore {
 
     bindEvents() {
         var self = this;
+        riot.observable(self);
         self.on(riot.EVT.componentLoaderStore.in.loadDynamicComponent, self._onLoadDynamicComponent);
         self.on(riot.EVT.componentLoaderStore.in.unloadDynamicComponent, self._onUnloadDymanicComponent);
 
