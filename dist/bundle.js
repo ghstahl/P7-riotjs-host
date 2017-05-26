@@ -14348,6 +14348,19 @@ var DynamicJsCssLoaderStore = function () {
 		}
 	};
 
+	DynamicJsCssLoaderStore.prototype._removeExternal = function _removeExternal(filename, filetype) {
+		var targetelement = filetype == "js" ? "script" : filetype == "css" ? "link" : "none"; //determine element type to create nodelist from
+		var targetattr = filetype == "js" ? "src" : filetype == "css" ? "href" : "none"; //determine corresponding attribute to test for
+		var allsuspects = document.getElementsByTagName(targetelement);
+		for (var i = allsuspects.length; i >= 0; i--) {
+			//search backwards within nodelist for matching elements to remove
+			if (allsuspects[i] && allsuspects[i].getAttribute(targetattr) != null && allsuspects[i].getAttribute(targetattr).indexOf(filename) != -1) {
+				allsuspects[i].parentNode.removeChild(allsuspects[i]); //remove element by calling parentNode.removeChild()
+				break;
+			}
+		}
+	};
+
 	DynamicJsCssLoaderStore.prototype._removeExternal = function _removeExternal(component) {
 		var addedCompoment = this._findComponent(component);
 		if (addedCompoment == null) {
@@ -14356,23 +14369,19 @@ var DynamicJsCssLoaderStore = function () {
 				component: component,
 				error: "no entry found to remove!" });
 		} else {
-			var filename = component.path;
-			var filetype = component.type;
-			var targetelement = filetype == "js" ? "script" : filetype == "css" ? "link" : "none"; //determine element type to create nodelist from
-			var targetattr = filetype == "js" ? "src" : filetype == "css" ? "href" : "none"; //determine corresponding attribute to test for
-			var allsuspects = document.getElementsByTagName(targetelement);
-			for (var i = allsuspects.length; i >= 0; i--) {
-				//search backwards within nodelist for matching elements to remove
-				if (allsuspects[i] && allsuspects[i].getAttribute(targetattr) != null && allsuspects[i].getAttribute(targetattr).indexOf(filename) != -1) {
-					allsuspects[i].parentNode.removeChild(allsuspects[i]); //remove element by calling parentNode.removeChild()
-					this._deleteComponent(component);
-
-					riot.control.trigger(riot.EVT.dynamicJsCssLoaderStore.out.unloadExternalJsCssAck, {
-						state: true,
-						component: component });
-					break;
-				}
+			var jsBundle = component.jsBundle;
+			var cssBundle = component.cssBundle;
+			if (jsBundle && jsBundle.path) {
+				this._removeExternal(jsBundle.path, 'js');
 			}
+			if (cssBundle && cssBundle.path) {
+				this._removeExternal(cssBundle.path, 'css');
+			}
+
+			this._deleteComponent(component);
+			riot.control.trigger(riot.EVT.dynamicJsCssLoaderStore.out.unloadExternalJsCssAck, {
+				state: true,
+				component: component });
 		}
 	};
 
@@ -14380,20 +14389,22 @@ var DynamicJsCssLoaderStore = function () {
 		var jsBundle = component.jsBundle;
 		var cssBundle = component.cssBundle;
 
-		var fileref = undefined;
 		if (jsBundle && jsBundle.path) {
 			var fileref = document.createElement('script');
 			fileref.setAttribute("type", "text/javascript");
 			fileref.setAttribute("src", jsBundle.path);
+			if (typeof fileref != "undefined") {
+				document.getElementsByTagName("head")[0].appendChild(fileref);
+			}
 		}
 		if (cssBundle && cssBundle.path) {
 			var fileref = document.createElement("link");
 			fileref.setAttribute("rel", "stylesheet");
 			fileref.setAttribute("type", "text/css");
 			fileref.setAttribute("href", cssBundle.path);
-		}
-		if (typeof fileref != "undefined") {
-			document.getElementsByTagName("head")[0].appendChild(fileref);
+			if (typeof fileref != "undefined") {
+				document.getElementsByTagName("head")[0].appendChild(fileref);
+			}
 		}
 	};
 

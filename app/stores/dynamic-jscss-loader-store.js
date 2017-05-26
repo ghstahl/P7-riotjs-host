@@ -115,6 +115,20 @@ class DynamicJsCssLoaderStore{
 		    	error:"component already added!"});
 	    }
 	}
+	_removeExternalByFile(filename,filetype){
+		var targetelement=(filetype=="js")? "script" : (filetype=="css")? "link" : "none" //determine element type to create nodelist from
+    	var targetattr=(filetype=="js")? "src" : (filetype=="css")? "href" : "none" //determine corresponding attribute to test for
+    	var allsuspects=document.getElementsByTagName(targetelement)
+    	for (var i=allsuspects.length; i>=0; i--){ //search backwards within nodelist for matching elements to remove
+		    if (	allsuspects[i] 
+		    	&& 	allsuspects[i].getAttribute(targetattr)!=null 
+		    	&& 	allsuspects[i].getAttribute(targetattr).indexOf(filename)!=-1){
+		    	allsuspects[i].parentNode.removeChild(allsuspects[i]) //remove element by calling parentNode.removeChild()
+				break;
+	    	}     
+	    }
+
+	}
 	_removeExternal(component){
 		var addedCompoment = this._findComponent(component);
 		if(addedCompoment == null){
@@ -123,24 +137,20 @@ class DynamicJsCssLoaderStore{
 		    	component:component,
 		    	error:"no entry found to remove!",});
 		}else{
-			var filename = component.path;
-			var filetype = component.type;
-			var targetelement=(filetype=="js")? "script" : (filetype=="css")? "link" : "none" //determine element type to create nodelist from
-	    	var targetattr=(filetype=="js")? "src" : (filetype=="css")? "href" : "none" //determine corresponding attribute to test for
-	    	var allsuspects=document.getElementsByTagName(targetelement)
-	    	for (var i=allsuspects.length; i>=0; i--){ //search backwards within nodelist for matching elements to remove
-			    if (	allsuspects[i] 
-			    	&& 	allsuspects[i].getAttribute(targetattr)!=null 
-			    	&& 	allsuspects[i].getAttribute(targetattr).indexOf(filename)!=-1){
-			    	allsuspects[i].parentNode.removeChild(allsuspects[i]) //remove element by calling parentNode.removeChild()
-					this._deleteComponent(component);
-					
-					riot.control.trigger(riot.EVT.dynamicJsCssLoaderStore.out.unloadExternalJsCssAck, {
-				    	state:true,
-				    	component:component});
-					break;
-		    	}     
-		    }
+			var jsBundle = component.jsBundle;
+			var cssBundle = component.cssBundle;
+			if(jsBundle && jsBundle.path){
+				this._removeExternalByFile(jsBundle.path,'js');
+			}
+			if(cssBundle && cssBundle.path){
+				this._removeExternalByFile(cssBundle.path,'css');
+			}
+			
+			this._deleteComponent(component);
+			riot.control.trigger(riot.EVT.dynamicJsCssLoaderStore.out.unloadExternalJsCssAck, {
+		    	state:true,
+		    	component:component});
+
 		}
 	}
 
