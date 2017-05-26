@@ -1,3 +1,4 @@
+
 import 'bootswatch/slate/bootstrap.css';
 import 'bootstrap';
 import './css/index.css';
@@ -10,7 +11,7 @@ import route from 'riot-route';
 import RandomString from './utils/random-string.js';
 var randomString = new RandomString();
 var hash = randomString.randomHash();
-
+window.riot = riot; 
 riot.route = route;
 riot.routeState = {};
 riot.state = {
@@ -32,7 +33,7 @@ riot.state = {
 // Put RiotControl first in the startup flow
 import RiotControl from 'riotcontrol';
 riot.control = RiotControl;
-window.riot = riot;
+
 
 import RiotRouteExtension            	from './extensions/riot-route-extension.js';
 new RiotRouteExtension();

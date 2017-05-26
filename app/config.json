@@ -2,8 +2,13 @@
 	"components":[
 		{
         "key":"typicode-component",
-        "path":"/partial/typicode_component/bundle.js",
-        "type":"js",
+        "jsBundle":{
+          "path":"/partial/typicode_component/bundle.js"
+        },
+        "cssBundle":{
+          "path":"/partial/typicode_component/styles.css"
+        },
+       
         "trigger":{
           "onLoad":[{
               "event":"SidebarStore:sidebar-add-item",

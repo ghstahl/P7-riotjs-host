@@ -145,22 +145,27 @@ class DynamicJsCssLoaderStore{
 	}
 
 	_loadExternal(component){
-		var filename = component.path;
-		var filetype = component.type;
-		if (filetype=="js"){ //if filename is a external JavaScript file
+		var jsBundle = component.jsBundle;
+		var cssBundle = component.cssBundle;
+
+		if(jsBundle && jsBundle.path){
 	        var fileref=document.createElement('script');
 	        fileref.setAttribute("type","text/javascript");
-	        fileref.setAttribute("src", filename);
-	    }
-	    else if (filetype=="css"){ //if filename is an external CSS file
+	        fileref.setAttribute("src", jsBundle.path);
+	        if (typeof fileref!="undefined"){
+	        	document.getElementsByTagName("head")[0].appendChild(fileref);
+	    	}
+		}
+		if(cssBundle && cssBundle.path){
 	        var fileref=document.createElement("link");
 	        fileref.setAttribute("rel", "stylesheet");
 	        fileref.setAttribute("type", "text/css");
-	        fileref.setAttribute("href", filename);
-	    }
-	    if (typeof fileref!="undefined"){
-	        document.getElementsByTagName("head")[0].appendChild(fileref);
-	    }
+	        fileref.setAttribute("href", cssBundle.path);
+	        if (typeof fileref!="undefined"){
+	        	document.getElementsByTagName("head")[0].appendChild(fileref);
+	    	}
+		}
+	   
 	}
 
   	_bindEvents(){

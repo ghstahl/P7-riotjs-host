@@ -14377,19 +14377,20 @@ var DynamicJsCssLoaderStore = function () {
 	};
 
 	DynamicJsCssLoaderStore.prototype._loadExternal = function _loadExternal(component) {
-		var filename = component.path;
-		var filetype = component.type;
-		if (filetype == "js") {
-			//if filename is a external JavaScript file
+		var jsBundle = component.jsBundle;
+		var cssBundle = component.cssBundle;
+
+		var fileref = undefined;
+		if (jsBundle && jsBundle.path) {
 			var fileref = document.createElement('script');
 			fileref.setAttribute("type", "text/javascript");
-			fileref.setAttribute("src", filename);
-		} else if (filetype == "css") {
-			//if filename is an external CSS file
+			fileref.setAttribute("src", jsBundle.path);
+		}
+		if (cssBundle && cssBundle.path) {
 			var fileref = document.createElement("link");
 			fileref.setAttribute("rel", "stylesheet");
 			fileref.setAttribute("type", "text/css");
-			fileref.setAttribute("href", filename);
+			fileref.setAttribute("href", cssBundle.path);
 		}
 		if (typeof fileref != "undefined") {
 			document.getElementsByTagName("head")[0].appendChild(fileref);
@@ -14775,7 +14776,7 @@ var NextConfigStore = function () {
     self.on(riot.EVT.nextConfigStore.in.fetchConfigResult, function (result, myTrigger) {
       console.log(self.name, riot.EVT.nextConfigStore.in.fetchConfigResult, result, myTrigger);
       if (result.error || !result.response.ok) {
-        riot.control.trigger('ErrorStore:error-catch-all', { code: 'startup-config1234' });
+        riot.control.trigger(riot.EVT.errorStore.in.errorCatchAll, { code: 'startup-config1234' });
       } else {
         riot.control.trigger(myTrigger.ack.evt, myTrigger.ack);
       }
@@ -15302,7 +15303,7 @@ var StartupStore = function () {
     self.on(riot.EVT.startupStore.in.fetchConfigResult, function (result, myTrigger) {
       console.log(self.name, riot.EVT.startupStore.in.fetchConfigResult, result, myTrigger);
       if (result.error || !result.response.ok) {
-        riot.control.trigger('ErrorStore:error-catch-all', { code: 'startup-config1234' });
+        riot.control.trigger(riot.EVT.errorStore.in.errorCatchAll, { code: 'startup-config1234' });
       } else {
         riot.control.trigger(riot.EVT.componentLoaderStore.in.addDynamicComponents, result.json.components, { evt: riot.EVT.startupStore.in.componentsAdded,
           ack: myTrigger.ack });
@@ -16018,7 +16019,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var randomString = new _randomString2.default();
 var hash = randomString.randomHash();
-
+window.riot = riot;
 riot.route = _riotRoute2.default;
 riot.routeState = {};
 riot.state = {
@@ -16037,7 +16038,6 @@ riot.state = {
 // Put RiotControl first in the startup flow
 
 riot.control = _riotcontrol2.default;
-window.riot = riot;
 
 new _riotRouteExtension2.default();
 
