@@ -10,7 +10,7 @@ import './components/my-next-startup.tag';
 
 
 
-import P7HostCore from './p7-host-core.js';
+import P7HostCore from './p7-host-core/p7-host-core.js';
 var p7HostCore = new P7HostCore();
 p7HostCore.Initialize();
 

@@ -10,11 +10,10 @@ import FetchStore           		from './stores/fetch-store.js';
 import LocalStorageStore         	from './stores/localstorage-store.js';
 import RiotControlStore 			from './stores/riotcontrol-store.js';
 import RouteStore 					from './stores/route-store.js';
-import RouteContributionStore 		from './stores/route-contribution-store.js';
 import PluginRegistrationStore 		from './stores/plugin-registration-store.js';
 import StartupStore 				from './stores/startup-store.js';
 import RiotControlDispatchStore 	from './stores/riotcontrol-dispatch-store.js';
-import './stores/master-event-table.js';
+import './master-event-table.js';
 class P7HostCore{
   constructor(){
   	var self = this;

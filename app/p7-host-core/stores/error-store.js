@@ -1,5 +1,5 @@
 
-import DeepFreeze from './deep-freeze.js';
+import DeepFreeze from '../utils/deep-freeze.js';
 import RouteStore           from './route-store.js';
 const RSWKE = RouteStore.getConstants().WELLKNOWN_EVENTS;
 

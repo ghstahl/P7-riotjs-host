@@ -4,6 +4,7 @@
 // TodoStore definition.
 // Flux stores house application logic and state that relate to a specific domain.
 // In this case, a list of todo items.
+import DeepFreeze from '../p7-host-core/utils/deep-freeze.js';
 import RiotControl from 'riotcontrol';
 
 function LocalStorageItemsStore(name) {

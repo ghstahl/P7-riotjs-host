@@ -1,4 +1,4 @@
-import DeepFreeze from './deep-freeze.js';
+import DeepFreeze from './utils/deep-freeze.js';
 
 class Constants {}
 Constants.NAME = 'router';

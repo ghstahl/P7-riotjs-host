@@ -1,15 +1,15 @@
 
-import ProgressStore            from './progress-store.js';
-import FetchStore               from './fetch-store.js';
-import DynamicJsCssLoaderStore  from './dynamic-jscss-loader-store.js';
-import ComponentLoaderStore     from './component-loader-store.js';
-import LocalStorageStore        from './localstorage-store.js';
-import ErrorStore               from './error-store.js';
-import RouteStore               from './route-store.js';
-import RiotControlStore         from './riotcontrol-store.js';
-import RiotControlDispatchStore from './riotcontrol-dispatch-store.js';
-import PluginRegistrationStore  from './plugin-registration-store.js';
-import StartupStore             from './startup-store.js';
+import ProgressStore            from './stores/progress-store.js';
+import FetchStore               from './stores/fetch-store.js';
+import DynamicJsCssLoaderStore  from './stores/dynamic-jscss-loader-store.js';
+import ComponentLoaderStore     from './stores/component-loader-store.js';
+import LocalStorageStore        from './stores/localstorage-store.js';
+import ErrorStore               from './stores/error-store.js';
+import RouteStore               from './stores/route-store.js';
+import RiotControlStore         from './stores/riotcontrol-store.js';
+import RiotControlDispatchStore from './stores/riotcontrol-dispatch-store.js';
+import PluginRegistrationStore  from './stores/plugin-registration-store.js';
+import StartupStore             from './stores/startup-store.js';
 import Router                   from './router.js';
 
 var namespace = 'P7HostCore';

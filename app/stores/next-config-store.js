@@ -1,4 +1,4 @@
-import DeepFreeze from './deep-freeze.js';
+import DeepFreeze from '../p7-host-core/utils/deep-freeze.js';
 class NextConfigStore{
 
   constructor(){

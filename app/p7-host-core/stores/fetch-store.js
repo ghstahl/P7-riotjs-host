@@ -1,7 +1,7 @@
 /**
  * Created by Herb on 9/27/2016.
  */
-import DeepFreeze from './deep-freeze.js';
+import DeepFreeze from '../utils/deep-freeze.js';
 import 'whatwg-fetch';
 import ProgressStore from './progress-store.js';
 
