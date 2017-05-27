@@ -114,7 +114,7 @@ var RouteContributionStore = function () {
       console.log(self.name, riot.EVT.router.out.contributeRoutes, r);
       r('/my-component-page/typicode-user-detail?id=*', function () {
         console.log('route handler of /my-component-page/typicode-user-detail');
-        riot.control.trigger(riot.EVT.loadView, 'mpc-typicode-user-detail');
+        riot.control.trigger(riot.EVT.routeStore.in.riotRouteLoadView, 'mpc-typicode-user-detail');
       });
 
       r('/my-component-page/*', function (name) {
@@ -123,7 +123,7 @@ var RouteContributionStore = function () {
         if (self.views.indexOf(view) === -1) {
           riot.control.trigger(riot.EVT.routeStore.in.routeDispatch, self.defaultRoute);
         } else {
-          riot.control.trigger(riot.EVT.loadView, 'mpc-' + view);
+          riot.control.trigger(riot.EVT.routeStore.in.riotRouteLoadView, 'mpc-' + view);
         }
       });
       r('/my-component-page..', function () {

@@ -29,7 +29,7 @@ class RouteContributionStore{
         if(self.views.indexOf(view) === -1){
           riot.control.trigger(riot.EVT.routeStore.in.routeDispatch,self.defaultRoute);
         }else{
-          riot.control.trigger(riot.EVT.loadView,view);
+          riot.control.trigger(riot.EVT.routeStore.in.riotRouteLoadView,view);
         }
       });
 
@@ -40,7 +40,7 @@ class RouteContributionStore{
 
       r('/error..', ()=>{
         console.log('route handler of /error..')
-        riot.control.trigger(riot.EVT.loadView,'error');
+        riot.control.trigger(riot.EVT.routeStore.in.riotRouteLoadView,'error');
       });
     });
 
