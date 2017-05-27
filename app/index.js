@@ -2,12 +2,7 @@
 import 'bootswatch/slate/bootstrap.css';
 import 'bootstrap';
 import './css/index.css';
-import './event-helper';
-import './components/startup.tag';
 import './components/my-next-startup.tag';
-
-
-
 
 
 import P7HostCore from './p7-host-core/p7-host-core.js';

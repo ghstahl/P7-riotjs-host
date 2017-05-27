@@ -14,6 +14,7 @@ import PluginRegistrationStore 		from './stores/plugin-registration-store.js';
 import StartupStore 				from './stores/startup-store.js';
 import RiotControlDispatchStore 	from './stores/riotcontrol-dispatch-store.js';
 import './master-event-table.js';
+import './components/startup.tag';
 class P7HostCore{
   constructor(){
   	var self = this;
@@ -51,18 +52,6 @@ class P7HostCore{
 	self._pluginRegistrationStore 		= new PluginRegistrationStore();
 	self._riotControlDispatchStore 		= new RiotControlDispatchStore();
 	self._startupStore 					= new StartupStore();
-
-	self._progressStore.bindEvents();
-	self._dynamicJsCssLoaderStore.bindEvents();
-	self._componentLoaderStore.bindEvents();
-	self._errorStore.bindEvents();
-	self._fetchStore.bindEvents();
-	self._localStorageStore.bindEvents();
-	self._riotControlStore.bindEvents();
-	self._routeStore.bindEvents();
-	self._pluginRegistrationStore.bindEvents();
-	self._riotControlDispatchStore.bindEvents();
-	self._startupStore.bindEvents();
 
 	riot.control.addStore(self._progressStore);
 	riot.control.addStore(self._dynamicJsCssLoaderStore);
