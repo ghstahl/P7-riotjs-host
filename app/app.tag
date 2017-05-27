@@ -24,25 +24,17 @@ import './components/loading-indicator.tag';
 
 <script>
  	var self = this;
-
+  self.name = 'app';
   self.on('before-mount', () => {
       console.log('before-mount');
     });
  	self.on('mount', () => {
-      console.log(riot.EVT.app.out.appMount);
-      riot.control.on(riot.EVT.app.out.appMount,self.onAppMount);
-      riot.control.trigger('riot-dispatch',riot.EVT.app.out.appMount);
+      console.log(self.name,'mount');
     });
 
   self.on('unmount', () => {
-      console.log(riot.EVT.app.out.appUnmount)
-      riot.control.trigger('riot-dispatch',riot.EVT.app.out.appUnmount);
-      riot.control.off(riot.EVT.app.out.appMount,self.onAppMount);
+      console.log(self.name,'unmount');
     });
-
-  self.onAppMount = () =>{
-      console.log('app '+ riot.EVT.appMount)
-    }
 
 </script>
 </app>

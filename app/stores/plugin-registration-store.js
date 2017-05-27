@@ -19,23 +19,54 @@ var registerRecord = {
 riot.control.trigger('plugin-registration',registerRecord);
 
 */
-class PluginRegistrationStore{
+import RiotControlStore         from './riotcontrol-store.js';
+const RCSWKE = RiotControlStore.getConstants().WELLKNOWN_EVENTS;
 
+class Constants {}
+Constants.NAME = 'plugin-registration-store';
+Constants.NAMESPACE = Constants.NAME+':';
+Constants.WELLKNOWN_EVENTS = {
+    in:{
+      pluginRegistration:'plugin-registration',
+      pluginUnregistration:'plugin-unregistration'
+    },
+    out:{
+      pluginRegistrationAck:'plugin-registration-ack',
+      pluginUnregistrationAck:'plugin-unregistration-ack',
+      riotContolRemoveStore:RCSWKE.in.riotContolRemoveStore,
+      riotContolAddStore:RCSWKE.in.riotContolAddStore
+    }
+};
+Object.freeze(Constants);
+
+class PluginRegistrationStore{
+  static getConstants(){
+      return Constants;
+  }
   constructor(){
-    var self = this;
-    self._registeredPlugins = new Set();
+    riot.observable(this);
+    this._registeredPlugins = new Set();
+    this._bound = false;
 
   }
   bindEvents(){
-    var self = this;
-    riot.observable(self);
-    self.on('plugin-registration', self._registerPlugin);
-    self.on('plugin-unregistration', self._unregisterPlugin);
+    if(this._bound == false){
+      this.on(Constants.WELLKNOWN_EVENTS.in.pluginRegistration, this._registerPlugin);
+      this.on(Constants.WELLKNOWN_EVENTS.in.pluginUnregistration, this._unregisterPlugin);
+      this._bound = true;
+    }
   }
-
+  unbindEvents(){
+    if(this._bound == true){
+      this.off(Constants.WELLKNOWN_EVENTS.in.pluginRegistration, this._registerPlugin);
+      this.off(Constants.WELLKNOWN_EVENTS.in.pluginUnregistration, this._unregisterPlugin);
+      this._bound = false;
+    }
+  }
+ 
   _findRegistration(registrationName){
-    var self = this;
-    var mySet = self._registeredPlugins;
+    
+    var mySet = this._registeredPlugins;
     for (let item of mySet) {
         if(item.name === registrationName)
           return item;
@@ -43,8 +74,8 @@ class PluginRegistrationStore{
     return null;
   }
   _removeRegistration(registrationName){
-    var self = this;
-    var mySet = self._registeredPlugins;
+    
+    var mySet = this._registeredPlugins;
     for (let item of mySet) {
         if(item.name === registrationName){
           mySet.delete(item);
@@ -54,10 +85,10 @@ class PluginRegistrationStore{
     return null;
   }
   _unregisterPlugin(registration){
-    var self = this;
-    var foundRegistration = self._findRegistration(registration.name);
+    
+    var foundRegistration = this._findRegistration(registration.name);
     if(foundRegistration === null){
-      self.trigger('plugin-unregistration-ack', 
+      this.trigger(Constants.WELLKNOWN_EVENTS.out.pluginUnregistrationAck, 
         {
           state:false,
           registration:registration,
@@ -67,15 +98,16 @@ class PluginRegistrationStore{
       // reverse unload
       // 1. PreUnload Events first
       for(var i=0; i<foundRegistration.preUnloadEvents.length; i++) {
+        foundRegistration.stores[i].store.uninitialize();
         riot.control.trigger(foundRegistration.preUnloadEvents[i].event,foundRegistration.preUnloadEvents[i].data);
       }
       // 2. Remove the stores.
       for(var i=0; i<foundRegistration.stores.length; i++) {
-        riot.control.trigger(riot.EVT.riotControlStore.in.riotContolRemoveStore,foundRegistration.stores[i].name);
+        riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.riotContolRemoveStore,foundRegistration.stores[i].name);
       }
 
-      self._removeRegistration(registration.name);
-      self.trigger('plugin-unregistration-ack', 
+      this._removeRegistration(registration.name);
+      this.trigger(Constants.WELLKNOWN_EVENTS.out.pluginUnregistrationAck, 
         {
           state:true,
           registration:registration
@@ -84,24 +116,25 @@ class PluginRegistrationStore{
   }
 
   _registerPlugin(registration){
-    var self = this;
-    var foundRegistration = self._findRegistration(registration.name);
+    
+    var foundRegistration = this._findRegistration(registration.name);
    
     if(foundRegistration === null){
-      self._registeredPlugins.add(registration);
+      this._registeredPlugins.add(registration);
 
       // 1. Add the stores
       for(var i=0; i<registration.stores.length; i++) {
         registration.stores[i].name = registration.name + '-store-' + i; // need this for my own tracking
-        riot.control.trigger(riot.EVT.riotControlStore.in.riotContolAddStore,registration.stores[i].name,registration.stores[i].store);
+        registration.stores[i].store.initialize();
+        riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.riotContolAddStore,registration.stores[i].name,registration.stores[i].store);
       }
       // 2. fire post load events
       for(var i=0; i<registration.postLoadEvents.length; i++) {
         riot.control.trigger(registration.postLoadEvents[i].event,registration.postLoadEvents[i].data);
       }
-      self.trigger('plugin-registration-ack', {state:true,registration:registration});
+      this.trigger(Constants.WELLKNOWN_EVENTS.out.pluginRegistrationAck, {state:true,registration:registration});
     }else{
-      self.trigger('plugin-registration-ack', {state:false,registration:registration,error:'plugin already registered!'});
+      this.trigger(Constants.WELLKNOWN_EVENTS.out.pluginRegistrationAck, {state:false,registration:registration,error:'plugin already registered!'});
     }
   }
 }

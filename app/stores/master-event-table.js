@@ -1,12 +1,19 @@
 
+import ProgressStore            from './progress-store.js';
+import FetchStore               from './fetch-store.js';
+import DynamicJsCssLoaderStore  from './dynamic-jscss-loader-store.js';
+import ComponentLoaderStore     from './component-loader-store.js';
+import LocalStorageStore        from './localstorage-store.js';
+import ErrorStore               from './error-store.js';
+import RouteStore               from './route-store.js';
+import RiotControlStore         from './riotcontrol-store.js';
+import RiotControlDispatchStore from './riotcontrol-dispatch-store.js';
+import PluginRegistrationStore  from './plugin-registration-store.js';
+import StartupStore             from './startup-store.js';
+ 
 var namespace = 'P7HostCore';
 riot.EVT = {
-	app:{
-		out:{
-			appMount: 'app-mount',
-			appUnmount: 'app-unmount'
-		}
-	},
+ 
 	router:{
 		out:{
 			contributeRoutes: 'contribute-routes',
@@ -23,80 +30,14 @@ riot.EVT = {
 };
 
 
-riot.EVT.progressStore ={
-    in:{
-        inprogressDone:namespace+'inprogress-done',
-        inprogressStart:namespace+'inprogress-start'
-    },
-    out:{
-        progressStart:namespace+'progress-start',
-        progressCount:namespace+'progress-count',
-        progressDone:namespace+'progress-done'
-    }
-};
-
-riot.EVT.routeStore ={
-	in:{
-		routeCatchallReset:'route-catchall-reset',
-		routeDispatch:'riot-route-dispatch'
-	},
-	out:{
-	  	riotRouteDispatchAck:'riot-route-dispatch-ack'
-	}
-};
-riot.EVT.dynamicJsCssLoaderStore ={
-    in:{
-    	loadExternalJsCss:namespace + 'load-external-jscss',
-    	unloadExternalJsCss:namespace + 'unload-external-jscss'
-    },
-    out:{
-    	loadExternalJsCssAck:namespace + 'load-external-jscss-ack',
-    	unloadExternalJsCssAck:namespace + 'unload-external-jscss-ack'
-    }
-};
-
-riot.EVT.componentLoaderStore = { 
-  in : {
-    addDynamicComponent: 'add-dynamic-component',
-    addDynamicComponents: 'add-dynamic-components',
-    loadDynamicComponent: 'load-dynamic-component',
-    unloadDynamicComponent: 'unload-dynamic-component',
-    componentLoadComplete: 'component-load-complete',
-    componentUnloadComplete:'component-unload-complete'
-     
-  },
-  out: {
-    allComponentsLoadComplete: 'all-components-load-complete',
-    componentLoaderStoreStateUpdated: 'component-loader-store-state-updated',
-    loadExternalJsCss: riot.EVT.dynamicJsCssLoaderStore.in.loadExternalJsCss,
-    unloadExternalJsCss: riot.EVT.dynamicJsCssLoaderStore.in.unloadExternalJsCss
-   
-  }
-};
-riot.EVT.errorStore ={
-    in:{
-      errorCatchAll:namespace+'error-catch-all:'
-    },
-    out:{
-     
-    }
-};
-riot.EVT.fetchStore ={
-    in:{
-        fetch:namespace +'fetch'
-    },
-    out:{
-        inprogressDone:riot.EVT.progressStore.in.inprogressDone,
-        inprogressStart:riot.EVT.progressStore.in.inprogressStart
-    }
-};
-
-riot.EVT.localStorageStore ={
-    in:{
-        localstorageSet:'localstorage-set',
-        localstorageGet:'localstorage-get',
-        localstorageRemove:'localstorage-remove',
-        localstorageClear:'localstorage-clear'
-    },
-    out:{}
-};
+riot.EVT.progressStore              = ProgressStore.getConstants().WELLKNOWN_EVENTS;
+riot.EVT.routeStore                 = RouteStore.getConstants().WELLKNOWN_EVENTS;
+riot.EVT.dynamicJsCssLoaderStore    = DynamicJsCssLoaderStore.getConstants().WELLKNOWN_EVENTS;
+riot.EVT.componentLoaderStore       = ComponentLoaderStore.getConstants().WELLKNOWN_EVENTS;
+riot.EVT.errorStore                 = ErrorStore.getConstants().WELLKNOWN_EVENTS;
+riot.EVT.fetchStore                 = FetchStore.getConstants().WELLKNOWN_EVENTS;
+riot.EVT.localStorageStore          = LocalStorageStore.getConstants().WELLKNOWN_EVENTS;
+riot.EVT.riotControlStore           = RiotControlStore.getConstants().WELLKNOWN_EVENTS;
+riot.EVT.riotControlDispatchStore   = RiotControlDispatchStore.getConstants().WELLKNOWN_EVENTS;
+riot.EVT.pluginRegistrationStore    = PluginRegistrationStore.getConstants().WELLKNOWN_EVENTS;
+riot.EVT.startupStore               = StartupStore.getConstants().WELLKNOWN_EVENTS;

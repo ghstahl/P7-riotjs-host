@@ -8,12 +8,12 @@ import ComponentLoaderStore     	from './stores/component-loader-store.js';
 import ErrorStore               	from './stores/error-store.js';
 import FetchStore           		from './stores/fetch-store.js';
 import LocalStorageStore         	from './stores/localstorage-store.js';
-import RiotControlStore 			from './stores/RiotControlStore.js';
-import RouteStore 					from './stores/RouteStore.js';
+import RiotControlStore 			from './stores/riotcontrol-store.js';
+import RouteStore 					from './stores/route-store.js';
 import RouteContributionStore 		from './stores/route-contribution-store.js';
 import PluginRegistrationStore 		from './stores/plugin-registration-store.js';
 import StartupStore 				from './stores/startup-store.js';
-import RiotControlDispatcherStore 	from './stores/RiotControlDispatcherStore.js';
+import RiotControlDispatchStore 	from './stores/riotcontrol-dispatch-store.js';
 import './stores/master-event-table.js';
 class P7HostCore{
   constructor(){
@@ -50,7 +50,7 @@ class P7HostCore{
 	self._riotControlStore 				= new RiotControlStore();
 	self._routeStore 					= new RouteStore();
 	self._pluginRegistrationStore 		= new PluginRegistrationStore();
-	self._riotControlDispatcherStore 	= new RiotControlDispatcherStore();
+	self._riotControlDispatchStore 		= new RiotControlDispatchStore();
 	self._startupStore 					= new StartupStore();
 
 	self._progressStore.bindEvents();
@@ -62,7 +62,7 @@ class P7HostCore{
 	self._riotControlStore.bindEvents();
 	self._routeStore.bindEvents();
 	self._pluginRegistrationStore.bindEvents();
-	self._riotControlDispatcherStore.bindEvents();
+	self._riotControlDispatchStore.bindEvents();
 	self._startupStore.bindEvents();
 
 	riot.control.addStore(self._progressStore);
@@ -74,7 +74,7 @@ class P7HostCore{
 	riot.control.addStore(self._riotControlStore);
 	riot.control.addStore(self._routeStore);
 	riot.control.addStore(self._pluginRegistrationStore);
-	riot.control.addStore(self._riotControlDispatcherStore);
+	riot.control.addStore(self._riotControlDispatchStore);
 	riot.control.addStore(self._startupStore);
 
    }

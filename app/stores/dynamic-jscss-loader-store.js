@@ -47,28 +47,65 @@ events:{
 	]
 
 }
+
 	 
 	 
 	*/
+
+class Constants {}
+Constants.NAME = 'dynamicjscss-loader-store';
+Constants.NAMESPACE = Constants.NAME+':';
+Constants.WELLKNOWN_EVENTS = {
+    in:{
+    	loadExternalJsCss:Constants.NAMESPACE + 'load-external-jscss',
+    	unloadExternalJsCss:Constants.NAMESPACE + 'unload-external-jscss'
+    },
+    out:{
+    	loadExternalJsCssAck:Constants.NAMESPACE + 'load-external-jscss-ack',
+    	unloadExternalJsCssAck:Constants.NAMESPACE + 'unload-external-jscss-ack'
+    }
+};
+Object.freeze(Constants);
+
 class DynamicJsCssLoaderStore{
+	
+	static getConstants(){
+        return Constants;
+    }
+
 	constructor(){
-		var self = this;
-		self.name = 'DynamicJsCssLoaderStore';
-		self.namespace = self.name + ':';
-		self._componentsAddedSet = new Set();
+		riot.observable(this);
+		this._componentsAddedSet = new Set();
+		this._bound = false;
+		this.bindEvents();
 	}
 
-
+	bindEvents(){
+		if(this._bound == true){
+			return;
+		}
+    	this.on(Constants.WELLKNOWN_EVENTS.in.loadExternalJsCss,	this._safeLoadExternal);
+    	this.on(Constants.WELLKNOWN_EVENTS.in.unloadExternalJsCss,	this._removeExternal);
+    	this._bound = true;
+    }
+	unbindEvents(){
+		if(this._bound == false){
+			return;
+		}
+    	this.off(Constants.WELLKNOWN_EVENTS.in.loadExternalJsCss,	this._safeLoadExternal);
+    	this.off(Constants.WELLKNOWN_EVENTS.in.unloadExternalJsCss,	this._removeExternal);
+    	this._bound = false;
+    }
 	_addComponent(component){
 		if(this._findComponent(component) == null){
-			var mySet = this._componentsAddedSet;
+			let mySet = this._componentsAddedSet;
 			mySet.add(component)
 			
 		}
 	}
 
 	_findComponent(component){
-	    var mySet = this._componentsAddedSet;
+	    let mySet = this._componentsAddedSet;
 	    for (let item of mySet) {
 	        if(item.key === component.key)
 	          return item;
@@ -77,7 +114,7 @@ class DynamicJsCssLoaderStore{
 	  }
 
 	_deleteComponent(component){
-	    var mySet = this._componentsAddedSet;
+	    let mySet = this._componentsAddedSet;
 	    for (let item of mySet) {
 	        if(item.key === component.key){
 	          mySet.delete(item);
@@ -87,27 +124,27 @@ class DynamicJsCssLoaderStore{
 	  }
 
 	_safeLoadExternal(component){
-		var addedCompoment = this._findComponent(component);
+		let addedCompoment = this._findComponent(component);
 		if(addedCompoment == null){
 			this._loadExternal(component);
 			this._addComponent(component);
 		    console.log('load-external-jscss',component);
-		    riot.control.trigger(riot.EVT.dynamicJsCssLoaderStore.out.loadExternalJsCssAck, 
+		    riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.loadExternalJsCssAck, 
 		    	{state:true,component:component});
 	    }
 	    else{
 	    	console.error("file already added!",component);
-		    riot.control.trigger(riot.EVT.dynamicJsCssLoaderStore.out.loadExternalJsCssAck, {
+		    riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.loadExternalJsCssAck, {
 		    	state:false,
 		    	component:component,
 		    	error:"component already added!"});
 	    }
 	}
 	_removeExternalByFile(filename,filetype){
-		var targetelement=(filetype=="js")? "script" : (filetype=="css")? "link" : "none" //determine element type to create nodelist from
-    	var targetattr=(filetype=="js")? "src" : (filetype=="css")? "href" : "none" //determine corresponding attribute to test for
-    	var allsuspects=document.getElementsByTagName(targetelement)
-    	for (var i=allsuspects.length; i>=0; i--){ //search backwards within nodelist for matching elements to remove
+		let targetelement=(filetype=="js")? "script" : (filetype=="css")? "link" : "none" //determine element type to create nodelist from
+    	let targetattr=(filetype=="js")? "src" : (filetype=="css")? "href" : "none" //determine corresponding attribute to test for
+    	let allsuspects=document.getElementsByTagName(targetelement)
+    	for (let i=allsuspects.length; i>=0; i--){ //search backwards within nodelist for matching elements to remove
 		    if (	allsuspects[i] 
 		    	&& 	allsuspects[i].getAttribute(targetattr)!=null 
 		    	&& 	allsuspects[i].getAttribute(targetattr).indexOf(filename)!=-1){
@@ -118,15 +155,15 @@ class DynamicJsCssLoaderStore{
 
 	}
 	_removeExternal(component){
-		var addedCompoment = this._findComponent(component);
+		let addedCompoment = this._findComponent(component);
 		if(addedCompoment == null){
-			riot.control.trigger(riot.EVT.dynamicJsCssLoaderStore.out.unloadExternalJsCssAck, {
+			riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.unloadExternalJsCssAck, {
 		    	state:false,
 		    	component:component,
 		    	error:"no entry found to remove!",});
 		}else{
-			var jsBundle = component.jsBundle;
-			var cssBundle = component.cssBundle;
+			let jsBundle = component.jsBundle;
+			let cssBundle = component.cssBundle;
 			if(jsBundle && jsBundle.path){
 				this._removeExternalByFile(jsBundle.path,'js');
 			}
@@ -135,7 +172,7 @@ class DynamicJsCssLoaderStore{
 			}
 			
 			this._deleteComponent(component);
-			riot.control.trigger(riot.EVT.dynamicJsCssLoaderStore.out.unloadExternalJsCssAck, {
+			riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.unloadExternalJsCssAck, {
 		    	state:true,
 		    	component:component});
 
@@ -143,11 +180,11 @@ class DynamicJsCssLoaderStore{
 	}
 
 	_loadExternal(component){
-		var jsBundle = component.jsBundle;
-		var cssBundle = component.cssBundle;
+		let jsBundle = component.jsBundle;
+		let cssBundle = component.cssBundle;
 
 		if(jsBundle && jsBundle.path){
-	        var fileref=document.createElement('script');
+	        let fileref=document.createElement('script');
 	        fileref.setAttribute("type","text/javascript");
 	        fileref.setAttribute("src", jsBundle.path);
 	        if (typeof fileref!="undefined"){
@@ -155,7 +192,7 @@ class DynamicJsCssLoaderStore{
 	    	}
 		}
 		if(cssBundle && cssBundle.path){
-	        var fileref=document.createElement("link");
+	        let fileref=document.createElement("link");
 	        fileref.setAttribute("rel", "stylesheet");
 	        fileref.setAttribute("type", "text/css");
 	        fileref.setAttribute("href", cssBundle.path);
@@ -166,12 +203,7 @@ class DynamicJsCssLoaderStore{
 	   
 	}
 
-  	bindEvents(){
-  		var self = this;
-  		riot.observable(self);
-    	self.on(riot.EVT.dynamicJsCssLoaderStore.in.loadExternalJsCss,	self._safeLoadExternal);
-    	self.on(riot.EVT.dynamicJsCssLoaderStore.in.unloadExternalJsCss,self._removeExternal);
-    }
+  	
   
 }
 export default DynamicJsCssLoaderStore;

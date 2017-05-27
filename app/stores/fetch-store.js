@@ -1,58 +1,54 @@
 /**
  * Created by Herb on 9/27/2016.
  */
-// TodoStore definition.
-// Flux stores house application logic and state that relate to a specific domain.
-// In this case, a list of todo items.
+
 import 'whatwg-fetch';
+import ProgressStore from './progress-store.js';
 
-function FetchStore() {
-    var self = this
-    self.name = 'FetchStore';
-    self.namespace = self.name+':';
+const PSWKE = ProgressStore.getConstants().WELLKNOWN_EVENTS;
 
-    self.fetchException = null;
-   
-    self.bindEvents = () =>{
-        riot.observable(self) // Riot provides our event emitter.
+class Constants {}
+Constants.NAME = 'fetch-store';
+Constants.NAMESPACE = Constants.NAME+':';
+Constants.WELLKNOWN_EVENTS = {
+    in:{
+        fetch : Constants.NAMESPACE +'fetch'
+    },
+    out:{
+        inprogressDone:PSWKE.in.inprogressDone,
+        inprogressStart:PSWKE.in.inprogressStart
+    }
+};
+Object.freeze(Constants);
 
-        self.on(riot.EVT.app.out.appMount, function() {
-            console.log(self.name,riot.EVT.app.out.appMount);
-            riot.control.on('riot-trigger', self.onRiotTrigger);
-        })
-
-        self.on(riot.EVT.app.out.appUnmount, function() {
-            console.log(self.name,'app-unmount');
-            riot.control.off('riot-trigger', self.onRiotTrigger);
-        })
-
-        // Our store's event handlers / API.
-        // This is where we would use AJAX calls to interface with the server.
-        // Any number of views can emit actions/events without knowing the specifics of the back-end.
-        // This store can easily be swapped for another, while the view components remain untouched.
-
-        self.on(riot.EVT.fetchStore.in.fetch, function(input,init,trigger,jsonFixup = true) {
-            console.log(riot.EVT.fetchStore.in.fetch,input,init,trigger,jsonFixup);
-            self.doRiotControlFetchRequest(input,init,trigger,jsonFixup);
-        })
+class FetchStore{
+    static getConstants(){
+        return Constants;
+    }
+    constructor(){
+        riot.observable(this);
+        this._bound = false;
+        this.bindEvents();
     }
 
-    /**
-     * Reset tag attributes to hide the errors and cleaning the results list
-     */
-    self.resetData = function() {
-        self.fetchException = null;
-    }
-
-    self.onRiotTrigger = (query,data)=>{
-        if(query.query){
-            riot.control.trigger(query.evt,query.query);
-        }else{
-            riot.control.trigger(query.evt);
+    bindEvents(){
+        if(this._bound == true){
+            return;
         }
+        this.on(Constants.WELLKNOWN_EVENTS.in.fetch, this._onFetch);
+        this._bound = true;
     }
-    
-    self.doRiotControlFetchRequest = function(input,init,trigger,jsonFixup ) {
+    unbindEvents(){
+        if(this._bound == false){
+            return;
+        }
+        this.off(Constants.WELLKNOWN_EVENTS.in.fetch, this._onFetch);
+        this._bound = false;
+    }
+
+    _onFetch(input,init,trigger,jsonFixup = true) {
+        console.log(Constants.WELLKNOWN_EVENTS.in.fetch,input,init,trigger,jsonFixup);
+
         // we are a json shop
 
         riot.control.trigger(riot.EVT.fetchStore.out.inprogressStart);
@@ -77,7 +73,7 @@ function FetchStore() {
             }
 
             if(init.body){
-                var type = typeof(init.body)
+                let type = typeof(init.body)
                 if(type === 'object'){
                     init.body = JSON.stringify(init.body)
                 }
@@ -88,7 +84,7 @@ function FetchStore() {
 
         fetch(input,init).then(function (response) {
             riot.control.trigger(riot.EVT.fetchStore.out.inprogressDone);
-            var result = {response:response};
+            let result = {response:response};
             if(response.status == 204){
                 result.error = 'Fire the person that returns this 204 garbage!';
                 riot.control.trigger(myTrigger.name,result,myTrigger);
@@ -114,13 +110,11 @@ function FetchStore() {
             riot.control.trigger(riot.EVT.fetchStore.out.inprogressDone);
         });
     }
-
-    // The store emits change events to any listening views, so that they may react and redraw themselves.
-
 }
+export default FetchStore;
 
-if (typeof(module) !== 'undefined') module.exports = FetchStore;
 
+ 
 
 
 

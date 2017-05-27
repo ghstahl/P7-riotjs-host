@@ -2,44 +2,74 @@
  * Created by Herb on 9/27/2016.
  */
 
-
-function ProgressStore() {
-    var self = this
-    self.name = 'ProgressStore';
-    self.namespace = self.name + ':';
-
-   
-
-    self.count = 0;
-
-    self.bindEvents = () =>{
-        riot.observable(self) // Riot provides our event emitter.
-        self.on(riot.EVT.progressStore.in.inprogressStart, function() {
-            if(self.count == 0){
-                self.trigger(riot.EVT.progressStore.out.progressStart)
-            }
-            ++self.count;
-            self.trigger(riot.EVT.progressStore.out.progressCount,self.count);
-        })
-        self.on(riot.EVT.progressStore.in.inprogressDone, function() {
-            if(self.count == 0){
-                // very bad.
-                console.error(riot.EVT.progressStore.in.inprogressDone,'someone has their inprogress_done mismatched with thier inprogress_start');
-            }
-            if(self.count > 0){
-                --self.count;
-            }
-            self.trigger(riot.EVT.progressStore.out.progressCount,self.count);
-            if(self.count == 0){
-                self.trigger(riot.EVT.progressStore.out.progressDone)
-            }
-        })
+class Constants {}
+Constants.NAME = 'progress-store';
+Constants.NAMESPACE = Constants.NAME+':';
+Constants.WELLKNOWN_EVENTS = {
+    in:{
+        inprogressDone:Constants.NAMESPACE+'inprogress-done',
+        inprogressStart:Constants.NAMESPACE+'inprogress-start'
+    },
+    out:{
+        progressStart:Constants.NAMESPACE+'progress-start',
+        progressCount:Constants.NAMESPACE+'progress-count',
+        progressDone:Constants.NAMESPACE+'progress-done'
     }
-  
+};
+Object.freeze(Constants);
+
+class ProgressStore{
+    static getConstants(){
+        return Constants;
+    }
+    constructor(){
+         riot.observable(this);
+        this._count = 0;
+        this._bound = false;
+        this.bindEvents();
+    }
+    bindEvents(){
+        if(this._bound == true){
+            return;
+        }
+        this.on(Constants.WELLKNOWN_EVENTS.in.inprogressStart, this._onInProgressStart);
+        this.on(Constants.WELLKNOWN_EVENTS.in.inprogressDone, this._onInProgressDone);
+        this._bound = true;
+    }
+    unbindEvents(){
+        if(this._bound == false){
+            return;
+        }
+        this.off(Constants.WELLKNOWN_EVENTS.in.inprogressStart, this._onInProgressStart);
+        this.off(Constants.WELLKNOWN_EVENTS.in.inprogressDone, this._onInProgressDone);
+        this._bound = trfalseue;
+    }
+    _onInProgressStart() {
+        if(this._count == 0){
+            this.trigger(Constants.WELLKNOWN_EVENTS.out.progressStart)
+        }
+        ++this._count;
+        this.trigger(Constants.WELLKNOWN_EVENTS.out.progressCount,this._count);
+    }
+    _onInProgressDone() {
+        if(this.count == 0){
+            // very bad.
+            console.error(Constants.WELLKNOWN_EVENTS.in.inprogressDone,
+                'someone has their inprogress_done mismatched with thier inprogress_start');
+        }
+        if(this._count > 0){
+            --this._count;
+        }
+        this.trigger(Constants.WELLKNOWN_EVENTS.out.progressCount,this._count);
+        if(this._count == 0){
+            this.trigger(Constants.WELLKNOWN_EVENTS.out.progressDone)
+        }
+    }
+
 }
+export default ProgressStore;
 
 
-if (typeof(module) !== 'undefined') module.exports = ProgressStore;
 
 
 

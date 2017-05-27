@@ -12,7 +12,7 @@
   self.on('mount', () => {
     riot.control.on('startup-tag-fetch-config-ack',
                     self.onStartupTagFetchConfigAck);
-    riot.control.trigger('StartupStore:fetch-config',self.config,
+    riot.control.trigger(riot.EVT.startupStore.in.fetchConfig,self.config,
       {evt:'startup-tag-fetch-config-ack'});
   });
 

@@ -1,107 +1,146 @@
 import '../app.tag';
 import Router     from '../router.js';
+import ComponentLoaderStore     from './component-loader-store.js';
+import RouteStore               from './route-store.js';
+
+const CLSWKE = ComponentLoaderStore.getConstants().WELLKNOWN_EVENTS;
+const RSWKE = RouteStore.getConstants().WELLKNOWN_EVENTS;
+
+class Constants {}
+Constants.NAME = 'startup-store';
+Constants.NAMESPACE = Constants.NAME+':';
+Constants.WELLKNOWN_EVENTS = {
+  in:{
+    start:Constants.NAMESPACE + 'start',
+    fetchConfig:Constants.NAMESPACE + 'fetch-config',
+    fetchConfigResult:Constants.NAMESPACE + 'fetch-config-result',
+    fetchConfigResult2:Constants.NAMESPACE + 'fetch-config-result2',
+    componentsAdded:Constants.NAMESPACE + 'components-added',
+    allComponentsLoadComplete:CLSWKE.out.allComponentsLoadComplete
+  },
+  out:{
+    routeCatchallReset:RSWKE.in.routeCatchallReset
+  }
+};
+
+Object.freeze(Constants);
 
 class StartupStore{
-
+  static getConstants(){
+      return Constants;
+  }
   constructor(){
-    var self = this;
-    self.name = 'StartupStore';
-    self.namespace = self.name +':';
-    riot.EVT.startupStore ={
-        in:{
-          start:self.namespace + 'start',
-          fetchConfig:self.namespace + 'fetch-config',
-          fetchConfigResult:self.namespace + 'fetch-config-result',
-          fetchConfigResult2:self.namespace + 'fetch-config-result2',
-          componentsAdded:self.namespace + 'components-added',
-          allComponentsLoadComplete:riot.EVT.componentLoaderStore.out.allComponentsLoadComplete
-        },
-        out:{
-          routeCatchallReset:riot.EVT.routeStore.in.routeCatchallReset
-        }
-    }
-
-    self._startupComplete = false;
-    
-    
+    riot.observable(this);
+    this._bound = false;
+    this._startupComplete = false;
+    this._done = false;
   }
   bindEvents(){
-    var self = this;
-    riot.observable(self);
-    self._done = false;
-    //------------------------------------------------------------
-    self.on(riot.EVT.startupStore.in.start, (nextTag) => {
-      console.log(self.name,riot.EVT.startupStore.in.start,self._done,nextTag);
-      if(self._done){
-        return;
-      }
-
-      if(!nextTag){
-        nextTag = 'app';
-      }
-      riot.mount(nextTag);
-      if(nextTag == 'app'){
-        self._done = true;
-        // only when the nextTag is 'app' do we engage the router.
-        // 'app' is last
-        riot.router = new Router();
-        riot.route.start(true);
-      }
-      
-    });
-     
-    //------------------------------------------------------------
-    self.on(riot.EVT.startupStore.in.fetchConfig, (path,ack) => {
-      console.log(self.name,riot.EVT.startupStore.in.fetchConfig,path);
-      var url = path;
-      var trigger = {
-        name:riot.EVT.startupStore.in.fetchConfigResult,
-        ack:ack
-      };
-      var trigger2 = {
-        name:riot.EVT.startupStore.in.fetchConfigResult2,
-        ack:ack
-      };
-      riot.control.trigger(riot.EVT.fetchStore.in.fetch,url,{method:'HEAD'},trigger2);
-      riot.control.trigger(riot.EVT.fetchStore.in.fetch,url,null,trigger);
-    });
-
-
-
-    //------------------------------------------------------------
-    self.on(riot.EVT.startupStore.in.fetchConfigResult2, (result,myTrigger) => {
-      console.log(self.name,riot.EVT.startupStore.in.fetchConfigResult2,result,myTrigger);
+    
+    if(this._bound == false){
+      //------------------------------------------------------------
+      this.on(Constants.WELLKNOWN_EVENTS.in.start, this._onStart);
        
-    });
+      //------------------------------------------------------------
+      this.on(Constants.WELLKNOWN_EVENTS.in.fetchConfig, this._onFetchConfig);
 
-    //------------------------------------------------------------
-    self.on(riot.EVT.startupStore.in.fetchConfigResult, (result,myTrigger) => {
-      console.log(self.name,riot.EVT.startupStore.in.fetchConfigResult,result,myTrigger);
-      if(result.error || !result.response.ok){
-        riot.control.trigger(riot.EVT.errorStore.in.errorCatchAll,{code:'startup-config1234'});
-      }else{
-        riot.control.trigger(riot.EVT.componentLoaderStore.in.addDynamicComponents
-          ,result.json.components,{evt:riot.EVT.startupStore.in.componentsAdded,
-            ack:myTrigger.ack});
-      }
-    });
+      //------------------------------------------------------------
+      this.on(Constants.WELLKNOWN_EVENTS.in.fetchConfigResult2, this._onFetchConfigResult2);
 
-    //------------------------------------------------------------
-    self.on(riot.EVT.startupStore.in.componentsAdded, (ack) => {
-      console.log(self.name,riot.EVT.startupStore.in.componentsAdded,ack);
-      riot.control.trigger(ack.ack.evt,ack.ack);
+      //------------------------------------------------------------
+      this.on(Constants.WELLKNOWN_EVENTS.in.fetchConfigResult, this._onFetchConfigResult);
 
-    });
+      //------------------------------------------------------------
+      this.on(Constants.WELLKNOWN_EVENTS.in.componentsAdded, this._onComponentsAdded);
 
-    // this is the one and only handler when components are added and loaded.
-    // it is meant to trigger a route rebuild.
-    self.onAllComponentsLoadComplete = () =>{
-      console.log(self.name,riot.EVT.startupStore.in.allComponentsLoadComplete);
-      riot.control.trigger(riot.EVT.startupStore.out.routeCatchallReset);
+      //------------------------------------------------------------
+      this.on(Constants.WELLKNOWN_EVENTS.in.allComponentsLoadComplete, 
+        this._onAllComponentsLoadComplete);
+      this._bound = true;
+
     }
-    //------------------------------------------------------------
-    self.on(riot.EVT.startupStore.in.allComponentsLoadComplete, 
-      self.onAllComponentsLoadComplete);
+  }
+  unbindEvents(){
+    
+    if(this._bound == true){
+      //------------------------------------------------------------
+      this.off(Constants.WELLKNOWN_EVENTS.in.start, this._onStart);
+       
+      //------------------------------------------------------------
+      this.off(Constants.WELLKNOWN_EVENTS.in.fetchConfig, this._onFetchConfig);
+
+      //------------------------------------------------------------
+      this.off(Constants.WELLKNOWN_EVENTS.in.fetchConfigResult2, this._onFetchConfigResult2);
+
+      //------------------------------------------------------------
+      this.off(Constants.WELLKNOWN_EVENTS.in.fetchConfigResult, this._onFetchConfigResult);
+
+      //------------------------------------------------------------
+      this.off(Constants.WELLKNOWN_EVENTS.in.componentsAdded, this._onComponentsAdded);
+
+      //------------------------------------------------------------
+      this.off(Constants.WELLKNOWN_EVENTS.in.allComponentsLoadComplete, 
+        this._onAllComponentsLoadComplete);
+      this._bound = false;
+
+    }
+  }
+  // this is the one and only handler when components are added and loaded.
+  // it is meant to trigger a route rebuild.
+  _onAllComponentsLoadComplete(){
+    console.log(Constants.NAME,Constants.WELLKNOWN_EVENTS.in.allComponentsLoadComplete);
+    riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.routeCatchallReset);
+  }
+  _onComponentsAdded(ack){
+    console.log(Constants.NAME,Constants.WELLKNOWN_EVENTS.in.componentsAdded,ack);
+    riot.control.trigger(ack.ack.evt,ack.ack);
+  }
+  _onFetchConfigResult(result,myTrigger){
+    console.log(Constants.NAME,Constants.WELLKNOWN_EVENTS.in.fetchConfigResult,result,myTrigger);
+    if(result.error || !result.response.ok){
+      riot.control.trigger(riot.EVT.errorStore.in.errorCatchAll,{code:'startup-config1234'});
+    }else{
+      riot.control.trigger(riot.EVT.componentLoaderStore.in.addDynamicComponents
+        ,result.json.components,{evt:Constants.WELLKNOWN_EVENTS.in.componentsAdded,
+          ack:myTrigger.ack});
+    }
+  }
+  _onFetchConfigResult2(result,myTrigger){
+    console.log(Constants.NAME,Constants.WELLKNOWN_EVENTS.in.fetchConfigResult2,
+      result,myTrigger);
+  }
+  _onFetchConfig(path,ack){
+    console.log(Constants.NAME,Constants.WELLKNOWN_EVENTS.in.fetchConfig,path);
+    var url = path;
+    var trigger = {
+      name:Constants.WELLKNOWN_EVENTS.in.fetchConfigResult,
+      ack:ack
+    };
+    var trigger2 = {
+      name:Constants.WELLKNOWN_EVENTS.in.fetchConfigResult2,
+      ack:ack
+    };
+    riot.control.trigger(riot.EVT.fetchStore.in.fetch,url,{method:'HEAD'},trigger2);
+    riot.control.trigger(riot.EVT.fetchStore.in.fetch,url,null,trigger);
+  }
+  _onStart(nextTag) {
+    console.log(Constants.NAME,Constants.WELLKNOWN_EVENTS.in.start,this._done,nextTag);
+    if(this._done){
+      return;
+    }
+
+    if(!nextTag){
+      nextTag = 'app';
+    }
+    riot.mount(nextTag);
+    if(nextTag == 'app'){
+      this._done = true;
+      // only when the nextTag is 'app' do we engage the router.
+      // 'app' is last
+      riot.router = new Router();
+      riot.route.start(true);
+    }
+    
   }
 }
 export default StartupStore;
