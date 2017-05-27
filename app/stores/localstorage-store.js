@@ -5,15 +5,6 @@
 function LocalStorageStore() {
     var self = this
     self.name = 'LocalStorageStore';
-    riot.EVT.localStorageStore ={
-        in:{
-            localstorageSet:'localstorage-set',
-            localstorageGet:'localstorage-get',
-            localstorageRemove:'localstorage-remove',
-            localstorageClear:'localstorage-clear'
-        },
-        out:{}
-    }
 
     self.bindEvents = () => {
         riot.observable(self) // Riot provides our event emitter.

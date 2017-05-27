@@ -55,16 +55,6 @@ class DynamicJsCssLoaderStore{
 		var self = this;
 		self.name = 'DynamicJsCssLoaderStore';
 		self.namespace = self.name + ':';
-		riot.EVT.dynamicJsCssLoaderStore ={
-	        in:{
-	        	loadExternalJsCss:self.namespace + 'load-external-jscss',
-	        	unloadExternalJsCss:self.namespace + 'unload-external-jscss'
-	        },
-	        out:{
-	        	loadExternalJsCssAck:self.namespace + 'load-external-jscss-ack',
-	        	unloadExternalJsCssAck:self.namespace + 'unload-external-jscss-ack'
-	        }
-	    }
 		self._componentsAddedSet = new Set();
 	}
 

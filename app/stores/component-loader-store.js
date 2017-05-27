@@ -37,30 +37,7 @@ class ComponentLoaderStore {
         var self = this;
         self.name = 'ComponentLoaderStore';
         self.namespace = self.name + ':';
-        riot.EVT.componentLoaderStore = { 
-          in : {
-            addDynamicComponent: 'add-dynamic-component',
-            addDynamicComponents: 'add-dynamic-components',
-            loadDynamicComponent: 'load-dynamic-component',
-            unloadDynamicComponent: 'unload-dynamic-component',
-            componentLoadComplete: 'component-load-complete',
-            componentUnloadComplete:'component-unload-complete'
-             
-          },
-          out: {
-            allComponentsLoadComplete: 'all-components-load-complete',
-            componentLoaderStoreStateUpdated: 'component-loader-store-state-updated',
-            loadExternalJsCss: riot.EVT.dynamicJsCssLoaderStore.in.loadExternalJsCss,
-            unloadExternalJsCss: riot.EVT.dynamicJsCssLoaderStore.in.unloadExternalJsCss
-           
-          }
-        };
-
-       
-        
-        self.wellKnownEvents = {
-          
-            
+        self.wellKnownEvents = {           
             loadExternalJsCssAck: riot.EVT.dynamicJsCssLoaderStore.out.loadExternalJsCssAck,
             unloadExternalJsCssAck: riot.EVT.dynamicJsCssLoaderStore.out.unloadExternalJsCssAck,
             componentLoadComplete: riot.EVT.componentLoaderStore.in.componentLoadComplete,

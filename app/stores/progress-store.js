@@ -8,24 +8,12 @@ function ProgressStore() {
     self.name = 'ProgressStore';
     self.namespace = self.name + ':';
 
-    riot.observable(self) // Riot provides our event emitter.
-
-    riot.EVT.progressStore ={
-        in:{
-            inprogressDone:self.namespace+'inprogress-done',
-            inprogressStart:self.namespace+'inprogress-start'
-        },
-        out:{
-            progressStart:self.namespace+'progress-start',
-            progressCount:self.namespace+'progress-count',
-            progressDone:self.namespace+'progress-done'
-        }
-        
-    }
+   
 
     self.count = 0;
 
     self.bindEvents = () =>{
+        riot.observable(self) // Riot provides our event emitter.
         self.on(riot.EVT.progressStore.in.inprogressStart, function() {
             if(self.count == 0){
                 self.trigger(riot.EVT.progressStore.out.progressStart)

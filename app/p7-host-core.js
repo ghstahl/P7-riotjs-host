@@ -14,7 +14,7 @@ import RouteContributionStore 		from './stores/route-contribution-store.js';
 import PluginRegistrationStore 		from './stores/plugin-registration-store.js';
 import StartupStore 				from './stores/startup-store.js';
 import RiotControlDispatcherStore 	from './stores/RiotControlDispatcherStore.js';
-
+import './stores/master-event-table.js';
 class P7HostCore{
   constructor(){
   	var self = this;

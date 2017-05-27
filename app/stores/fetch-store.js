@@ -10,17 +10,6 @@ function FetchStore() {
     var self = this
     self.name = 'FetchStore';
     self.namespace = self.name+':';
-    riot.EVT.fetchStore ={
-        in:{
-            fetch:self.namespace +'fetch'
-        },
-        out:{
-            inprogressDone:riot.EVT.progressStore.in.inprogressDone,
-            inprogressStart:riot.EVT.progressStore.in.inprogressStart
-        }
-    }
-
-    
 
     self.fetchException = null;
    

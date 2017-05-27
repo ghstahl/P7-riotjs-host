@@ -1,18 +1,12 @@
+import './master-event-table.js';
+
 class RouteStore{
 
   constructor(){
     var self = this;
     self.name = "RouteStore";
     self.namespace = self.name+':';
-    riot.EVT.routeStore ={
-        in:{
-          routeCatchallReset:'route-catchall-reset',
-          routeDispatch:'riot-route-dispatch'
-        },
-        out:{
-          riotRouteDispatchAck:'riot-route-dispatch-ack'
-        }
-    }
+    
     self.postResetRoute = null;
   }
 
