@@ -1,3 +1,4 @@
+import DeepFreeze from './deep-freeze.js';
 class NextConfigStore{
 
   constructor(){

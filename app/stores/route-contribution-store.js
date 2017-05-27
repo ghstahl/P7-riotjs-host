@@ -1,3 +1,5 @@
+import DeepFreeze from './deep-freeze.js';
+
 import '../pages/home.tag'
 import '../pages/projects.tag'
 import '../pages/error.tag'

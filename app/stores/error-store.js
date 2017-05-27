@@ -1,4 +1,5 @@
 
+import DeepFreeze from './deep-freeze.js';
 import RouteStore           from './route-store.js';
 const RSWKE = RouteStore.getConstants().WELLKNOWN_EVENTS;
 
@@ -13,7 +14,7 @@ Constants.WELLKNOWN_EVENTS = {
       routeDispatch:RSWKE.in.routeDispatch
     }
 };
-Object.freeze(Constants);
+DeepFreeze.freeze(Constants);
 
 class ErrorStore{
   static getConstants(){
@@ -24,6 +25,7 @@ class ErrorStore{
     riot.observable(this);
     this._bound = false;
     this._error = {}
+    this.bindEvents();
   }
 
   bindEvents(){

@@ -1,4 +1,4 @@
-
+import DeepFreeze from './deep-freeze.js';
 class Constants {}
 Constants.NAME = 'riotcontrol-store';
 Constants.NAMESPACE = Constants.NAME+':';
@@ -9,7 +9,7 @@ Constants.WELLKNOWN_EVENTS = {
   },
   out:{}
 };
-Object.freeze(Constants);
+DeepFreeze.freeze(Constants);
 
 class RiotControlStore{
   static getConstants(){

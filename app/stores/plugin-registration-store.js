@@ -19,6 +19,7 @@ var registerRecord = {
 riot.control.trigger('plugin-registration',registerRecord);
 
 */
+import DeepFreeze from './deep-freeze.js';
 import RiotControlStore         from './riotcontrol-store.js';
 const RCSWKE = RiotControlStore.getConstants().WELLKNOWN_EVENTS;
 
@@ -37,7 +38,7 @@ Constants.WELLKNOWN_EVENTS = {
       riotContolAddStore:RCSWKE.in.riotContolAddStore
     }
 };
-Object.freeze(Constants);
+DeepFreeze.freeze(Constants);
 
 class PluginRegistrationStore{
   static getConstants(){
@@ -47,6 +48,7 @@ class PluginRegistrationStore{
     riot.observable(this);
     this._registeredPlugins = new Set();
     this._bound = false;
+    this.bindEvents();
 
   }
   bindEvents(){

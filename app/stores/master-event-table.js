@@ -10,18 +10,10 @@ import RiotControlStore         from './riotcontrol-store.js';
 import RiotControlDispatchStore from './riotcontrol-dispatch-store.js';
 import PluginRegistrationStore  from './plugin-registration-store.js';
 import StartupStore             from './startup-store.js';
- 
-var namespace = 'P7HostCore';
-riot.EVT = {
- 
-	router:{
-		out:{
-			contributeRoutes: 'contribute-routes',
-	        contributeCatchAllRoute: 'contribute-catchall-route'
-	    }
-	} 
+import Router                   from './router.js';
 
-};
+var namespace = 'P7HostCore';
+riot.EVT = {};
 
 
 riot.EVT.progressStore              = ProgressStore.getConstants().WELLKNOWN_EVENTS;
@@ -35,3 +27,6 @@ riot.EVT.riotControlStore           = RiotControlStore.getConstants().WELLKNOWN_
 riot.EVT.riotControlDispatchStore   = RiotControlDispatchStore.getConstants().WELLKNOWN_EVENTS;
 riot.EVT.pluginRegistrationStore    = PluginRegistrationStore.getConstants().WELLKNOWN_EVENTS;
 riot.EVT.startupStore               = StartupStore.getConstants().WELLKNOWN_EVENTS;
+riot.EVT.router                     = Router.getConstants().WELLKNOWN_EVENTS;
+
+

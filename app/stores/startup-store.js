@@ -1,5 +1,6 @@
+import DeepFreeze from './deep-freeze.js';
 import '../app.tag';
-import Router     from '../router.js';
+import Router     from './router.js';
 import ComponentLoaderStore     from './component-loader-store.js';
 import RouteStore               from './route-store.js';
 
@@ -23,7 +24,8 @@ Constants.WELLKNOWN_EVENTS = {
   }
 };
 
-Object.freeze(Constants);
+DeepFreeze.freeze(Constants);
+
 
 class StartupStore{
   static getConstants(){
@@ -34,6 +36,7 @@ class StartupStore{
     this._bound = false;
     this._startupComplete = false;
     this._done = false;
+    this.bindEvents();
   }
   bindEvents(){
     

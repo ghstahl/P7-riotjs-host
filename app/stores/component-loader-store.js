@@ -43,6 +43,8 @@ riot.control.trigger('init-component-loader-store');
 riot.control.trigger('add-dynamic-component',testComponent);
 
 */
+import DeepFreeze from './deep-freeze.js';
+
 import DynamicJsCssLoaderStore  from './dynamic-jscss-loader-store.js'
 const DJCWKE = DynamicJsCssLoaderStore.getConstants().WELLKNOWN_EVENTS;
 
@@ -69,7 +71,7 @@ Constants.WELLKNOWN_EVENTS = {
   }
 };
 
-Object.freeze(Constants);
+DeepFreeze.freeze(Constants);
 
 class ComponentLoaderStore {
 

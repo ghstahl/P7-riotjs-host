@@ -51,9 +51,9 @@ events:{
 	 
 	 
 	*/
-
+import DeepFreeze from './deep-freeze.js';
 class Constants {}
-Constants.NAME = 'dynamicjscss-loader-store';
+Constants.NAME = 'dynamic-jscss-loader-store';
 Constants.NAMESPACE = Constants.NAME+':';
 Constants.WELLKNOWN_EVENTS = {
     in:{
@@ -65,7 +65,7 @@ Constants.WELLKNOWN_EVENTS = {
     	unloadExternalJsCssAck:Constants.NAMESPACE + 'unload-external-jscss-ack'
     }
 };
-Object.freeze(Constants);
+DeepFreeze.freeze(Constants);
 
 class DynamicJsCssLoaderStore{
 	

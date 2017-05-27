@@ -1,7 +1,7 @@
 /**
  * Created by Herb on 9/27/2016.
  */
-
+import DeepFreeze from './deep-freeze.js';
 class Constants {}
 Constants.NAME = 'progress-store';
 Constants.NAMESPACE = Constants.NAME+':';
@@ -16,7 +16,7 @@ Constants.WELLKNOWN_EVENTS = {
         progressDone:Constants.NAMESPACE+'progress-done'
     }
 };
-Object.freeze(Constants);
+DeepFreeze.freeze(Constants);
 
 class ProgressStore{
     static getConstants(){

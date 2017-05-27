@@ -1,3 +1,5 @@
+import DeepFreeze from './deep-freeze.js';
+
 class SidebarStore{
 
   constructor(){

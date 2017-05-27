@@ -36,7 +36,7 @@ class P7HostCore{
 		},
 		error:{code:'unknown'},
 		route:{
-			defaultRoute:'/'
+			defaultRoute:'main/home'
 		}
 	};
 	self._riotRouteExtension 			= new RiotRouteExtension();

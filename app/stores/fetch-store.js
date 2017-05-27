@@ -1,7 +1,7 @@
 /**
  * Created by Herb on 9/27/2016.
  */
-
+import DeepFreeze from './deep-freeze.js';
 import 'whatwg-fetch';
 import ProgressStore from './progress-store.js';
 
@@ -19,7 +19,7 @@ Constants.WELLKNOWN_EVENTS = {
         inprogressStart:PSWKE.in.inprogressStart
     }
 };
-Object.freeze(Constants);
+DeepFreeze.freeze(Constants);
 
 class FetchStore{
     static getConstants(){

@@ -1,4 +1,4 @@
-
+import DeepFreeze from './deep-freeze.js';
 class Constants {}
 Constants.NAME = 'route-store';
 Constants.NAMESPACE = Constants.NAME+':';
@@ -15,7 +15,7 @@ Constants.WELLKNOWN_EVENTS = {
       riotRouteDispatchAck:'riot-route-dispatch-ack'
   }
 };
-Object.freeze(Constants);
+DeepFreeze.freeze(Constants);
 
 class RouteStore{
   
@@ -27,6 +27,7 @@ class RouteStore{
     riot.observable(this);
     this._bound = false;
     this.postResetRoute = null;
+    this.bindEvents();
   }
  
   bindEvents(){
@@ -40,7 +41,7 @@ class RouteStore{
       this._bound == true;
     }
   }
-  
+
   unbindEvents(){
     if(this._bound == true){
       this.off(Constants.WELLKNOWN_EVENTS.in.contributeCatchAllRoute, this._onContributeCatchAllRoute);
@@ -69,9 +70,11 @@ class RouteStore{
         }
       }
     }
-    r( ()=>{
+ 
+    r('/..', ()=>{
       console.log('route handler of /  ' )
-      riot.control.trigger(Constants.WELLKNOWN_EVENTS.in.routeDispatch,riot.state.route.defaultRoute);
+      riot.control.trigger(Constants.WELLKNOWN_EVENTS.in.routeDispatch,
+        riot.state.route.defaultRoute);
     }) 
     if(this.postResetRoute != null){
       var postResetRoute = this.postResetRoute;

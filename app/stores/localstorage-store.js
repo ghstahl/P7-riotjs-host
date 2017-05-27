@@ -1,6 +1,7 @@
 /**
  * Created by Herb on 9/27/2016.
  */
+import DeepFreeze from './deep-freeze.js';
 class Constants {}
 Constants.NAME = 'localstorage-store';
 Constants.NAMESPACE = Constants.NAME+':';
@@ -13,7 +14,7 @@ Constants.WELLKNOWN_EVENTS = {
     },
     out:{}
 };
-Object.freeze(Constants);
+DeepFreeze.freeze(Constants);
 
 class LocalStorageStore{
     static getConstants(){

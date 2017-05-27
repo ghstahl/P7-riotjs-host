@@ -1,38 +1,38 @@
 {
-	"components":[
-		{
-        "key":"typicode-component",
-        "jsBundle":{
-          "path":"/partial/typicode_component/bundle.js"
-        },
-        "cssBundle":{
-          "path":"/partial/typicode_component/styles.css"
-        },
-       
-        "trigger":{
-          "onLoad":[{
-              "event":"SidebarStore:sidebar-add-item",
-              "data":{
-                "title" : "My Components Page", 
-                "route" : "my-component-page/home" 
-              }
-            }
-          ],
-          "onUnload":[{
-              "event":"SidebarStore:sidebar-remove-item",
-              "data":{"title" : "My Components Page"}
-            },{
-              "event":"plugin-unregistration",
-              "data":{"name":"typicode-component"}
-            }
-          ]
-        },
-        "routeLoad":{
-        	"route":"/my-component-page.."
-        },
-        "state":{
-        	"loaded":false
+  "components": [{
+    "key": "typicode-component",
+    "jsBundle": {
+      "path": "/partial/typicode_component/bundle.js"
+    },
+    "cssBundle": {
+      "path": "/partial/typicode_component/styles.css"
+    },
+
+    "trigger": {
+      "onLoad": [{
+        "event": "SidebarStore:sidebar-add-item",
+        "data": {
+          "title": "My Components Page",
+          "route": "my-component-page/home"
         }
-      }
-	]
+      }],
+      "onUnload": [{
+        "event": "SidebarStore:sidebar-remove-item",
+        "data": {
+          "title": "My Components Page"
+        }
+      }, {
+        "event": "plugin-unregistration",
+        "data": {
+          "name": "typicode-component"
+        }
+      }]
+    },
+    "routeLoad": {
+      "route": "/my-component-page.."
+    },
+    "state": {
+      "loaded": false
+    }
+  }]
 }
