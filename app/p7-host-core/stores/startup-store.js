@@ -1,5 +1,4 @@
 import DeepFreeze from '../utils/deep-freeze.js';
-import '../../app.tag';
 import Router     from '../router.js';
 import ComponentLoaderStore     from './component-loader-store.js';
 import RouteStore               from './route-store.js';

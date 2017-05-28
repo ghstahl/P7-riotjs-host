@@ -3,9 +3,10 @@ import 'bootswatch/slate/bootstrap.css';
 import 'bootstrap';
 import './css/index.css';
 import './components/my-next-startup.tag';
-
+import './app.tag';
 
 import P7HostCore from './p7-host-core/p7-host-core.js';
+//import P7HostCore from '../dist.p7hostcore/bundle.js';
 var p7HostCore = new P7HostCore();
 p7HostCore.Initialize();
 
