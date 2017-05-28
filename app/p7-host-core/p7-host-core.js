@@ -15,56 +15,55 @@ import StartupStore 				from './stores/startup-store.js';
 import RiotControlDispatchStore 	from './stores/riotcontrol-dispatch-store.js';
 import './master-event-table.js';
 import './components/startup.tag';
-class P7HostCore{
-  constructor(){
-  	var self = this;
-  	
-  }
+
+export default class P7HostCore {
+
   Initialize() {
-  	var self = this; 
-	window.riot = riot; // need a way to not do this.  The plugins need to get access to the riot I own. 
-	riot.route = route;
-	riot.control = RiotControl;
-	riot.routeState = {};
+    var self = this;
 
-	var randomString = new RandomString();
-	var hash = randomString.randomHash();
+    window.riot = riot; // need a way to not do this.  The plugins need to get access to the riot I own.
+    riot.route = route;
+    riot.control = RiotControl;
+    riot.routeState = {};
 
-	riot.state = {
-		_internal:{
-			hash:hash,
-		},
-		error:{code:'unknown'},
-		route:{
-			defaultRoute:'main/home'
-		}
-	};
-	self._riotRouteExtension 			= new RiotRouteExtension();
+    let randomString = new RandomString();
+    let hash = randomString.randomHash();
 
-	self._progressStore 				= new ProgressStore();
-	self._dynamicJsCssLoaderStore 		= new DynamicJsCssLoaderStore();
-	self._componentLoaderStore 			= new ComponentLoaderStore();
-	self._errorStore 					= new ErrorStore();
-	self._fetchStore 					= new FetchStore();
-	self._localStorageStore 			= new LocalStorageStore();
-	self._riotControlStore 				= new RiotControlStore();
-	self._routeStore 					= new RouteStore();
-	self._pluginRegistrationStore 		= new PluginRegistrationStore();
-	self._riotControlDispatchStore 		= new RiotControlDispatchStore();
-	self._startupStore 					= new StartupStore();
+    riot.state = {
+      _internal: {
+        hash: hash
+      },
+      error: {code: 'unknown'},
+      route: {
+        defaultRoute: 'main/home'
+      }
+    };
+    self._riotRouteExtension 			= new RiotRouteExtension();
 
-	riot.control.addStore(self._progressStore);
-	riot.control.addStore(self._dynamicJsCssLoaderStore);
-	riot.control.addStore(self._componentLoaderStore);
-	riot.control.addStore(self._errorStore);
-	riot.control.addStore(self._fetchStore);
-	riot.control.addStore(self._localStorageStore);
-	riot.control.addStore(self._riotControlStore);
-	riot.control.addStore(self._routeStore);
-	riot.control.addStore(self._pluginRegistrationStore);
-	riot.control.addStore(self._riotControlDispatchStore);
-	riot.control.addStore(self._startupStore);
+    self._progressStore 				= new ProgressStore();
+    self._dynamicJsCssLoaderStore 		= new DynamicJsCssLoaderStore();
+    self._componentLoaderStore 			= new ComponentLoaderStore();
+    self._errorStore 					= new ErrorStore();
+    self._fetchStore 					= new FetchStore();
+    self._localStorageStore 			= new LocalStorageStore();
+    self._riotControlStore 				= new RiotControlStore();
+    self._routeStore 					= new RouteStore();
+    self._pluginRegistrationStore 		= new PluginRegistrationStore();
+    self._riotControlDispatchStore 		= new RiotControlDispatchStore();
+    self._startupStore 					= new StartupStore();
 
-   }
+    riot.control.addStore(self._progressStore);
+    riot.control.addStore(self._dynamicJsCssLoaderStore);
+    riot.control.addStore(self._componentLoaderStore);
+    riot.control.addStore(self._errorStore);
+    riot.control.addStore(self._fetchStore);
+    riot.control.addStore(self._localStorageStore);
+    riot.control.addStore(self._riotControlStore);
+    riot.control.addStore(self._routeStore);
+    riot.control.addStore(self._pluginRegistrationStore);
+    riot.control.addStore(self._riotControlDispatchStore);
+    riot.control.addStore(self._startupStore);
+
+  }
 }
-export default P7HostCore;
+

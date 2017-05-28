@@ -30,6 +30,7 @@ module.exports = {
 			test: /\.(png|woff|woff2|eot|ttf|svg)$/,
 			loader: 'url-loader?limit=100000'
 		},
+		 
 		{
 			test: /\.js|\.tag$/,
 			exclude: /(node_modules|bower_components)/,
@@ -46,8 +47,10 @@ module.exports = {
 	new webpack.ProvidePlugin({
 	            $: "jquery",
 	            jQuery: "jquery",
-	            "window.jQuery": "jquery",
-	            riot: 'riot'
+	            'window.jQuery': "jquery",
+	            'riot': 'riot',
+	            'riot-route': 'route',
+ 			    'riotcontrol': 'RiotControl'
 	        })
   ],
   devServer: {

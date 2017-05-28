@@ -48,162 +48,164 @@ events:{
 
 }
 
-	 
-	 
 	*/
 import DeepFreeze from '../utils/deep-freeze.js';
 class Constants {}
 Constants.NAME = 'dynamic-jscss-loader-store';
-Constants.NAMESPACE = Constants.NAME+':';
+Constants.NAMESPACE = Constants.NAME + ':';
 Constants.WELLKNOWN_EVENTS = {
-    in:{
-    	loadExternalJsCss:Constants.NAMESPACE + 'load-external-jscss',
-    	unloadExternalJsCss:Constants.NAMESPACE + 'unload-external-jscss'
-    },
-    out:{
-    	loadExternalJsCssAck:Constants.NAMESPACE + 'load-external-jscss-ack',
-    	unloadExternalJsCssAck:Constants.NAMESPACE + 'unload-external-jscss-ack'
-    }
+  in: {
+    loadExternalJsCss: Constants.NAMESPACE + 'load-external-jscss',
+    unloadExternalJsCss: Constants.NAMESPACE + 'unload-external-jscss'
+  },
+  out: {
+    loadExternalJsCssAck: Constants.NAMESPACE + 'load-external-jscss-ack',
+    unloadExternalJsCssAck: Constants.NAMESPACE + 'unload-external-jscss-ack'
+  }
 };
 DeepFreeze.freeze(Constants);
 
-class DynamicJsCssLoaderStore{
-	
-	static getConstants(){
-        return Constants;
+export default class DynamicJsCssLoaderStore {
+
+  static getConstants() {
+    return Constants;
+  }
+
+  constructor() {
+    riot.observable(this);
+    this._componentsAddedSet = new Set();
+    this._bound = false;
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    if (this._bound === false) {
+      this.on(Constants.WELLKNOWN_EVENTS.in.loadExternalJsCss,	this._safeLoadExternal);
+      this.on(Constants.WELLKNOWN_EVENTS.in.unloadExternalJsCss,	this._removeExternal);
+      this._bound = !this._bound;
+    }
+  }
+  unbindEvents() {
+    if (this._bound === true) {
+      this.off(Constants.WELLKNOWN_EVENTS.in.loadExternalJsCss,	this._safeLoadExternal);
+      this.off(Constants.WELLKNOWN_EVENTS.in.unloadExternalJsCss,	this._removeExternal);
+      this._bound = !this._bound;
+    }
+  }
+  _addComponent(component) {
+    if (this._findComponent(component) == null) {
+      let mySet = this._componentsAddedSet;
+
+      mySet.add(component);
+
+    }
+  }
+
+  _findComponent(component) {
+    let mySet = this._componentsAddedSet;
+
+    for (let item of mySet) {
+      if (item.key === component.key) {return item;}
+    }
+    return null;
+  }
+
+  _deleteComponent(component) {
+    let mySet = this._componentsAddedSet;
+
+    for (let item of mySet) {
+      if (item.key === component.key) {
+        mySet.delete(item);
+        break;
+      }
+    }
+  }
+
+  _safeLoadExternal(component) {
+    let addedCompoment = this._findComponent(component);
+
+    if (addedCompoment == null) {
+      this._loadExternal(component);
+      this._addComponent(component);
+      console.log('load-external-jscss', component);
+      riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.loadExternalJsCssAck,
+		{state: true, component: component});
+    } else {
+      console.error('file already added!', component);
+      riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.loadExternalJsCssAck, {
+        state: false,
+        component: component,
+        error: 'component already added!'});
+    }
+  }
+  _removeExternalByFile(filename, filetype) {
+    // determine element type to create nodelist from
+    let targetelement = (filetype === 'js') ? 'script' : (filetype === 'css') ? 'link' : 'none';
+    // determine corresponding attribute to test for
+    let targetattr = (filetype === 'js') ? 'src' : (filetype === 'css') ? 'href' : 'none';
+    let allsuspects = document.getElementsByTagName(targetelement);
+
+    for (let i = allsuspects.length; i >= 0; i--) { // search backwards within nodelist for matching elements to remove
+      if (allsuspects[i] 	&&
+allsuspects[i].getAttribute(targetattr) != null 	&&
+allsuspects[i].getAttribute(targetattr).indexOf(filename) !== -1) {
+        allsuspects[i].parentNode.removeChild(allsuspects[i]); // remove element by calling parentNode.removeChild()
+        break;
+      }
     }
 
-	constructor(){
-		riot.observable(this);
-		this._componentsAddedSet = new Set();
-		this._bound = false;
-		this.bindEvents();
-	}
+  }
+  _removeExternal(component) {
+    let addedCompoment = this._findComponent(component);
 
-	bindEvents(){
-		if(this._bound == true){
-			return;
-		}
-    	this.on(Constants.WELLKNOWN_EVENTS.in.loadExternalJsCss,	this._safeLoadExternal);
-    	this.on(Constants.WELLKNOWN_EVENTS.in.unloadExternalJsCss,	this._removeExternal);
-    	this._bound = true;
+    if (addedCompoment == null) {
+      riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.unloadExternalJsCssAck, {
+        state: false,
+        component: component,
+        error: 'no entry found to remove!'});
+    } else {
+      let jsBundle = component.jsBundle;
+      let cssBundle = component.cssBundle;
+
+      if (jsBundle && jsBundle.path) {
+        this._removeExternalByFile(jsBundle.path, 'js');
+      }
+      if (cssBundle && cssBundle.path) {
+        this._removeExternalByFile(cssBundle.path, 'css');
+      }
+
+      this._deleteComponent(component);
+      riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.unloadExternalJsCssAck, {
+        state: true,
+        component: component});
+
     }
-	unbindEvents(){
-		if(this._bound == false){
-			return;
-		}
-    	this.off(Constants.WELLKNOWN_EVENTS.in.loadExternalJsCss,	this._safeLoadExternal);
-    	this.off(Constants.WELLKNOWN_EVENTS.in.unloadExternalJsCss,	this._removeExternal);
-    	this._bound = false;
+  }
+
+  _loadExternal(component) {
+    let jsBundle = component.jsBundle;
+    let cssBundle = component.cssBundle;
+
+    if (jsBundle && jsBundle.path) {
+      let fileref = document.createElement('script');
+
+      fileref.setAttribute('type', 'text/javascript');
+      fileref.setAttribute('src', jsBundle.path);
+      if (typeof fileref !== 'undefined') {
+        document.getElementsByTagName('head')[0].appendChild(fileref);
+      }
     }
-	_addComponent(component){
-		if(this._findComponent(component) == null){
-			let mySet = this._componentsAddedSet;
-			mySet.add(component)
-			
-		}
-	}
+    if (cssBundle && cssBundle.path) {
+      let fileref = document.createElement('link');
 
-	_findComponent(component){
-	    let mySet = this._componentsAddedSet;
-	    for (let item of mySet) {
-	        if(item.key === component.key)
-	          return item;
-	    }
-	    return null;
-	  }
+      fileref.setAttribute('rel', 'stylesheet');
+      fileref.setAttribute('type', 'text/css');
+      fileref.setAttribute('href', cssBundle.path);
+      if (typeof fileref !== 'undefined') {
+        document.getElementsByTagName('head')[0].appendChild(fileref);
+      }
+    }
 
-	_deleteComponent(component){
-	    let mySet = this._componentsAddedSet;
-	    for (let item of mySet) {
-	        if(item.key === component.key){
-	          mySet.delete(item);
-	        	break;
-	        }
-	    }
-	  }
+  }
 
-	_safeLoadExternal(component){
-		let addedCompoment = this._findComponent(component);
-		if(addedCompoment == null){
-			this._loadExternal(component);
-			this._addComponent(component);
-		    console.log('load-external-jscss',component);
-		    riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.loadExternalJsCssAck, 
-		    	{state:true,component:component});
-	    }
-	    else{
-	    	console.error("file already added!",component);
-		    riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.loadExternalJsCssAck, {
-		    	state:false,
-		    	component:component,
-		    	error:"component already added!"});
-	    }
-	}
-	_removeExternalByFile(filename,filetype){
-		let targetelement=(filetype=="js")? "script" : (filetype=="css")? "link" : "none" //determine element type to create nodelist from
-    	let targetattr=(filetype=="js")? "src" : (filetype=="css")? "href" : "none" //determine corresponding attribute to test for
-    	let allsuspects=document.getElementsByTagName(targetelement)
-    	for (let i=allsuspects.length; i>=0; i--){ //search backwards within nodelist for matching elements to remove
-		    if (	allsuspects[i] 
-		    	&& 	allsuspects[i].getAttribute(targetattr)!=null 
-		    	&& 	allsuspects[i].getAttribute(targetattr).indexOf(filename)!=-1){
-		    	allsuspects[i].parentNode.removeChild(allsuspects[i]) //remove element by calling parentNode.removeChild()
-				break;
-	    	}     
-	    }
-
-	}
-	_removeExternal(component){
-		let addedCompoment = this._findComponent(component);
-		if(addedCompoment == null){
-			riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.unloadExternalJsCssAck, {
-		    	state:false,
-		    	component:component,
-		    	error:"no entry found to remove!",});
-		}else{
-			let jsBundle = component.jsBundle;
-			let cssBundle = component.cssBundle;
-			if(jsBundle && jsBundle.path){
-				this._removeExternalByFile(jsBundle.path,'js');
-			}
-			if(cssBundle && cssBundle.path){
-				this._removeExternalByFile(cssBundle.path,'css');
-			}
-			
-			this._deleteComponent(component);
-			riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.unloadExternalJsCssAck, {
-		    	state:true,
-		    	component:component});
-
-		}
-	}
-
-	_loadExternal(component){
-		let jsBundle = component.jsBundle;
-		let cssBundle = component.cssBundle;
-
-		if(jsBundle && jsBundle.path){
-	        let fileref=document.createElement('script');
-	        fileref.setAttribute("type","text/javascript");
-	        fileref.setAttribute("src", jsBundle.path);
-	        if (typeof fileref!="undefined"){
-	        	document.getElementsByTagName("head")[0].appendChild(fileref);
-	    	}
-		}
-		if(cssBundle && cssBundle.path){
-	        let fileref=document.createElement("link");
-	        fileref.setAttribute("rel", "stylesheet");
-	        fileref.setAttribute("type", "text/css");
-	        fileref.setAttribute("href", cssBundle.path);
-	        if (typeof fileref!="undefined"){
-	        	document.getElementsByTagName("head")[0].appendChild(fileref);
-	    	}
-		}
-	   
-	}
-
-  	
-  
 }
-export default DynamicJsCssLoaderStore;
