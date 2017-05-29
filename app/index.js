@@ -5,14 +5,13 @@ import './css/index.css';
 import './components/my-next-startup.tag';
 import './app.tag';
 
-/*
 import P7HostCore from './p7-host-core/index.js';
 let p7HostCore = new P7HostCore(riot);
-*/
 
+/*
 import P7HostCore from '../lib/P7HostCore.js';
 let p7HostCore = new P7HostCore();
-
+*/
 p7HostCore.Initialize();
 
 riot.state.sidebar = {
@@ -31,8 +30,8 @@ riot.mixin('opts-mixin', OptsMixin);
 // Add the stores
 // //////////////////////////////////////////////////////
 
-import RouteContributionStore 		from './stores/route-contribution-store.js';
-let routeContributionStore = new RouteContributionStore();
+import RouteContributer 		from './route-contributer.js';
+let routeContributer = new RouteContributer();
 
 import NextConfigStore from './stores/next-config-store.js';
 let nextConfigStore = new NextConfigStore();
@@ -41,12 +40,22 @@ import SidebarStore 				from './stores/sidebar-store.js';
 let sidebarStore = new SidebarStore();
 
 nextConfigStore.bindEvents();
-routeContributionStore.bindEvents();
 sidebarStore.bindEvents();
 
 riot.control.addStore(nextConfigStore);
-riot.control.addStore(routeContributionStore);
 riot.control.addStore(sidebarStore);
+
+let registerRecord = {
+  name: 'main-component',
+  stores: [],
+  registrants: {
+    routeContributer: routeContributer
+  },
+  postLoadEvents: [],
+  preUnloadEvents: []
+};
+
+riot.control.trigger('plugin-registration', registerRecord);
 
 let testComponent = {
   key: 'typicode-component',

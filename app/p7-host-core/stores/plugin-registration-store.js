@@ -33,6 +33,7 @@ Constants.WELLKNOWN_EVENTS = {
     pluginUnregistration: 'plugin-unregistration'
   },
   out: {
+    pluginRegistrationChanged: 'plugin-registration-changed',
     pluginRegistrationAck: 'plugin-registration-ack',
     pluginUnregistrationAck: 'plugin-unregistration-ack',
     riotContolRemoveStore: RCSWKE.in.riotContolRemoveStore,
@@ -47,9 +48,10 @@ export default class PluginRegistrationStore {
   }
   constructor() {
     riot.observable(this);
-    this._registeredPlugins = new Set();
+
     this._bound = false;
     this.bindEvents();
+    riot.state.registeredPlugins = new Set();
 
   }
   bindEvents() {
@@ -69,7 +71,7 @@ export default class PluginRegistrationStore {
 
   _findRegistration(registrationName) {
 
-    var mySet = this._registeredPlugins;
+    var mySet = riot.state.registeredPlugins;
 
     for (let item of mySet) {
       if (item.name === registrationName) {return item;}
@@ -78,7 +80,7 @@ export default class PluginRegistrationStore {
   }
   _removeRegistration(registrationName) {
 
-    var mySet = this._registeredPlugins;
+    var mySet = riot.state.registeredPlugins;
 
     for (let item of mySet) {
       if (item.name === registrationName) {
@@ -117,6 +119,8 @@ export default class PluginRegistrationStore {
           state: true,
           registration: registration
         });
+
+      riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.pluginRegistrationChanged);
     }
   }
 
@@ -125,7 +129,7 @@ export default class PluginRegistrationStore {
     var foundRegistration = this._findRegistration(registration.name);
 
     if (foundRegistration === null) {
-      this._registeredPlugins.add(registration);
+      riot.state.registeredPlugins.add(registration);
 
       // 1. Add the stores
       for (let i = 0; i < registration.stores.length; i++) {
@@ -139,6 +143,7 @@ export default class PluginRegistrationStore {
         riot.control.trigger(registration.postLoadEvents[i].event, registration.postLoadEvents[i].data);
       }
       this.trigger(Constants.WELLKNOWN_EVENTS.out.pluginRegistrationAck, {state: true, registration: registration});
+      riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.pluginRegistrationChanged);
     } else {
       this.trigger(Constants.WELLKNOWN_EVENTS.out.pluginRegistrationAck,
         {state: false, registration: registration, error: 'plugin already registered!'});

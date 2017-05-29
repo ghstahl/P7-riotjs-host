@@ -6,8 +6,6 @@ Constants.NAMESPACE = Constants.NAME + ':';
 Constants.WELLKNOWN_EVENTS = {
   in: {},
   out: {
-    contributeRoutes: 'contribute-routes',
-    contributeCatchAllRoute: 'contribute-catchall-route'
   }
 };
 
@@ -26,8 +24,46 @@ export default class Router {
 
   resetCatchAll() {
     this.r.stop();
-    riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.contributeRoutes, this.r);
-    riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.contributeCatchAllRoute, this.r);
+    let mySet = riot.state.registeredPlugins;
+
+    for (let item of mySet) {
+      if (item.registrants && item.registrants.routeContributer) {
+        item.registrants.routeContributer.contributeRoutes(this.r);
+      }
+    }
+    this._onContributeCatchAllRoute(this.r);
+  }
+
+  _onContributeCatchAllRoute(r) {
+    console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.contributeCatchAllRoute, r);
+    if (riot.state.componentLoaderState && riot.state.componentLoaderState.components) {
+      for (let item of riot.state.componentLoaderState.components) {
+        let component = item[1];
+
+        if (component.state.loaded === false) {
+          r(component.routeLoad.route, ()=>{
+            console.log('catchall route handler of:', component.routeLoad.route);
+
+            let path = riot.route.currentPath();
+
+            this.postResetRoute = path;
+            riot.control.trigger('load-dynamic-component', component.key);
+          });
+        }
+      }
+    }
+
+    r('/..', ()=>{
+      console.log('route handler of /  ');
+      riot.control.trigger(Constants.WELLKNOWN_EVENTS.in.routeDispatch,
+        riot.state.route.defaultRoute);
+    });
+    if (this.postResetRoute != null) {
+      let postResetRoute = this.postResetRoute;
+
+      this.postResetRoute = null;
+      riot.control.trigger('riot-route-dispatch', postResetRoute, true);
+    }
   }
 
   loadView(view) {
