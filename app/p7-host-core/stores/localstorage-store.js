@@ -2,6 +2,7 @@
  * Created by Herb on 9/27/2016.
  */
 import DeepFreeze from '../utils/deep-freeze.js';
+
 class Constants {}
 Constants.NAME = 'localstorage-store';
 Constants.NAMESPACE = Constants.NAME + ':';

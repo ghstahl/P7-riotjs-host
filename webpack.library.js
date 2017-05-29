@@ -5,7 +5,7 @@ const UglifyJsPlugin = webpack.optimize.UglifyJsPlugin;
 const path = require('path');
 const env = require('yargs').argv.env; // use --env with webpack 2
 
-var libraryName = 'RiotHostCore';
+var libraryName = 'P7HostCore';
 
 var plugins = [
 
@@ -14,7 +14,7 @@ var plugins = [
 outputFile = libraryName + '.js';
 
 const config = {
-  entry: __dirname + '/src/index.js',
+  entry: __dirname + '/app/p7-host-core/index.js',
   devtool: 'source-map',
   output: {
     path: __dirname + '/lib',
@@ -28,7 +28,8 @@ const config = {
     jquery: 'jQuery',
     riot: 'riot',
     'riot-route': 'riot-route',
-    'riotcontrol': 'riotcontrol'
+    'riotcontrol': 'riotcontrol',
+    'whatwg-fetch':'whatwg-fetch'
   },
   module: {
     rules: [

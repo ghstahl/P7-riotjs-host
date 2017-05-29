@@ -12,18 +12,23 @@ import PluginRegistrationStore from './stores/plugin-registration-store.js';
 import StartupStore from './stores/startup-store.js';
 import Router from './router.js';
 
-riot.EVT = {};
+export default class MasterEventTable {
 
-riot.EVT.progressStore = ProgressStore.getConstants().WELLKNOWN_EVENTS;
-riot.EVT.routeStore = RouteStore.getConstants().WELLKNOWN_EVENTS;
-riot.EVT.dynamicJsCssLoaderStore = DynamicJsCssLoaderStore.getConstants().WELLKNOWN_EVENTS;
-riot.EVT.componentLoaderStore = ComponentLoaderStore.getConstants().WELLKNOWN_EVENTS;
-riot.EVT.errorStore = ErrorStore.getConstants().WELLKNOWN_EVENTS;
-riot.EVT.fetchStore = FetchStore.getConstants().WELLKNOWN_EVENTS;
-riot.EVT.localStorageStore = LocalStorageStore.getConstants().WELLKNOWN_EVENTS;
-riot.EVT.riotControlStore = RiotControlStore.getConstants().WELLKNOWN_EVENTS;
-riot.EVT.riotControlDispatchStore = RiotControlDispatchStore.getConstants().WELLKNOWN_EVENTS;
-riot.EVT.pluginRegistrationStore = PluginRegistrationStore.getConstants().WELLKNOWN_EVENTS;
-riot.EVT.startupStore = StartupStore.getConstants().WELLKNOWN_EVENTS;
-riot.EVT.router = Router.getConstants().WELLKNOWN_EVENTS;
+  constructor() {
+    riot.EVT = {};
+
+    riot.EVT.progressStore = ProgressStore.getConstants().WELLKNOWN_EVENTS;
+    riot.EVT.routeStore = RouteStore.getConstants().WELLKNOWN_EVENTS;
+    riot.EVT.dynamicJsCssLoaderStore = DynamicJsCssLoaderStore.getConstants().WELLKNOWN_EVENTS;
+    riot.EVT.componentLoaderStore = ComponentLoaderStore.getConstants().WELLKNOWN_EVENTS;
+    riot.EVT.errorStore = ErrorStore.getConstants().WELLKNOWN_EVENTS;
+    riot.EVT.fetchStore = FetchStore.getConstants().WELLKNOWN_EVENTS;
+    riot.EVT.localStorageStore = LocalStorageStore.getConstants().WELLKNOWN_EVENTS;
+    riot.EVT.riotControlStore = RiotControlStore.getConstants().WELLKNOWN_EVENTS;
+    riot.EVT.riotControlDispatchStore = RiotControlDispatchStore.getConstants().WELLKNOWN_EVENTS;
+    riot.EVT.pluginRegistrationStore = PluginRegistrationStore.getConstants().WELLKNOWN_EVENTS;
+    riot.EVT.startupStore = StartupStore.getConstants().WELLKNOWN_EVENTS;
+    riot.EVT.router = Router.getConstants().WELLKNOWN_EVENTS;
+  }
+}
 

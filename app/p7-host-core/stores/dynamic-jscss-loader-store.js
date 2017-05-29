@@ -50,6 +50,7 @@ events:{
 
 	*/
 import DeepFreeze from '../utils/deep-freeze.js';
+
 class Constants {}
 Constants.NAME = 'dynamic-jscss-loader-store';
 Constants.NAMESPACE = Constants.NAME + ':';

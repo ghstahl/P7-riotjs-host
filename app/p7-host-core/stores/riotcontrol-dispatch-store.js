@@ -1,4 +1,5 @@
 import DeepFreeze from '../utils/deep-freeze.js';
+
 class Constants {}
 Constants.NAME = 'riotcontrol-dispatch-store';
 Constants.NAMESPACE = Constants.NAME + ':';
