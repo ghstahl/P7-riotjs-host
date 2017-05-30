@@ -79,14 +79,13 @@ export default class DynamicJsCssLoaderStore {
 
   bindEvents() {
     if (this._bound === false) {
-      
 
       this._bound = !this._bound;
     }
   }
   unbindEvents() {
     if (this._bound === true) {
-    
+
       this._bound = !this._bound;
     }
   }
