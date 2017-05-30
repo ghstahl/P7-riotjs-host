@@ -44,6 +44,7 @@ riot.control.trigger('add-dynamic-component',testComponent);
 
 */
 import DeepFreeze from '../utils/deep-freeze.js';
+import Validator from '../utils/validators.js';
 import DynamicJsCssLoaderStore from './dynamic-jscss-loader-store.js';
 
 const DJCWKE = DynamicJsCssLoaderStore.getConstants().WELLKNOWN_EVENTS;
@@ -57,10 +58,10 @@ Constants.WELLKNOWN_EVENTS = {
     addDynamicComponents: 'add-dynamic-components',
     loadDynamicComponent: 'load-dynamic-component',
     unloadDynamicComponent: 'unload-dynamic-component',
-    componentLoadComplete: 'component-load-complete',
-    componentUnloadComplete: 'component-unload-complete',
-    loadExternalJsCssAck: DJCWKE.out.loadExternalJsCssAck,
-    unloadExternalJsCssAck: DJCWKE.out.unloadExternalJsCssAck
+
+    pluginRegistered: 'plugin-registered',
+    pluginUnregistered: 'plugin-unregistered'
+
   },
   out: {
     allComponentsLoadComplete: 'all-components-load-complete',
@@ -79,7 +80,10 @@ export default class ComponentLoaderStore {
     return Constants;
   }
 
-  constructor() {
+  constructor(dynamicJsCssLoaderStore) {
+    Validator.validateType(dynamicJsCssLoaderStore, DynamicJsCssLoaderStore, 'dynamicJsCssLoaderStore');
+    this.dynamicJsCssLoaderStore = dynamicJsCssLoaderStore;
+
     riot.observable(this);
     this._components = new Set();
     riot.state.componentLoaderState = {};
@@ -96,11 +100,9 @@ export default class ComponentLoaderStore {
       this.on(Constants.WELLKNOWN_EVENTS.in.addDynamicComponent, this._onAddDynamicComponent);
       this.on(Constants.WELLKNOWN_EVENTS.in.addDynamicComponents, this._onAddDynamicComponents);
 
-      this.on(Constants.WELLKNOWN_EVENTS.in.loadExternalJsCssAck, this._onLoadExternalJsCssAck);
-      this.on(Constants.WELLKNOWN_EVENTS.in.unloadExternalJsCssAck, this._onUnloadExternalJsCssAck);
+      this.on(Constants.WELLKNOWN_EVENTS.in.pluginRegistered, this._onPluginRegistered);
+      this.on(Constants.WELLKNOWN_EVENTS.in.pluginUnregistered, this._onPluginUnregistered);
 
-      this.on(Constants.WELLKNOWN_EVENTS.in.componentLoadComplete, this._onComponentLoadComplete);
-      this.on(Constants.WELLKNOWN_EVENTS.in.componentUnloadComplete, this._onComponentUnloadComplete);
       this._bound = !this._bound;
     }
   }
@@ -112,11 +114,9 @@ export default class ComponentLoaderStore {
       this.off(Constants.WELLKNOWN_EVENTS.in.addDynamicComponent, this._onAddDynamicComponent);
       this.off(Constants.WELLKNOWN_EVENTS.in.addDynamicComponents, this._onAddDynamicComponents);
 
-      this.off(Constants.WELLKNOWN_EVENTS.in.loadExternalJsCssAck, this._onLoadExternalJsCssAck);
-      this.off(Constants.WELLKNOWN_EVENTS.in.unloadExternalJsCssAck, this._onUnloadExternalJsCssAck);
+      this.off(Constants.WELLKNOWN_EVENTS.in.pluginRegistered, this._onPluginRegistered);
+      this.off(Constants.WELLKNOWN_EVENTS.in.pluginUnregistered, this._onPluginUnregistered);
 
-      this.off(Constants.WELLKNOWN_EVENTS.in.componentLoadComplete, this._onComponentLoadComplete);
-      this.off(Constants.WELLKNOWN_EVENTS.in.componentUnloadComplete, this._onComponentUnloadComplete);
       this._bound = !this._bound;
     }
   }
@@ -144,46 +144,29 @@ export default class ComponentLoaderStore {
     }
     return null;
   }
-  _onLoadExternalJsCssAck(result) {
+  _onPluginRegistered(registration) {
+    console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.pluginRegistered, registration);
+    let component = this._findComponent(registration.name);
 
-    console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.loadExternalJsCssAck, result);
-
-    let component = this._findComponent(result.component.key);
-
-    if (component != null) {
-            // this is ours
-      if (result.state === true) {
-        for (let triggerItem of component.trigger.onLoad) {
-          riot.control.trigger(triggerItem.event, triggerItem.data);
-        }
-        component.state.loaded = true;
-
-      } else {
-        console.error(result.error);
+    if (component) {
+      for (let triggerItem of component.trigger.onLoad) {
+        riot.control.trigger(triggerItem.event, triggerItem.data);
       }
+      component.state.loaded = true;
+    }
+  }
+  _onPluginUnregistered(registration) {
+    console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.pluginUnregistered, registration);
+    let component = this._findComponent(registration.name);
+
+    if (component) {
+      for (let triggerItem of component.trigger.onUnload) {
+        riot.control.trigger(triggerItem.event, triggerItem.data);
+      }
+      component.state.loaded = false;
     }
   }
 
-  _onUnloadExternalJsCssAck(result) {
-
-    console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.unloadExternalJsCssAck, result);
-    let key = result.component.key;
-    let component = this._findComponent(key);
-
-    if (component != null) {
-            // this is ours
-      if (result.state === true) {
-        for (let triggerItem of component.trigger.onUnload) {
-          riot.control.trigger(triggerItem.event, triggerItem.data);
-        }
-        component.state.loaded = false;
-        riot.control.trigger(Constants.WELLKNOWN_EVENTS.in.componentUnloadComplete, key);
-
-      } else {
-        console.error(result.error);
-      }
-    }
-  }
   _onAddDynamicComponent(component) {
 
     console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.addDynamicComponent, component);
@@ -220,7 +203,8 @@ export default class ComponentLoaderStore {
     let component = this._findComponent(key);
 
     if (component != null && component.state.loaded !== true) {
-      riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.loadExternalJsCss, component);
+      this.dynamicJsCssLoaderStore.loadExternalJsCss(component);
+
     }
   }
   _onUnloadDymanicComponent(key) {
@@ -232,9 +216,6 @@ export default class ComponentLoaderStore {
       // need to cleanup the routes and stores before we can unload the JS.
       // 1. plugin-registration-store first.
 
-      for (let triggerItem of component.trigger.onUnload) {
-        riot.control.trigger(triggerItem.event, triggerItem.data);
-      }
       riot.control.trigger(riot.EVT.pluginRegistrationStore.in.pluginUnregistration, {
         'name': key
       });
@@ -253,16 +234,6 @@ export default class ComponentLoaderStore {
     }
     return result;
   }
-   
-  _onComponentUnloadComplete(key) {
 
-    console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.componentUnloadComplete, key);
-    let component = this._findComponent(key);
-
-    if (component != null) {
-      component.state.loadedComplete = false;
-      riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.allComponentsLoadComplete);
-    }
-  }
 }
 

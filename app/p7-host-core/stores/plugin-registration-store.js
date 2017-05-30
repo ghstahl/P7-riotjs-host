@@ -35,7 +35,8 @@ Constants.WELLKNOWN_EVENTS = {
     pluginUnregistration: 'plugin-unregistration'
   },
   out: {
-    pluginRegistrationChanged: 'plugin-registration-changed'
+    pluginRegistered: 'plugin-registered',
+    pluginUnregistered: 'plugin-unregistered'
   }
 };
 DeepFreeze.freeze(Constants);
@@ -129,7 +130,7 @@ export default class PluginRegistrationStore {
       riot.router.resetCatchAll(); // this rebuilds the routes, without the above nulled one
 
       // FINALLY. Tell the world that things have changed.
-      riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.pluginRegistrationChanged);
+      riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.pluginRegistered, registration);
     } else {
       console.error(Constants.NAME, registration, 'plugin already registered!');
     }
@@ -170,7 +171,7 @@ export default class PluginRegistrationStore {
       this._removeRegistration(foundRegistration.name);
 
       // FINALLY. Tell the world that things have changed.
-      riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.pluginRegistrationChanged);
+      riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.pluginUnregistered, registration);
     }
   }
 }

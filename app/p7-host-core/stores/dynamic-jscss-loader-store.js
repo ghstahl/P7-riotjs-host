@@ -56,10 +56,10 @@ Constants.NAME = 'dynamic-jscss-loader-store';
 Constants.NAMESPACE = Constants.NAME + ':';
 Constants.WELLKNOWN_EVENTS = {
   in: {
-    loadExternalJsCss: Constants.NAMESPACE + 'load-external-jscss'
+
   },
   out: {
-    loadExternalJsCssAck: Constants.NAMESPACE + 'load-external-jscss-ack'
+
   }
 };
 DeepFreeze.freeze(Constants);
@@ -79,14 +79,14 @@ export default class DynamicJsCssLoaderStore {
 
   bindEvents() {
     if (this._bound === false) {
-      this.on(Constants.WELLKNOWN_EVENTS.in.loadExternalJsCss,	this._onLoadExternalJsCss);
-     
+      
+
       this._bound = !this._bound;
     }
   }
   unbindEvents() {
     if (this._bound === true) {
-      this.off(Constants.WELLKNOWN_EVENTS.in.loadExternalJsCss,	this._onLoadExternalJsCss);
+    
       this._bound = !this._bound;
     }
   }
@@ -119,21 +119,15 @@ export default class DynamicJsCssLoaderStore {
     }
   }
 
-  _onLoadExternalJsCss(component) {
+  loadExternalJsCss(component) {
     let addedCompoment = this._findComponent(component);
 
     if (addedCompoment == null) {
-      this._loadExternal(component);
+      this._loadExternalJsCss(component);
       this._addComponent(component);
       console.log('load-external-jscss', component);
-      riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.loadExternalJsCssAck,
-		{state: true, component: component});
     } else {
       console.error('file already added!', component);
-      riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.loadExternalJsCssAck, {
-        state: false,
-        component: component,
-        error: 'component already added!'});
     }
   }
 
@@ -171,7 +165,7 @@ export default class DynamicJsCssLoaderStore {
     }
   }
 
-  _loadExternal(component) {
+  _loadExternalJsCss(component) {
     let jsBundle = component.jsBundle;
     let cssBundle = component.cssBundle;
 
@@ -194,7 +188,5 @@ export default class DynamicJsCssLoaderStore {
         document.getElementsByTagName('head')[0].appendChild(fileref);
       }
     }
-
   }
-
 }

@@ -1,10 +1,5 @@
 import DeepFreeze from '../utils/deep-freeze.js';
 import Router from '../router.js';
-import ComponentLoaderStore from './component-loader-store.js';
-import RouteStore from './route-store.js';
-
-const CLSWKE = ComponentLoaderStore.getConstants().WELLKNOWN_EVENTS;
-const RSWKE = RouteStore.getConstants().WELLKNOWN_EVENTS;
 
 class Constants {}
 Constants.NAME = 'startup-store';
@@ -15,11 +10,11 @@ Constants.WELLKNOWN_EVENTS = {
     fetchConfig: Constants.NAMESPACE + 'fetch-config',
     fetchConfigResult: Constants.NAMESPACE + 'fetch-config-result',
     fetchConfigResult2: Constants.NAMESPACE + 'fetch-config-result2',
-    componentsAdded: Constants.NAMESPACE + 'components-added',
-    allComponentsLoadComplete: CLSWKE.out.allComponentsLoadComplete
+    componentsAdded: Constants.NAMESPACE + 'components-added'
+
   },
   out: {
-    routeCatchallReset: RSWKE.in.routeCatchallReset
+
   }
 };
 
@@ -54,9 +49,6 @@ export default class StartupStore {
       // ------------------------------------------------------------
       this.on(Constants.WELLKNOWN_EVENTS.in.componentsAdded, this._onComponentsAdded);
 
-      // ------------------------------------------------------------
-      this.on(Constants.WELLKNOWN_EVENTS.in.allComponentsLoadComplete,
-        this._onAllComponentsLoadComplete);
       this._bound = !this._bound;
 
     }
@@ -79,19 +71,11 @@ export default class StartupStore {
       // ------------------------------------------------------------
       this.off(Constants.WELLKNOWN_EVENTS.in.componentsAdded, this._onComponentsAdded);
 
-      // ------------------------------------------------------------
-      this.off(Constants.WELLKNOWN_EVENTS.in.allComponentsLoadComplete,
-        this._onAllComponentsLoadComplete);
       this._bound = !this._bound;
 
     }
   }
-  // this is the one and only handler when components are added and loaded.
-  // it is meant to trigger a route rebuild.
-  _onAllComponentsLoadComplete() {
-    console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.allComponentsLoadComplete);
-    riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.routeCatchallReset);
-  }
+
   _onComponentsAdded(ack) {
     console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.componentsAdded, ack);
     riot.control.trigger(ack.ack.evt, ack.ack);

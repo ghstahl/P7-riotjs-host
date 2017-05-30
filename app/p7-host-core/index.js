@@ -53,7 +53,7 @@ export default class P7HostCore {
 
     this._progressStore 				= new ProgressStore();
     this._dynamicJsCssLoaderStore 		= new DynamicJsCssLoaderStore();
-    this._componentLoaderStore 			= new ComponentLoaderStore();
+    this._componentLoaderStore 			= new ComponentLoaderStore(this._dynamicJsCssLoaderStore);
     this._errorStore 					= new ErrorStore();
     this._fetchStore 					= new FetchStore();
     this._localStorageStore 			= new LocalStorageStore();
