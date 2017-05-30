@@ -5,8 +5,7 @@ Constants.NAME = 'router';
 Constants.NAMESPACE = Constants.NAME + ':';
 Constants.WELLKNOWN_EVENTS = {
   in: {},
-  out: {
-  }
+  out: {}
 };
 
 DeepFreeze.freeze(Constants);

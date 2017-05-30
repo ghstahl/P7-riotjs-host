@@ -21,7 +21,7 @@ riot.control.trigger('plugin-registration',registerRecord);
 */
 import DeepFreeze from '../utils/deep-freeze.js';
 import Validator from '../utils/validators.js';
-import RiotControlStore from './riotcontrol-store.js';
+import RiotControlExt from '../riotcontrol-ext.js';
 import '../router.js';
 import DynamicJsCssLoader from '../dynamic-jscss-loader.js';
 import ComponentLoaderStore from './component-loader-store.js';
@@ -46,13 +46,13 @@ export default class PluginRegistrationStore {
     return Constants;
   }
 
-  constructor(riotControlStore, dynamicJsCssLoader, componentLoaderStore) {
-    Validator.validateType(riotControlStore, RiotControlStore, 'riotControlStore');
+  constructor(riotControlExt, dynamicJsCssLoader, componentLoaderStore) {
+    Validator.validateType(riotControlExt, RiotControlExt, 'riotControlExt');
     Validator.validateType(dynamicJsCssLoader, DynamicJsCssLoader, 'dynamicJsCssLoader');
     Validator.validateType(componentLoaderStore, ComponentLoaderStore, 'componentLoaderStore');
 
     riot.observable(this);
-    this.riotControlStore = riotControlStore;
+    this.riotControlExt = riotControlExt;
     this.dynamicJsCssLoader = dynamicJsCssLoader;
     this.componentLoaderStore = componentLoaderStore;
 
@@ -117,7 +117,7 @@ export default class PluginRegistrationStore {
 
         // 2.2 Add the stores
         registration.stores[i].name = registration.name + '-store-' + i; // need this for my own tracking
-        this.riotControlStore._onAdd(registration.stores[i].name, registration.stores[i].store);
+        this.riotControlExt.add(registration.stores[i].name, registration.stores[i].store);
       }
 
       // 3. fire post load events
@@ -161,7 +161,7 @@ export default class PluginRegistrationStore {
         foundRegistration.stores[i].store.unbind(); // stop listening
 
         // 2.2. Remove the store.
-        this.riotControlStore._onRemove(foundRegistration.stores[i].name);
+        this.riotControlExt.remove(foundRegistration.stores[i].name);
       }
 
       // 3. Unload the JSCSS stuff.

@@ -13224,7 +13224,7 @@ var Constants = function Constants() {
   _classCallCheck(this, Constants);
 };
 
-Constants.NAME = 'dynamic-jscss-loader-store';
+Constants.NAME = 'dynamic-jscss-loader';
 Constants.NAMESPACE = Constants.NAME + ':';
 Constants.WELLKNOWN_EVENTS = {
   in: {},
@@ -13232,35 +13232,20 @@ Constants.WELLKNOWN_EVENTS = {
 };
 _deepFreeze2.default.freeze(Constants);
 
-var DynamicJsCssLoaderStore = function () {
-  DynamicJsCssLoaderStore.getConstants = function getConstants() {
+var DynamicJsCssLoader = function () {
+  DynamicJsCssLoader.getConstants = function getConstants() {
     return Constants;
   };
 
-  function DynamicJsCssLoaderStore() {
-    _classCallCheck(this, DynamicJsCssLoaderStore);
+  function DynamicJsCssLoader() {
+    _classCallCheck(this, DynamicJsCssLoader);
 
     riot.observable(this);
     this._componentsAddedSet = new Set();
     this._bound = false;
-    this.bindEvents();
   }
 
-  DynamicJsCssLoaderStore.prototype.bindEvents = function bindEvents() {
-    if (this._bound === false) {
-
-      this._bound = !this._bound;
-    }
-  };
-
-  DynamicJsCssLoaderStore.prototype.unbindEvents = function unbindEvents() {
-    if (this._bound === true) {
-
-      this._bound = !this._bound;
-    }
-  };
-
-  DynamicJsCssLoaderStore.prototype._addComponent = function _addComponent(component) {
+  DynamicJsCssLoader.prototype._addComponent = function _addComponent(component) {
     if (this._findComponent(component) == null) {
       var mySet = this._componentsAddedSet;
 
@@ -13268,7 +13253,7 @@ var DynamicJsCssLoaderStore = function () {
     }
   };
 
-  DynamicJsCssLoaderStore.prototype._findComponent = function _findComponent(component) {
+  DynamicJsCssLoader.prototype._findComponent = function _findComponent(component) {
     var mySet = this._componentsAddedSet;
 
     for (var _iterator = mySet, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
@@ -13292,7 +13277,7 @@ var DynamicJsCssLoaderStore = function () {
     return null;
   };
 
-  DynamicJsCssLoaderStore.prototype._deleteComponent = function _deleteComponent(component) {
+  DynamicJsCssLoader.prototype._deleteComponent = function _deleteComponent(component) {
     var mySet = this._componentsAddedSet;
 
     for (var _iterator2 = mySet, _isArray2 = Array.isArray(_iterator2), _i2 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
@@ -13316,7 +13301,7 @@ var DynamicJsCssLoaderStore = function () {
     }
   };
 
-  DynamicJsCssLoaderStore.prototype.loadExternalJsCss = function loadExternalJsCss(component) {
+  DynamicJsCssLoader.prototype.loadExternalJsCss = function loadExternalJsCss(component) {
     var addedCompoment = this._findComponent(component);
 
     if (addedCompoment == null) {
@@ -13328,7 +13313,7 @@ var DynamicJsCssLoaderStore = function () {
     }
   };
 
-  DynamicJsCssLoaderStore.prototype._removeExternalByFile = function _removeExternalByFile(filename, filetype) {
+  DynamicJsCssLoader.prototype._removeExternalByFile = function _removeExternalByFile(filename, filetype) {
     // determine element type to create nodelist from
     var targetelement = filetype === 'js' ? 'script' : filetype === 'css' ? 'link' : 'none';
     // determine corresponding attribute to test for
@@ -13344,7 +13329,7 @@ var DynamicJsCssLoaderStore = function () {
     }
   };
 
-  DynamicJsCssLoaderStore.prototype.unloadExternalJsCss = function unloadExternalJsCss(component) {
+  DynamicJsCssLoader.prototype.unloadExternalJsCss = function unloadExternalJsCss(component) {
     var addedCompoment = this._findComponent(component);
 
     if (addedCompoment != null) {
@@ -13361,7 +13346,7 @@ var DynamicJsCssLoaderStore = function () {
     }
   };
 
-  DynamicJsCssLoaderStore.prototype._loadExternalJsCss = function _loadExternalJsCss(component) {
+  DynamicJsCssLoader.prototype._loadExternalJsCss = function _loadExternalJsCss(component) {
     var jsBundle = component.jsBundle;
     var cssBundle = component.cssBundle;
 
@@ -13386,10 +13371,10 @@ var DynamicJsCssLoaderStore = function () {
     }
   };
 
-  return DynamicJsCssLoaderStore;
+  return DynamicJsCssLoader;
 }();
 
-exports.default = DynamicJsCssLoaderStore;
+exports.default = DynamicJsCssLoader;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
@@ -13548,9 +13533,9 @@ var _validators = __webpack_require__(18);
 
 var _validators2 = _interopRequireDefault(_validators);
 
-var _dynamicJscssLoaderStore = __webpack_require__(3);
+var _dynamicJscssLoader = __webpack_require__(3);
 
-var _dynamicJscssLoaderStore2 = _interopRequireDefault(_dynamicJscssLoaderStore);
+var _dynamicJscssLoader2 = _interopRequireDefault(_dynamicJscssLoader);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -13601,8 +13586,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                                                                                                                                                           */
 
 
-var DJCWKE = _dynamicJscssLoaderStore2.default.getConstants().WELLKNOWN_EVENTS;
-
 var Constants = function Constants() {
   _classCallCheck(this, Constants);
 };
@@ -13622,10 +13605,7 @@ Constants.WELLKNOWN_EVENTS = {
   },
   out: {
     allComponentsLoadComplete: 'all-components-load-complete',
-    componentLoaderStoreStateUpdated: 'component-loader-store-state-updated',
-    loadExternalJsCss: DJCWKE.in.loadExternalJsCss,
-    unloadExternalJsCss: DJCWKE.in.unloadExternalJsCss
-
+    componentLoaderStoreStateUpdated: 'component-loader-store-state-updated'
   }
 };
 
@@ -13636,11 +13616,11 @@ var ComponentLoaderStore = function () {
     return Constants;
   };
 
-  function ComponentLoaderStore(dynamicJsCssLoaderStore) {
+  function ComponentLoaderStore(dynamicJsCssLoader) {
     _classCallCheck(this, ComponentLoaderStore);
 
-    _validators2.default.validateType(dynamicJsCssLoaderStore, _dynamicJscssLoaderStore2.default, 'dynamicJsCssLoaderStore');
-    this.dynamicJsCssLoaderStore = dynamicJsCssLoaderStore;
+    _validators2.default.validateType(dynamicJsCssLoader, _dynamicJscssLoader2.default, 'dynamicJsCssLoader');
+    this.dynamicJsCssLoader = dynamicJsCssLoader;
 
     riot.observable(this);
     this._components = new Set();
@@ -13822,7 +13802,7 @@ var ComponentLoaderStore = function () {
     var component = this._findComponent(key);
 
     if (component != null && component.state.loaded !== true) {
-      this.dynamicJsCssLoaderStore.loadExternalJsCss(component);
+      this.dynamicJsCssLoader.loadExternalJsCss(component);
     }
   };
 
@@ -13974,91 +13954,6 @@ exports.default = ProgressStore;
 
 /***/ }),
 /* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(riot) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _deepFreeze = __webpack_require__(1);
-
-var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Constants = function Constants() {
-  _classCallCheck(this, Constants);
-};
-
-Constants.NAME = 'riotcontrol-store';
-Constants.NAMESPACE = Constants.NAME + ':';
-Constants.WELLKNOWN_EVENTS = {
-  in: {
-    riotContolAddStore: Constants.NAMESPACE + 'add-store',
-    riotContolRemoveStore: Constants.NAMESPACE + 'remove-store'
-  },
-  out: {}
-};
-_deepFreeze2.default.freeze(Constants);
-
-var RiotControlStore = function () {
-  RiotControlStore.getConstants = function getConstants() {
-    return Constants;
-  };
-
-  function RiotControlStore() {
-    _classCallCheck(this, RiotControlStore);
-
-    riot.observable(this);
-    this._bound = false;
-    this._stores = {};
-    this.bindEvents();
-  }
-
-  RiotControlStore.prototype.bindEvents = function bindEvents() {
-    if (this._bound === false) {
-      this.on(riot.EVT.riotControlStore.in.riotContolAddStore, this._onAdd);
-      this.on(riot.EVT.riotControlStore.in.riotContolRemoveStore, this._onRemove);
-      this._bound = !this._bound;
-    }
-  };
-
-  RiotControlStore.prototype.unbindEvents = function unbindEvents() {
-    if (this._bound === true) {
-      this.off(riot.EVT.riotControlStore.in.riotContolAddStore, this._onAdd);
-      this.off(riot.EVT.riotControlStore.in.riotContolRemoveStore, this._onRemove);
-      this._bound = !this._bound;
-    }
-  };
-
-  RiotControlStore.prototype._onAdd = function _onAdd(name, store) {
-    this._stores[name] = store;
-    console.log(riot.EVT.riotControlStore.in.riotContolAddStore, store);
-    riot.control.addStore(store);
-  };
-
-  RiotControlStore.prototype._onRemove = function _onRemove(name) {
-    console.log(riot.EVT.riotControlStore.in.riotContolRemoveStore, name);
-    var store = this._stores[name];
-
-    while (riot.control._stores.indexOf(store) !== -1) {
-      riot.control._stores.splice(riot.control._stores.indexOf(store), 1);
-    }
-  };
-
-  return RiotControlStore;
-}();
-
-exports.default = RiotControlStore;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14241,7 +14136,7 @@ exports.default = RouteStore;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, exports) {
 
 /*
@@ -14323,7 +14218,7 @@ function toComment(sourceMap) {
 
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -14682,7 +14577,7 @@ function updateLink (link, options, obj) {
 
 
 /***/ }),
-/* 11 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14752,6 +14647,71 @@ exports.default = RouteContributer;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(riot) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _deepFreeze = __webpack_require__(1);
+
+var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Constants = function Constants() {
+  _classCallCheck(this, Constants);
+};
+
+Constants.NAME = 'riotcontrol-store';
+Constants.NAMESPACE = Constants.NAME + ':';
+Constants.WELLKNOWN_EVENTS = {
+  in: {},
+  out: {}
+};
+_deepFreeze2.default.freeze(Constants);
+
+var RiotControlExt = function () {
+  RiotControlExt.getConstants = function getConstants() {
+    return Constants;
+  };
+
+  function RiotControlExt() {
+    _classCallCheck(this, RiotControlExt);
+
+    riot.observable(this);
+    this._bound = false;
+    this._stores = {};
+  }
+
+  RiotControlExt.prototype.add = function add(name, store) {
+    this._stores[name] = store;
+    console.log(riot.EVT.riotControlStore.in.riotContolAddStore, store);
+    riot.control.addStore(store);
+  };
+
+  RiotControlExt.prototype.remove = function remove(name) {
+    console.log(riot.EVT.riotControlStore.in.riotContolRemoveStore, name);
+    var store = this._stores[name];
+
+    while (riot.control._stores.indexOf(store) !== -1) {
+      riot.control._stores.splice(riot.control._stores.indexOf(store), 1);
+    }
+  };
+
+  return RiotControlExt;
+}();
+
+exports.default = RiotControlExt;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
 /* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -14766,7 +14726,7 @@ var _deepFreeze = __webpack_require__(1);
 
 var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
 
-var _routeStore = __webpack_require__(8);
+var _routeStore = __webpack_require__(7);
 
 var _routeStore2 = _interopRequireDefault(_routeStore);
 
@@ -15141,15 +15101,15 @@ var _validators = __webpack_require__(18);
 
 var _validators2 = _interopRequireDefault(_validators);
 
-var _riotcontrolStore = __webpack_require__(7);
+var _riotcontrolExt = __webpack_require__(11);
 
-var _riotcontrolStore2 = _interopRequireDefault(_riotcontrolStore);
+var _riotcontrolExt2 = _interopRequireDefault(_riotcontrolExt);
 
 __webpack_require__(4);
 
-var _dynamicJscssLoaderStore = __webpack_require__(3);
+var _dynamicJscssLoader = __webpack_require__(3);
 
-var _dynamicJscssLoaderStore2 = _interopRequireDefault(_dynamicJscssLoaderStore);
+var _dynamicJscssLoader2 = _interopRequireDefault(_dynamicJscssLoader);
 
 var _componentLoaderStore = __webpack_require__(5);
 
@@ -15203,16 +15163,16 @@ var PluginRegistrationStore = function () {
     return Constants;
   };
 
-  function PluginRegistrationStore(riotControlStore, dynamicJsCssLoaderStore, componentLoaderStore) {
+  function PluginRegistrationStore(riotControlExt, dynamicJsCssLoader, componentLoaderStore) {
     _classCallCheck(this, PluginRegistrationStore);
 
-    _validators2.default.validateType(riotControlStore, _riotcontrolStore2.default, 'riotControlStore');
-    _validators2.default.validateType(dynamicJsCssLoaderStore, _dynamicJscssLoaderStore2.default, 'dynamicJsCssLoaderStore');
+    _validators2.default.validateType(riotControlExt, _riotcontrolExt2.default, 'riotControlExt');
+    _validators2.default.validateType(dynamicJsCssLoader, _dynamicJscssLoader2.default, 'dynamicJsCssLoader');
     _validators2.default.validateType(componentLoaderStore, _componentLoaderStore2.default, 'componentLoaderStore');
 
     riot.observable(this);
-    this.riotControlStore = riotControlStore;
-    this.dynamicJsCssLoaderStore = dynamicJsCssLoaderStore;
+    this.riotControlExt = riotControlExt;
+    this.dynamicJsCssLoader = dynamicJsCssLoader;
     this.componentLoaderStore = componentLoaderStore;
 
     this._bound = false;
@@ -15306,7 +15266,7 @@ var PluginRegistrationStore = function () {
 
         // 2.2 Add the stores
         registration.stores[i].name = registration.name + '-store-' + i; // need this for my own tracking
-        this.riotControlStore._onAdd(registration.stores[i].name, registration.stores[i].store);
+        this.riotControlExt.add(registration.stores[i].name, registration.stores[i].store);
       }
 
       // 3. fire post load events
@@ -15350,11 +15310,11 @@ var PluginRegistrationStore = function () {
         foundRegistration.stores[i].store.unbind(); // stop listening
 
         // 2.2. Remove the store.
-        this.riotControlStore._onRemove(foundRegistration.stores[i].name);
+        this.riotControlExt.remove(foundRegistration.stores[i].name);
       }
 
       // 3. Unload the JSCSS stuff.
-      this.dynamicJsCssLoaderStore.unloadExternalJsCss(component);
+      this.dynamicJsCssLoader.unloadExternalJsCss(component);
 
       // 4. Remove the registration record
       this._removeRegistration(foundRegistration.name);
@@ -15707,9 +15667,9 @@ var _progressStore = __webpack_require__(6);
 
 var _progressStore2 = _interopRequireDefault(_progressStore);
 
-var _dynamicJscssLoaderStore = __webpack_require__(3);
+var _dynamicJscssLoader = __webpack_require__(3);
 
-var _dynamicJscssLoaderStore2 = _interopRequireDefault(_dynamicJscssLoaderStore);
+var _dynamicJscssLoader2 = _interopRequireDefault(_dynamicJscssLoader);
 
 var _componentLoaderStore = __webpack_require__(5);
 
@@ -15727,11 +15687,11 @@ var _localstorageStore = __webpack_require__(14);
 
 var _localstorageStore2 = _interopRequireDefault(_localstorageStore);
 
-var _riotcontrolStore = __webpack_require__(7);
+var _riotcontrolExt = __webpack_require__(11);
 
-var _riotcontrolStore2 = _interopRequireDefault(_riotcontrolStore);
+var _riotcontrolExt2 = _interopRequireDefault(_riotcontrolExt);
 
-var _routeStore = __webpack_require__(8);
+var _routeStore = __webpack_require__(7);
 
 var _routeStore2 = _interopRequireDefault(_routeStore);
 
@@ -15788,24 +15748,22 @@ var P7HostCore = function () {
     this._riotRouteExtension = new _riotRouteExtension2.default();
 
     this._progressStore = new _progressStore2.default();
-    this._dynamicJsCssLoaderStore = new _dynamicJscssLoaderStore2.default();
-    this._componentLoaderStore = new _componentLoaderStore2.default(this._dynamicJsCssLoaderStore);
+    this._dynamicJsCssLoader = new _dynamicJscssLoader2.default();
+    this._componentLoaderStore = new _componentLoaderStore2.default(this._dynamicJsCssLoader);
     this._errorStore = new _errorStore2.default();
     this._fetchStore = new _fetchStore2.default();
     this._localStorageStore = new _localstorageStore2.default();
-    this._riotControlStore = new _riotcontrolStore2.default();
+    this._riotControlExt = new _riotcontrolExt2.default();
     this._routeStore = new _routeStore2.default();
-    this._pluginRegistrationStore = new _pluginRegistrationStore2.default(this._riotControlStore, this._dynamicJsCssLoaderStore, this._componentLoaderStore);
+    this._pluginRegistrationStore = new _pluginRegistrationStore2.default(this._riotControlExt, this._dynamicJsCssLoader, this._componentLoaderStore);
     this._riotControlDispatchStore = new _riotcontrolDispatchStore2.default();
     this._startupStore = new _startupStore2.default();
 
     riot.control.addStore(this._progressStore);
-    riot.control.addStore(this._dynamicJsCssLoaderStore);
     riot.control.addStore(this._componentLoaderStore);
     riot.control.addStore(this._errorStore);
     riot.control.addStore(this._fetchStore);
     riot.control.addStore(this._localStorageStore);
-    riot.control.addStore(this._riotControlStore);
     riot.control.addStore(this._routeStore);
     riot.control.addStore(this._pluginRegistrationStore);
     riot.control.addStore(this._riotControlDispatchStore);
@@ -16048,7 +16006,7 @@ __webpack_require__(37);
 
 __webpack_require__(35);
 
-var _routeContributer = __webpack_require__(11);
+var _routeContributer = __webpack_require__(10);
 
 var _routeContributer2 = _interopRequireDefault(_routeContributer);
 
@@ -16152,7 +16110,7 @@ var transform;
 var options = {}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(10)(content, options);
+var update = __webpack_require__(9)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -16183,7 +16141,7 @@ var transform;
 var options = {}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(10)(content, options);
+var update = __webpack_require__(9)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -16224,7 +16182,7 @@ var _optsMixin = __webpack_require__(20);
 
 var _optsMixin2 = _interopRequireDefault(_optsMixin);
 
-var _routeContributer = __webpack_require__(11);
+var _routeContributer = __webpack_require__(10);
 
 var _routeContributer2 = _interopRequireDefault(_routeContributer);
 
@@ -16382,10 +16340,6 @@ var _fetchStore = __webpack_require__(13);
 
 var _fetchStore2 = _interopRequireDefault(_fetchStore);
 
-var _dynamicJscssLoaderStore = __webpack_require__(3);
-
-var _dynamicJscssLoaderStore2 = _interopRequireDefault(_dynamicJscssLoaderStore);
-
 var _componentLoaderStore = __webpack_require__(5);
 
 var _componentLoaderStore2 = _interopRequireDefault(_componentLoaderStore);
@@ -16398,13 +16352,9 @@ var _errorStore = __webpack_require__(12);
 
 var _errorStore2 = _interopRequireDefault(_errorStore);
 
-var _routeStore = __webpack_require__(8);
+var _routeStore = __webpack_require__(7);
 
 var _routeStore2 = _interopRequireDefault(_routeStore);
-
-var _riotcontrolStore = __webpack_require__(7);
-
-var _riotcontrolStore2 = _interopRequireDefault(_riotcontrolStore);
 
 var _riotcontrolDispatchStore = __webpack_require__(16);
 
@@ -16433,12 +16383,10 @@ var MasterEventTable = function MasterEventTable() {
 
   riot.EVT.progressStore = _progressStore2.default.getConstants().WELLKNOWN_EVENTS;
   riot.EVT.routeStore = _routeStore2.default.getConstants().WELLKNOWN_EVENTS;
-  riot.EVT.dynamicJsCssLoaderStore = _dynamicJscssLoaderStore2.default.getConstants().WELLKNOWN_EVENTS;
   riot.EVT.componentLoaderStore = _componentLoaderStore2.default.getConstants().WELLKNOWN_EVENTS;
   riot.EVT.errorStore = _errorStore2.default.getConstants().WELLKNOWN_EVENTS;
   riot.EVT.fetchStore = _fetchStore2.default.getConstants().WELLKNOWN_EVENTS;
   riot.EVT.localStorageStore = _localstorageStore2.default.getConstants().WELLKNOWN_EVENTS;
-  riot.EVT.riotControlStore = _riotcontrolStore2.default.getConstants().WELLKNOWN_EVENTS;
   riot.EVT.riotControlDispatchStore = _riotcontrolDispatchStore2.default.getConstants().WELLKNOWN_EVENTS;
   riot.EVT.pluginRegistrationStore = _pluginRegistrationStore2.default.getConstants().WELLKNOWN_EVENTS;
   riot.EVT.startupStore = _startupStore2.default.getConstants().WELLKNOWN_EVENTS;
@@ -19270,7 +19218,7 @@ riot.tag2('projects', '<div each="{component in components}" class="panel panel-
 /* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(9)(undefined);
+exports = module.exports = __webpack_require__(8)(undefined);
 // imports
 
 
@@ -19284,7 +19232,7 @@ exports.push([module.i, "/*\r\n * Base structure\r\n */\r\n\r\n/* Move down cont
 /* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(9)(undefined);
+exports = module.exports = __webpack_require__(8)(undefined);
 // imports
 
 
@@ -19298,7 +19246,7 @@ exports.push([module.i, "/*!\n * bootswatch v3.3.7\n * Homepage: http://bootswat
 /* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(9)(undefined);
+exports = module.exports = __webpack_require__(8)(undefined);
 // imports
 
 
@@ -20330,7 +20278,7 @@ var transform;
 var options = {}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(10)(content, options);
+var update = __webpack_require__(9)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {

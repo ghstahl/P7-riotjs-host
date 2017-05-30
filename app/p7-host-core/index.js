@@ -2,14 +2,14 @@ import 'riot';
 import route 						          from 'riot-route';
 import RiotControl 					      from 'riotcontrol';
 import RandomString 				      from './utils/random-string.js';
-import RiotRouteExtension 			  from './extensions/riot-route-extension.js';
+import RiotRouteExtension from './extensions/riot-route-extension.js';
 import ProgressStore from './stores/progress-store.js';
 import DynamicJsCssLoader from './dynamic-jscss-loader.js';
 import ComponentLoaderStore     	from './stores/component-loader-store.js';
 import ErrorStore               	from './stores/error-store.js';
 import FetchStore           		  from './stores/fetch-store.js';
 import LocalStorageStore         	from './stores/localstorage-store.js';
-import RiotControlStore from './stores/riotcontrol-store.js';
+import RiotControlExt from './riotcontrol-ext.js';
 import RouteStore 				        from './stores/route-store.js';
 import PluginRegistrationStore 		from './stores/plugin-registration-store.js';
 import StartupStore 				      from './stores/startup-store.js';
@@ -57,9 +57,9 @@ export default class P7HostCore {
     this._errorStore 					    = new ErrorStore();
     this._fetchStore 					    = new FetchStore();
     this._localStorageStore 			= new LocalStorageStore();
-    this._riotControlStore 				= new RiotControlStore();
+    this._riotControlExt 				= new RiotControlExt();
     this._routeStore 					    = new RouteStore();
-    this._pluginRegistrationStore = new PluginRegistrationStore(this._riotControlStore,
+    this._pluginRegistrationStore = new PluginRegistrationStore(this._riotControlExt,
                                                                     this._dynamicJsCssLoader,
                                                                     this._componentLoaderStore);
     this._riotControlDispatchStore 		= new RiotControlDispatchStore();
@@ -70,7 +70,6 @@ export default class P7HostCore {
     riot.control.addStore(this._errorStore);
     riot.control.addStore(this._fetchStore);
     riot.control.addStore(this._localStorageStore);
-    riot.control.addStore(this._riotControlStore);
     riot.control.addStore(this._routeStore);
     riot.control.addStore(this._pluginRegistrationStore);
     riot.control.addStore(this._riotControlDispatchStore);

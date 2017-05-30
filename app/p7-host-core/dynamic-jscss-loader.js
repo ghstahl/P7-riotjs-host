@@ -74,27 +74,13 @@ export default class DynamicJsCssLoader {
     riot.observable(this);
     this._componentsAddedSet = new Set();
     this._bound = false;
-    this.bindEvents();
   }
 
-  bindEvents() {
-    if (this._bound === false) {
-
-      this._bound = !this._bound;
-    }
-  }
-  unbindEvents() {
-    if (this._bound === true) {
-
-      this._bound = !this._bound;
-    }
-  }
   _addComponent(component) {
     if (this._findComponent(component) == null) {
       let mySet = this._componentsAddedSet;
 
       mySet.add(component);
-
     }
   }
 
