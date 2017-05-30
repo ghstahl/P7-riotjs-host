@@ -68,7 +68,7 @@ export default class RouteStore {
             let path = riot.route.currentPath();
 
             this.postResetRoute = path;
-            riot.control.trigger('load-dynamic-component', component.key);
+            riot.control.trigger(riot.EVT.componentLoaderStore.in.loadDynamicComponent, component.key);
           });
         }
       }

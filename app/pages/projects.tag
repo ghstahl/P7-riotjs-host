@@ -63,20 +63,21 @@ import "../components/pretty-json.tag"
 	 
 	self.on('mount', () => {
     	console.log(self.name,'mount')
-      	riot.control.on('component-loader-store-state-updated',
+      	riot.control.on(riot.EVT.componentLoaderStore.out.componentLoaderStoreStateUpdated,
       		self.onComponentLoaderStoreStateUpdated);
     });
     
     self.on('unmount', () => {
  		console.log(self.name,'unmount')
-      	riot.control.off('component-loader-store-state-updated',self.onComponentLoaderStoreStateUpdated);
+      	riot.control.off(riot.EVT.componentLoaderStore.out.componentLoaderStoreStateUpdated,self.onComponentLoaderStoreStateUpdated);
     });
 	
 	self.onComponentLoaderStoreStateUpdated = () => {
-		console.log(self.name,'component-loader-store-state-updated')
+		console.log(self.name,riot.EVT.componentLoaderStore.out.componentLoaderStoreStateUpdated)
   		if(riot.state.componentLoaderState != null && 
   			riot.state.componentLoaderState.components != null){
 			self.components = self.getComponentsArray();
+			self.update();
 		}
   	};
 
@@ -86,13 +87,13 @@ import "../components/pretty-json.tag"
 	self.loadMyComponentsSPA = (e) => {
 		var component = e.item.component;
 		var key = component.key;
-  		riot.control.trigger('load-dynamic-component',key);
+  		riot.control.trigger(riot.EVT.componentLoaderStore.in.loadDynamicComponent,key);
   	};
 
   	self.unloadMyComponentsSPA = (e) => {
 		var component = e.item.component;
   		var key = component.key;
-  		riot.control.trigger('unload-dynamic-component',key);
+  		riot.control.trigger(riot.EVT.componentLoaderStore.in.unloadDynamicComponent,key);
   	};
 </script>
 

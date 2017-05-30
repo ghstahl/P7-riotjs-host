@@ -153,6 +153,7 @@ export default class ComponentLoaderStore {
         riot.control.trigger(triggerItem.event, triggerItem.data);
       }
       component.state.loaded = true;
+      this.trigger(Constants.WELLKNOWN_EVENTS.out.componentLoaderStoreStateUpdated);
     }
   }
   _onPluginUnregistered(registration) {
@@ -164,6 +165,7 @@ export default class ComponentLoaderStore {
         riot.control.trigger(triggerItem.event, triggerItem.data);
       }
       component.state.loaded = false;
+      this.trigger(Constants.WELLKNOWN_EVENTS.out.componentLoaderStoreStateUpdated);
     }
   }
 
