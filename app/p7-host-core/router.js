@@ -31,10 +31,10 @@ export default class Router {
         item.registrants.routeContributer.contributeRoutes(this.r);
       }
     }
-    this._onContributeCatchAllRoute(this.r);
+    this._contributeCatchAllRoute(this.r);
   }
 
-  _onContributeCatchAllRoute(r) {
+  _contributeCatchAllRoute(r) {
     console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.contributeCatchAllRoute, r);
     if (riot.state.componentLoaderState && riot.state.componentLoaderState.components) {
       for (let item of riot.state.componentLoaderState.components) {

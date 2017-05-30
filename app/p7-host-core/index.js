@@ -59,7 +59,9 @@ export default class P7HostCore {
     this._localStorageStore 			= new LocalStorageStore();
     this._riotControlStore 				= new RiotControlStore();
     this._routeStore 					= new RouteStore();
-    this._pluginRegistrationStore 		= new PluginRegistrationStore(this._riotControlStore);
+    this._pluginRegistrationStore 		= new PluginRegistrationStore(this._riotControlStore,
+                                                                    this._dynamicJsCssLoaderStore,
+                                                                    this._componentLoaderStore);
     this._riotControlDispatchStore 		= new RiotControlDispatchStore();
     this._startupStore 					= new StartupStore();
 

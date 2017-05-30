@@ -134,13 +134,15 @@ export default class StartupStore {
     if (!nextTag) {
       nextTag = 'app';
     }
-    riot.mount(nextTag);
     if (nextTag === 'app') {
       this._done = true;
       // only when the nextTag is 'app' do we engage the router.
       // 'app' is last
       riot.router = new Router();
+      riot.mount(nextTag);
       riot.route.start(true);
+    } else {
+      riot.mount(nextTag);
     }
 
   }

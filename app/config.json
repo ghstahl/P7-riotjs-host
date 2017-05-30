@@ -17,16 +17,12 @@
         }
       }],
       "onUnload": [{
-        "event": "SidebarStore:sidebar-remove-item",
-        "data": {
-          "title": "My Components Page"
-        }
-      }, {
-        "event": "plugin-unregistration",
-        "data": {
-          "name": "typicode-component"
-        }
-      }]
+          "event": "SidebarStore:sidebar-remove-item",
+          "data": {
+            "title": "My Components Page"
+          }
+        } 
+      ]
     },
     "routeLoad": {
       "route": "/my-component-page.."

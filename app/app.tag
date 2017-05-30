@@ -2,6 +2,7 @@
 import './components/header.tag';
 import './components/sidebar.tag';
 import './components/loading-indicator.tag';
+import RouteContributer     from './route-contributer.js';
 
 <app>
 
@@ -27,8 +28,21 @@ import './components/loading-indicator.tag';
   self.name = 'app';
   self.on('before-mount', () => {
       console.log('before-mount');
+      let routeContributer = new RouteContributer();
+      let registerRecord = {
+        name: 'main-component',
+        stores: [],
+        registrants: {
+          routeContributer: routeContributer
+        },
+        postLoadEvents: [],
+        preUnloadEvents: []
+      };
+
+      riot.control.trigger('plugin-registration', registerRecord);
     });
  	self.on('mount', () => {
+     
       console.log(self.name,'mount');
     });
 

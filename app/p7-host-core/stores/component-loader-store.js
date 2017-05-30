@@ -229,7 +229,15 @@ export default class ComponentLoaderStore {
     let component = this._findComponent(key);
 
     if (component != null && component.state.loaded === true) {
-      riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.unloadExternalJsCss, component);
+      // need to cleanup the routes and stores before we can unload the JS.
+      // 1. plugin-registration-store first.
+
+      for (let triggerItem of component.trigger.onUnload) {
+        riot.control.trigger(triggerItem.event, triggerItem.data);
+      }
+      riot.control.trigger(riot.EVT.pluginRegistrationStore.in.pluginUnregistration, {
+        'name': key
+      });
     }
   }
 
@@ -245,18 +253,7 @@ export default class ComponentLoaderStore {
     }
     return result;
   }
-  _onComponentLoadComplete(key) {
-
-    console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.componentLoadComplete, key);
-    let component = this._findComponent(key);
-
-    if (component != null && component.state.loaded === true) {
-      component.state.loadedComplete = true;
-      if (this._allLoadedCompleteCheck() === true) {
-        riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.allComponentsLoadComplete);
-      }
-    }
-  }
+   
   _onComponentUnloadComplete(key) {
 
     console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.componentUnloadComplete, key);

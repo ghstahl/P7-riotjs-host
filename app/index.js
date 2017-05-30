@@ -13,7 +13,7 @@ import P7HostCore from '../lib/P7HostCore.js';
 let p7HostCore = new P7HostCore();
 */
 p7HostCore.Initialize();
-riot.state.route.defaultRoute = '/main/home'; 
+riot.state.route.defaultRoute = '/main/home';
 riot.state.sidebar = {
   touch: 0,
   items: [
@@ -44,18 +44,6 @@ sidebarStore.bindEvents();
 
 riot.control.addStore(nextConfigStore);
 riot.control.addStore(sidebarStore);
-
-let registerRecord = {
-  name: 'main-component',
-  stores: [],
-  registrants: {
-    routeContributer: routeContributer
-  },
-  postLoadEvents: [],
-  preUnloadEvents: []
-};
-
-riot.control.trigger('plugin-registration', registerRecord);
 
 let testComponent = {
   key: 'typicode-component',

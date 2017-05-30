@@ -20,9 +20,11 @@ riot.control.trigger('plugin-registration',registerRecord);
 
 */
 import DeepFreeze from '../utils/deep-freeze.js';
+import Validator from '../utils/validators.js';
 import RiotControlStore from './riotcontrol-store.js';
-
-const RCSWKE = RiotControlStore.getConstants().WELLKNOWN_EVENTS;
+import '../router.js';
+import DynamicJsCssLoaderStore from './dynamic-jscss-loader-store.js';
+import ComponentLoaderStore from './component-loader-store.js';
 
 class Constants {}
 Constants.NAME = 'plugin-registration-store';
@@ -42,9 +44,17 @@ export default class PluginRegistrationStore {
   static getConstants() {
     return Constants;
   }
-  constructor(riotControlStore) {
+
+  constructor(riotControlStore, dynamicJsCssLoaderStore, componentLoaderStore) {
+    Validator.validateType(riotControlStore, RiotControlStore, 'riotControlStore');
+    Validator.validateType(dynamicJsCssLoaderStore, DynamicJsCssLoaderStore, 'dynamicJsCssLoaderStore');
+    Validator.validateType(componentLoaderStore, ComponentLoaderStore, 'componentLoaderStore');
+
     riot.observable(this);
     this.riotControlStore = riotControlStore;
+    this.dynamicJsCssLoaderStore = dynamicJsCssLoaderStore;
+    this.componentLoaderStore = componentLoaderStore;
+
     this._bound = false;
     this.bindEvents();
     riot.state.registeredPlugins = new Set();
@@ -89,9 +99,10 @@ export default class PluginRegistrationStore {
 
   _registerPlugin(registration) {
 
-    var foundRegistration = this._findRegistration(registration.name);
+    let foundRegistration = this._findRegistration(registration.name);
 
     if (foundRegistration === null) {
+
       // 1. Add the registration record
       riot.state.registeredPlugins.add(registration);
 
@@ -114,7 +125,10 @@ export default class PluginRegistrationStore {
         riot.control.trigger(registration.postLoadEvents[i].event, registration.postLoadEvents[i].data);
       }
 
-      // 4. Tell the world that things have changed.
+      // 4. Rebuild the routes.
+      riot.router.resetCatchAll(); // this rebuilds the routes, without the above nulled one
+
+      // FINALLY. Tell the world that things have changed.
       riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.pluginRegistrationChanged);
     } else {
       console.error(Constants.NAME, registration, 'plugin already registered!');
@@ -130,20 +144,32 @@ export default class PluginRegistrationStore {
     } else {
       // 0. We do NOT fire unregister events as the stores will be gone before any event can reach them
 
-      // 1. Shutdown the stores
+      // 1. Tell the router to drop all routes for this component.
+      let component = this.componentLoaderStore._findComponent(foundRegistration.name);
+
+      if (component && foundRegistration.registrants && foundRegistration.registrants.routeContributer) {
+        component.state.loaded = false;
+        foundRegistration.registrants.routeContributer = null;  // get rid of the contributer.
+        riot.router.resetCatchAll(); // this rebuilds the routes, without the above nulled one
+      }
+
+      // 2. Shutdown the stores
       for (let i = 0; i < foundRegistration.stores.length; i++) {
 
-        // 1.1. Tell the store to STOP listening.
+        // 2.1. Tell the store to STOP listening.
         foundRegistration.stores[i].store.unbind(); // stop listening
 
-        // 1.2. Remove the store.
+        // 2.2. Remove the store.
         this.riotControlStore._onRemove(foundRegistration.stores[i].name);
       }
 
-      // 2. Remove the registration record
+      // 3. Unload the JSCSS stuff.
+      this.dynamicJsCssLoaderStore.unloadExternalJsCss(component);
+
+      // 4. Remove the registration record
       this._removeRegistration(foundRegistration.name);
 
-      // 3. Tell the world that things have changed.
+      // FINALLY. Tell the world that things have changed.
       riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.pluginRegistrationChanged);
     }
   }

@@ -56,12 +56,10 @@ Constants.NAME = 'dynamic-jscss-loader-store';
 Constants.NAMESPACE = Constants.NAME + ':';
 Constants.WELLKNOWN_EVENTS = {
   in: {
-    loadExternalJsCss: Constants.NAMESPACE + 'load-external-jscss',
-    unloadExternalJsCss: Constants.NAMESPACE + 'unload-external-jscss'
+    loadExternalJsCss: Constants.NAMESPACE + 'load-external-jscss'
   },
   out: {
-    loadExternalJsCssAck: Constants.NAMESPACE + 'load-external-jscss-ack',
-    unloadExternalJsCssAck: Constants.NAMESPACE + 'unload-external-jscss-ack'
+    loadExternalJsCssAck: Constants.NAMESPACE + 'load-external-jscss-ack'
   }
 };
 DeepFreeze.freeze(Constants);
@@ -81,15 +79,14 @@ export default class DynamicJsCssLoaderStore {
 
   bindEvents() {
     if (this._bound === false) {
-      this.on(Constants.WELLKNOWN_EVENTS.in.loadExternalJsCss,	this._safeLoadExternal);
-      this.on(Constants.WELLKNOWN_EVENTS.in.unloadExternalJsCss,	this._removeExternal);
+      this.on(Constants.WELLKNOWN_EVENTS.in.loadExternalJsCss,	this._onLoadExternalJsCss);
+     
       this._bound = !this._bound;
     }
   }
   unbindEvents() {
     if (this._bound === true) {
-      this.off(Constants.WELLKNOWN_EVENTS.in.loadExternalJsCss,	this._safeLoadExternal);
-      this.off(Constants.WELLKNOWN_EVENTS.in.unloadExternalJsCss,	this._removeExternal);
+      this.off(Constants.WELLKNOWN_EVENTS.in.loadExternalJsCss,	this._onLoadExternalJsCss);
       this._bound = !this._bound;
     }
   }
@@ -122,7 +119,7 @@ export default class DynamicJsCssLoaderStore {
     }
   }
 
-  _safeLoadExternal(component) {
+  _onLoadExternalJsCss(component) {
     let addedCompoment = this._findComponent(component);
 
     if (addedCompoment == null) {
@@ -139,6 +136,7 @@ export default class DynamicJsCssLoaderStore {
         error: 'component already added!'});
     }
   }
+
   _removeExternalByFile(filename, filetype) {
     // determine element type to create nodelist from
     let targetelement = (filetype === 'js') ? 'script' : (filetype === 'css') ? 'link' : 'none';
@@ -148,23 +146,18 @@ export default class DynamicJsCssLoaderStore {
 
     for (let i = allsuspects.length; i >= 0; i--) { // search backwards within nodelist for matching elements to remove
       if (allsuspects[i] 	&&
-allsuspects[i].getAttribute(targetattr) != null 	&&
-allsuspects[i].getAttribute(targetattr).indexOf(filename) !== -1) {
+        allsuspects[i].getAttribute(targetattr) != null 	&&
+        allsuspects[i].getAttribute(targetattr).indexOf(filename) !== -1) {
         allsuspects[i].parentNode.removeChild(allsuspects[i]); // remove element by calling parentNode.removeChild()
         break;
       }
     }
 
   }
-  _removeExternal(component) {
+  unloadExternalJsCss(component) {
     let addedCompoment = this._findComponent(component);
 
-    if (addedCompoment == null) {
-      riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.unloadExternalJsCssAck, {
-        state: false,
-        component: component,
-        error: 'no entry found to remove!'});
-    } else {
+    if (addedCompoment != null) {
       let jsBundle = component.jsBundle;
       let cssBundle = component.cssBundle;
 
@@ -174,12 +167,7 @@ allsuspects[i].getAttribute(targetattr).indexOf(filename) !== -1) {
       if (cssBundle && cssBundle.path) {
         this._removeExternalByFile(cssBundle.path, 'css');
       }
-
       this._deleteComponent(component);
-      riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.unloadExternalJsCssAck, {
-        state: true,
-        component: component});
-
     }
   }
 
