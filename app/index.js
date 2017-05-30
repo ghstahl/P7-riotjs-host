@@ -13,7 +13,7 @@ import P7HostCore from '../lib/P7HostCore.js';
 let p7HostCore = new P7HostCore();
 */
 p7HostCore.Initialize();
-
+riot.state.route.defaultRoute = '/main/home'; 
 riot.state.sidebar = {
   touch: 0,
   items: [

@@ -55,8 +55,7 @@ export default class Router {
 
     r('/..', ()=>{
       console.log('route handler of /  ');
-      riot.control.trigger(Constants.WELLKNOWN_EVENTS.in.routeDispatch,
-        riot.state.route.defaultRoute);
+      riot.control.trigger(riot.EVT.routeStore.in.routeDispatch, riot.state.route.defaultRoute);
     });
     if (this.postResetRoute != null) {
       let postResetRoute = this.postResetRoute;

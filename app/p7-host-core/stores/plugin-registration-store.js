@@ -33,11 +33,7 @@ Constants.WELLKNOWN_EVENTS = {
     pluginUnregistration: 'plugin-unregistration'
   },
   out: {
-    pluginRegistrationChanged: 'plugin-registration-changed',
-    pluginRegistrationAck: 'plugin-registration-ack',
-    pluginUnregistrationAck: 'plugin-unregistration-ack',
-    riotContolRemoveStore: RCSWKE.in.riotContolRemoveStore,
-    riotContolAddStore: RCSWKE.in.riotContolAddStore
+    pluginRegistrationChanged: 'plugin-registration-changed'
   }
 };
 DeepFreeze.freeze(Constants);
@@ -90,67 +86,65 @@ export default class PluginRegistrationStore {
     }
     return null;
   }
-  _unregisterPlugin(registration) {
-
-    var foundRegistration = this._findRegistration(registration.name);
-
-    if (foundRegistration === null) {
-      this.trigger(Constants.WELLKNOWN_EVENTS.out.pluginUnregistrationAck,
-        {
-          state: false,
-          registration: registration,
-          error: 'plugin already unregistered!'
-        });
-    } else {
-      // reverse unload
-      // 1. PreUnload Events first
-      for (let i = 0; i < foundRegistration.preUnloadEvents.length; i++) {
-        foundRegistration.stores[i].store.uninitialize();
-        riot.control.trigger(foundRegistration.preUnloadEvents[i].event, foundRegistration.preUnloadEvents[i].data);
-      }
-      // 2. Remove the stores.
-      for (let i = 0; i < foundRegistration.stores.length; i++) {
-        this.riotControlStore._onRemove(foundRegistration.stores[i].name);
-        // riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.riotContolRemoveStore, foundRegistration.stores[i].name);
-      }
-
-      this._removeRegistration(registration.name);
-      this.trigger(Constants.WELLKNOWN_EVENTS.out.pluginUnregistrationAck,
-        {
-          state: true,
-          registration: registration
-        });
-
-      riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.pluginRegistrationChanged);
-    }
-  }
 
   _registerPlugin(registration) {
 
     var foundRegistration = this._findRegistration(registration.name);
 
     if (foundRegistration === null) {
+      // 1. Add the registration record
       riot.state.registeredPlugins.add(registration);
 
-      // 1. Add the stores
+      // 2. Ready up the stores
       for (let i = 0; i < registration.stores.length; i++) {
+
+        // 2.1 Tell the stores to START listening.  Doing a bind, which may not be neccessary
+        //    but it has to match the unbind that I am doing later in the unregister.
+        //    It is required to be implemented, even if it is a noop.
+        registration.stores[i].store.bind();
+
+        // 2.2 Add the stores
         registration.stores[i].name = registration.name + '-store-' + i; // need this for my own tracking
-        registration.stores[i].store.initialize();
         this.riotControlStore._onAdd(registration.stores[i].name, registration.stores[i].store);
-        /*
-        riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.riotContolAddStore,
-          registration.stores[i].name, registration.stores[i].store);
-          */
       }
-      // 2. fire post load events
+
+      // 3. fire post load events
+      //    NOTE: we do NOT fire unload events as they are async and these stores have to go
       for (let i = 0; i < registration.postLoadEvents.length; i++) {
         riot.control.trigger(registration.postLoadEvents[i].event, registration.postLoadEvents[i].data);
       }
-      this.trigger(Constants.WELLKNOWN_EVENTS.out.pluginRegistrationAck, {state: true, registration: registration});
+
+      // 4. Tell the world that things have changed.
       riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.pluginRegistrationChanged);
     } else {
-      this.trigger(Constants.WELLKNOWN_EVENTS.out.pluginRegistrationAck,
-        {state: false, registration: registration, error: 'plugin already registered!'});
+      console.error(Constants.NAME, registration, 'plugin already registered!');
+    }
+  }
+
+  _unregisterPlugin(registration) {
+
+    var foundRegistration = this._findRegistration(registration.name);
+
+    if (foundRegistration === null) {
+      console.error(Constants.NAME, registration, 'plugin already unregistered!');
+    } else {
+      // 0. We do NOT fire unregister events as the stores will be gone before any event can reach them
+
+      // 1. Shutdown the stores
+      for (let i = 0; i < foundRegistration.stores.length; i++) {
+
+        // 1.1. Tell the store to STOP listening.
+        foundRegistration.stores[i].store.unbind(); // stop listening
+
+        // 1.2. Remove the store.
+        this.riotControlStore._onRemove(foundRegistration.stores[i].name);
+      }
+
+      // 2. Remove the registration record
+      this._removeRegistration(foundRegistration.name);
+
+      // 3. Tell the world that things have changed.
+      riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.pluginRegistrationChanged);
     }
   }
 }
