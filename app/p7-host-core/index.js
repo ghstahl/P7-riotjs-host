@@ -4,7 +4,7 @@ import RiotControl 					      from 'riotcontrol';
 import RandomString 				      from './utils/random-string.js';
 import RiotRouteExtension 			  from './extensions/riot-route-extension.js';
 import ProgressStore from './stores/progress-store.js';
-import DynamicJsCssLoaderStore from './stores/dynamic-jscss-loader-store.js';
+import DynamicJsCssLoader from './dynamic-jscss-loader.js';
 import ComponentLoaderStore     	from './stores/component-loader-store.js';
 import ErrorStore               	from './stores/error-store.js';
 import FetchStore           		  from './stores/fetch-store.js';
@@ -49,24 +49,23 @@ export default class P7HostCore {
         defaultRoute: 'main/home'
       }
     };
-    this._riotRouteExtension 			= new RiotRouteExtension();
+    this._riotRouteExtension = new RiotRouteExtension();
 
-    this._progressStore 				= new ProgressStore();
-    this._dynamicJsCssLoaderStore 		= new DynamicJsCssLoaderStore();
-    this._componentLoaderStore 			= new ComponentLoaderStore(this._dynamicJsCssLoaderStore);
-    this._errorStore 					= new ErrorStore();
-    this._fetchStore 					= new FetchStore();
+    this._progressStore 				  = new ProgressStore();
+    this._dynamicJsCssLoader = new DynamicJsCssLoader();
+    this._componentLoaderStore = new ComponentLoaderStore(this._dynamicJsCssLoader);
+    this._errorStore 					    = new ErrorStore();
+    this._fetchStore 					    = new FetchStore();
     this._localStorageStore 			= new LocalStorageStore();
     this._riotControlStore 				= new RiotControlStore();
-    this._routeStore 					= new RouteStore();
-    this._pluginRegistrationStore 		= new PluginRegistrationStore(this._riotControlStore,
-                                                                    this._dynamicJsCssLoaderStore,
+    this._routeStore 					    = new RouteStore();
+    this._pluginRegistrationStore = new PluginRegistrationStore(this._riotControlStore,
+                                                                    this._dynamicJsCssLoader,
                                                                     this._componentLoaderStore);
     this._riotControlDispatchStore 		= new RiotControlDispatchStore();
     this._startupStore 					= new StartupStore();
 
     riot.control.addStore(this._progressStore);
-    riot.control.addStore(this._dynamicJsCssLoaderStore);
     riot.control.addStore(this._componentLoaderStore);
     riot.control.addStore(this._errorStore);
     riot.control.addStore(this._fetchStore);

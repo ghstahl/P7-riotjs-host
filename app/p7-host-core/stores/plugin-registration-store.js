@@ -23,7 +23,7 @@ import DeepFreeze from '../utils/deep-freeze.js';
 import Validator from '../utils/validators.js';
 import RiotControlStore from './riotcontrol-store.js';
 import '../router.js';
-import DynamicJsCssLoaderStore from './dynamic-jscss-loader-store.js';
+import DynamicJsCssLoader from '../dynamic-jscss-loader.js';
 import ComponentLoaderStore from './component-loader-store.js';
 
 class Constants {}
@@ -46,14 +46,14 @@ export default class PluginRegistrationStore {
     return Constants;
   }
 
-  constructor(riotControlStore, dynamicJsCssLoaderStore, componentLoaderStore) {
+  constructor(riotControlStore, dynamicJsCssLoader, componentLoaderStore) {
     Validator.validateType(riotControlStore, RiotControlStore, 'riotControlStore');
-    Validator.validateType(dynamicJsCssLoaderStore, DynamicJsCssLoaderStore, 'dynamicJsCssLoaderStore');
+    Validator.validateType(dynamicJsCssLoader, DynamicJsCssLoader, 'dynamicJsCssLoader');
     Validator.validateType(componentLoaderStore, ComponentLoaderStore, 'componentLoaderStore');
 
     riot.observable(this);
     this.riotControlStore = riotControlStore;
-    this.dynamicJsCssLoaderStore = dynamicJsCssLoaderStore;
+    this.dynamicJsCssLoader = dynamicJsCssLoader;
     this.componentLoaderStore = componentLoaderStore;
 
     this._bound = false;
@@ -165,7 +165,7 @@ export default class PluginRegistrationStore {
       }
 
       // 3. Unload the JSCSS stuff.
-      this.dynamicJsCssLoaderStore.unloadExternalJsCss(component);
+      this.dynamicJsCssLoader.unloadExternalJsCss(component);
 
       // 4. Remove the registration record
       this._removeRegistration(foundRegistration.name);

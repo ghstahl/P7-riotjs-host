@@ -49,10 +49,10 @@ events:{
 }
 
 	*/
-import DeepFreeze from '../utils/deep-freeze.js';
+import DeepFreeze from './utils/deep-freeze.js';
 
 class Constants {}
-Constants.NAME = 'dynamic-jscss-loader-store';
+Constants.NAME = 'dynamic-jscss-loader';
 Constants.NAMESPACE = Constants.NAME + ':';
 Constants.WELLKNOWN_EVENTS = {
   in: {
@@ -64,7 +64,7 @@ Constants.WELLKNOWN_EVENTS = {
 };
 DeepFreeze.freeze(Constants);
 
-export default class DynamicJsCssLoaderStore {
+export default class DynamicJsCssLoader {
 
   static getConstants() {
     return Constants;
@@ -145,8 +145,8 @@ export default class DynamicJsCssLoaderStore {
         break;
       }
     }
-
   }
+
   unloadExternalJsCss(component) {
     let addedCompoment = this._findComponent(component);
 

@@ -45,9 +45,7 @@ riot.control.trigger('add-dynamic-component',testComponent);
 */
 import DeepFreeze from '../utils/deep-freeze.js';
 import Validator from '../utils/validators.js';
-import DynamicJsCssLoaderStore from './dynamic-jscss-loader-store.js';
-
-const DJCWKE = DynamicJsCssLoaderStore.getConstants().WELLKNOWN_EVENTS;
+import DynamicJsCssLoader from '../dynamic-jscss-loader.js';
 
 class Constants {}
 Constants.NAME = 'component-loader-store';
@@ -65,10 +63,7 @@ Constants.WELLKNOWN_EVENTS = {
   },
   out: {
     allComponentsLoadComplete: 'all-components-load-complete',
-    componentLoaderStoreStateUpdated: 'component-loader-store-state-updated',
-    loadExternalJsCss: DJCWKE.in.loadExternalJsCss,
-    unloadExternalJsCss: DJCWKE.in.unloadExternalJsCss
-
+    componentLoaderStoreStateUpdated: 'component-loader-store-state-updated'
   }
 };
 
@@ -80,9 +75,9 @@ export default class ComponentLoaderStore {
     return Constants;
   }
 
-  constructor(dynamicJsCssLoaderStore) {
-    Validator.validateType(dynamicJsCssLoaderStore, DynamicJsCssLoaderStore, 'dynamicJsCssLoaderStore');
-    this.dynamicJsCssLoaderStore = dynamicJsCssLoaderStore;
+  constructor(dynamicJsCssLoader) {
+    Validator.validateType(dynamicJsCssLoader, DynamicJsCssLoader, 'dynamicJsCssLoader');
+    this.dynamicJsCssLoader = dynamicJsCssLoader;
 
     riot.observable(this);
     this._components = new Set();
@@ -205,7 +200,7 @@ export default class ComponentLoaderStore {
     let component = this._findComponent(key);
 
     if (component != null && component.state.loaded !== true) {
-      this.dynamicJsCssLoaderStore.loadExternalJsCss(component);
+      this.dynamicJsCssLoader.loadExternalJsCss(component);
 
     }
   }

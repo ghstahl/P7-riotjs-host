@@ -1,7 +1,6 @@
 
 import ProgressStore from './stores/progress-store.js';
 import FetchStore from './stores/fetch-store.js';
-import DynamicJsCssLoaderStore from './stores/dynamic-jscss-loader-store.js';
 import ComponentLoaderStore from './stores/component-loader-store.js';
 import LocalStorageStore from './stores/localstorage-store.js';
 import ErrorStore from './stores/error-store.js';
@@ -19,7 +18,6 @@ export default class MasterEventTable {
 
     riot.EVT.progressStore = ProgressStore.getConstants().WELLKNOWN_EVENTS;
     riot.EVT.routeStore = RouteStore.getConstants().WELLKNOWN_EVENTS;
-    riot.EVT.dynamicJsCssLoaderStore = DynamicJsCssLoaderStore.getConstants().WELLKNOWN_EVENTS;
     riot.EVT.componentLoaderStore = ComponentLoaderStore.getConstants().WELLKNOWN_EVENTS;
     riot.EVT.errorStore = ErrorStore.getConstants().WELLKNOWN_EVENTS;
     riot.EVT.fetchStore = FetchStore.getConstants().WELLKNOWN_EVENTS;
