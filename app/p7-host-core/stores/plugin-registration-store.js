@@ -46,9 +46,9 @@ export default class PluginRegistrationStore {
   static getConstants() {
     return Constants;
   }
-  constructor() {
+  constructor(riotControlStore) {
     riot.observable(this);
-
+    this.riotControlStore = riotControlStore;
     this._bound = false;
     this.bindEvents();
     riot.state.registeredPlugins = new Set();
@@ -110,7 +110,8 @@ export default class PluginRegistrationStore {
       }
       // 2. Remove the stores.
       for (let i = 0; i < foundRegistration.stores.length; i++) {
-        riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.riotContolRemoveStore, foundRegistration.stores[i].name);
+        this.riotControlStore._onRemove(foundRegistration.stores[i].name);
+        // riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.riotContolRemoveStore, foundRegistration.stores[i].name);
       }
 
       this._removeRegistration(registration.name);
@@ -135,8 +136,11 @@ export default class PluginRegistrationStore {
       for (let i = 0; i < registration.stores.length; i++) {
         registration.stores[i].name = registration.name + '-store-' + i; // need this for my own tracking
         registration.stores[i].store.initialize();
+        this.riotControlStore._onAdd(registration.stores[i].name, registration.stores[i].store);
+        /*
         riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.riotContolAddStore,
           registration.stores[i].name, registration.stores[i].store);
+          */
       }
       // 2. fire post load events
       for (let i = 0; i < registration.postLoadEvents.length; i++) {
