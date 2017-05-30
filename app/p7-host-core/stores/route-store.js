@@ -5,7 +5,6 @@ Constants.NAME = 'route-store';
 Constants.NAMESPACE = Constants.NAME + ':';
 Constants.WELLKNOWN_EVENTS = {
   in: {
-    routeCatchallReset: 'route-catchall-reset',
     routeDispatch: 'riot-route-dispatch',
     contributeCatchAllRoute: 'contribute-catchall-route',
     riotRouteAddView: 'riot-route-add-view',
@@ -35,7 +34,7 @@ export default class RouteStore {
     if (this._bound === false) {
       this.on(Constants.WELLKNOWN_EVENTS.in.contributeCatchAllRoute, this._onContributeCatchAllRoute);
       this.on(Constants.WELLKNOWN_EVENTS.in.routeDispatch, this._onRouteDispatch);
-      this.on(Constants.WELLKNOWN_EVENTS.in.routeCatchallReset, this._onRouteCatchallReset);
+      
       this.on(Constants.WELLKNOWN_EVENTS.in.riotRouteAddView, this._onRiotRouteAddView);
       this.on(Constants.WELLKNOWN_EVENTS.in.riotRouteRemoveView, this._onRiotRouteRemoveView);
       this.on(Constants.WELLKNOWN_EVENTS.in.riotRouteLoadView, this._onRiotRouteLoadView);
@@ -47,7 +46,7 @@ export default class RouteStore {
     if (this._bound === true) {
       this.off(Constants.WELLKNOWN_EVENTS.in.contributeCatchAllRoute, this._onContributeCatchAllRoute);
       this.off(Constants.WELLKNOWN_EVENTS.in.routeDispatch, this._onRouteDispatch);
-      this.off(Constants.WELLKNOWN_EVENTS.in.routeCatchallReset, this._onRouteCatchallReset);
+    
       this.off(Constants.WELLKNOWN_EVENTS.in.riotRouteAddView, this._onRiotRouteAddView);
       this.off(Constants.WELLKNOWN_EVENTS.in.riotRouteRemoveView, this._onRiotRouteRemoveView);
       this.off(Constants.WELLKNOWN_EVENTS.in.riotRouteLoadView, this._onRiotRouteLoadView);
@@ -106,10 +105,7 @@ export default class RouteStore {
     riot.routeState.route = route;
     this.trigger(Constants.WELLKNOWN_EVENTS.out.routeDispatchAck, route);
   }
-  _onRouteCatchallReset() {
-    console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.routeCatchallReset);
-    riot.router.resetCatchAll();
-  }
+
   _onRiotRouteAddView(view) {
     console.log(Constants.NAME, 'riot-route-add-view', view);
     let s = this._viewsSet;

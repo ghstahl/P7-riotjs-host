@@ -20,11 +20,9 @@ export default class RiotControlExt {
   }
   add(name, store) {
     this._stores[name] = store;
-    console.log(riot.EVT.riotControlStore.in.riotContolAddStore, store);
     riot.control.addStore(store);
   }
   remove(name) {
-    console.log(riot.EVT.riotControlStore.in.riotContolRemoveStore, name);
     let store = this._stores[name];
 
     while (riot.control._stores.indexOf(store) !== -1) {
