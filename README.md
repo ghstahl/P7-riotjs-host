@@ -11,8 +11,12 @@ Its a plugin, because the plugin has to obey some rules of the host and not carr
 
 In this example, you will notice the plugin bundle.js does not contain riot, bootstrap, or jquery amongst other libraries that are already present in the host app.  Its quite small, and the child plugin considers itself autonomous.
 
-The plugin is selfcontained [P7-riotjs-typicode-component](https://github.com/ghstahl/P7-riotjs-typicode-component) and I have prebuilt and checked it in for demo use.  
-The plugin bundle is [here](dist/partial/typicode_component)
+The plugin is self-contained [P7-riotjs-typicode-component](plugins/typicode_component) and can be built using the followoing;  
+```
+npm run prod-typicode
+npm run dev-typicode
+```
+The plugin bundle is [here](dist/externals/typicode_component)
 
 ## Housekeeping 
 A starter riotjs project based upon the following;
@@ -27,7 +31,7 @@ A starter riotjs project based upon the following;
 ## Get the kit
 
 ```
-$ git clone https://github.com/ghstahl/webpack2-bootswatch3-jquery3-riot3.git && cd webpack2-bootswatch3-jquery3-riot3
+$ git clone https://github.com/ghstahl/P7-riotjs-host.git && cd P7-riotjs-host
 ```
 
 ## Installation
@@ -41,8 +45,17 @@ $ npm install
 ```
 $ npm run dev
 ```
-
+currently this doesn't watch the plugin area.  
 Now the server is runnning on localhost:1338
+
+## Production
+
+```
+$ npm run prod
+```
+This will build everything.
+
+
 
 ## Bootswatch Theming
 
