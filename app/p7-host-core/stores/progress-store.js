@@ -20,7 +20,7 @@ Constants.WELLKNOWN_EVENTS = {
 DeepFreeze.freeze(Constants);
 
 export default class ProgressStore {
-  static getConstants() {
+  static get constants() {
     return Constants;
   }
   constructor() {

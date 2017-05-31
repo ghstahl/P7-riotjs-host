@@ -34,7 +34,7 @@ import RouteContributer 		from './route-contributer.js';
 let routeContributer = new RouteContributer();
 
 import NextConfigStore from './stores/next-config-store.js';
-riot.EVT.nextConfigStore = NextConfigStore.getConstants().WELLKNOWN_EVENTS;
+riot.EVT.nextConfigStore = NextConfigStore.constants.WELLKNOWN_EVENTS;
 let nextConfigStore = new NextConfigStore();
 
 import SidebarStore 				from './stores/sidebar-store.js';

@@ -5,7 +5,7 @@ import 'whatwg-fetch';
 import DeepFreeze from '../utils/deep-freeze.js';
 import ProgressStore from './progress-store.js';
 
-const PSWKE = ProgressStore.getConstants().WELLKNOWN_EVENTS;
+const PSWKE = ProgressStore.constants.WELLKNOWN_EVENTS;
 
 class Constants {}
 Constants.NAME = 'fetch-store';
@@ -22,7 +22,7 @@ Constants.WELLKNOWN_EVENTS = {
 DeepFreeze.freeze(Constants);
 
 export default class FetchStore {
-  static getConstants() {
+  static get constants() {
     return Constants;
   }
   constructor() {

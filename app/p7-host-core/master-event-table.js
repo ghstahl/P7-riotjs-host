@@ -15,16 +15,16 @@ export default class MasterEventTable {
   constructor() {
     riot.EVT = {};
 
-    riot.EVT.progressStore = ProgressStore.getConstants().WELLKNOWN_EVENTS;
-    riot.EVT.routeStore = RouteStore.getConstants().WELLKNOWN_EVENTS;
-    riot.EVT.componentLoaderStore = ComponentLoaderStore.getConstants().WELLKNOWN_EVENTS;
-    riot.EVT.errorStore = ErrorStore.getConstants().WELLKNOWN_EVENTS;
-    riot.EVT.fetchStore = FetchStore.getConstants().WELLKNOWN_EVENTS;
-    riot.EVT.localStorageStore = LocalStorageStore.getConstants().WELLKNOWN_EVENTS;
-    riot.EVT.riotControlDispatchStore = RiotControlDispatchStore.getConstants().WELLKNOWN_EVENTS;
-    riot.EVT.pluginRegistrationStore = PluginRegistrationStore.getConstants().WELLKNOWN_EVENTS;
-    riot.EVT.startupStore = StartupStore.getConstants().WELLKNOWN_EVENTS;
-    riot.EVT.router = Router.getConstants().WELLKNOWN_EVENTS;
+    riot.EVT.progressStore = ProgressStore.constants.WELLKNOWN_EVENTS;
+    riot.EVT.routeStore = RouteStore.constants.WELLKNOWN_EVENTS;
+    riot.EVT.componentLoaderStore = ComponentLoaderStore.constants.WELLKNOWN_EVENTS;
+    riot.EVT.errorStore = ErrorStore.constants.WELLKNOWN_EVENTS;
+    riot.EVT.fetchStore = FetchStore.constants.WELLKNOWN_EVENTS;
+    riot.EVT.localStorageStore = LocalStorageStore.constants.WELLKNOWN_EVENTS;
+    riot.EVT.riotControlDispatchStore = RiotControlDispatchStore.constants.WELLKNOWN_EVENTS;
+    riot.EVT.pluginRegistrationStore = PluginRegistrationStore.constants.WELLKNOWN_EVENTS;
+    riot.EVT.startupStore = StartupStore.constants.WELLKNOWN_EVENTS;
+    riot.EVT.router = Router.constants.WELLKNOWN_EVENTS;
   }
 }
 

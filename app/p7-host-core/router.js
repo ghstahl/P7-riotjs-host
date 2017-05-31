@@ -11,7 +11,7 @@ Constants.WELLKNOWN_EVENTS = {
 DeepFreeze.freeze(Constants);
 
 export default class Router {
-  static getConstants() {
+  static get constants() {
     return Constants;
   }
   constructor() {

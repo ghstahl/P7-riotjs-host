@@ -71,7 +71,7 @@ DeepFreeze.freeze(Constants);
 
 export default class ComponentLoaderStore {
 
-  static getConstants() {
+  static get constants() {
     return Constants;
   }
 

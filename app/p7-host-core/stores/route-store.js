@@ -19,7 +19,7 @@ DeepFreeze.freeze(Constants);
 
 export default class RouteStore {
 
-  static getConstants() {
+  static get constants() {
     return Constants;
   }
 

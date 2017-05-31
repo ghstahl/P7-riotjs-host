@@ -66,7 +66,7 @@ DeepFreeze.freeze(Constants);
 
 export default class DynamicJsCssLoader {
 
-  static getConstants() {
+  static get constants() {
     return Constants;
   }
 

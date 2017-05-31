@@ -21,7 +21,7 @@ Constants.WELLKNOWN_EVENTS = {
 DeepFreeze.freeze(Constants);
 
 export default class StartupStore {
-  static getConstants() {
+  static get constants() {
     return Constants;
   }
   constructor() {

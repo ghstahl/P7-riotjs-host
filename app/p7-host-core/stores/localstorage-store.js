@@ -18,7 +18,7 @@ Constants.WELLKNOWN_EVENTS = {
 DeepFreeze.freeze(Constants);
 
 export default class LocalStorageStore {
-  static getConstants() {
+  static get constants() {
     return Constants;
   }
   constructor() {

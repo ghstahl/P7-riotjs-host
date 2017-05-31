@@ -14,8 +14,8 @@ Constants.WELLKNOWN_EVENTS = {
 };
 DeepFreeze.freeze(Constants);
 
-class NextConfigStore {
-  static getConstants() {
+export default class NextConfigStore {
+  static get constants() {
     return Constants;
   }
   constructor() {
@@ -63,4 +63,4 @@ class NextConfigStore {
     }
   }
 }
-export default NextConfigStore;
+

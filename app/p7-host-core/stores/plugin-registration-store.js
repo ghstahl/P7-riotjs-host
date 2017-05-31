@@ -42,7 +42,7 @@ Constants.WELLKNOWN_EVENTS = {
 DeepFreeze.freeze(Constants);
 
 export default class PluginRegistrationStore {
-  static getConstants() {
+  static get constants() {
     return Constants;
   }
 

@@ -2,7 +2,7 @@
 import DeepFreeze from '../utils/deep-freeze.js';
 import RouteStore from './route-store.js';
 
-const RSWKE = RouteStore.getConstants().WELLKNOWN_EVENTS;
+const RSWKE = RouteStore.constants.WELLKNOWN_EVENTS;
 
 class Constants {}
 Constants.NAME = 'error-store';
@@ -18,7 +18,7 @@ Constants.WELLKNOWN_EVENTS = {
 DeepFreeze.freeze(Constants);
 
 export default class ErrorStore {
-  static getConstants() {
+  static get constants() {
     return Constants;
   }
 

@@ -10,7 +10,7 @@ Constants.WELLKNOWN_EVENTS = {
 DeepFreeze.freeze(Constants);
 
 export default class RiotControlExt {
-  static getConstants() {
+  static get constants() {
     return Constants;
   }
   constructor() {
