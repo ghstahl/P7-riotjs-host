@@ -14,8 +14,9 @@
     "build:library": "webpack --env=library --progress --profile --colors",
     "postBuild": "npm-run-all html json fonts",
     "serve": "webpack-dev-server --env=dev --hot",
-    "dev": "npm-run-all build:dev postBuild serve",
-    "prod": "npm-run-all build:prod postBuild public",
+    "dev:0": "npm-run-all build:dev postBuild",
+    "dev": "npm-run-all dev:0 serve",
+    "prod": "npm-run-all library dev:0 build:prod postBuild public",
     "library": "npm-run-all build:library  "
   },
   "keywords": [
