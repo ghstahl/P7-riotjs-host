@@ -30,18 +30,12 @@ riot.mixin('opts-mixin', OptsMixin);
 // Add the stores
 // //////////////////////////////////////////////////////
 
-import RouteContributer 		from './route-contributer.js';
-let routeContributer = new RouteContributer();
-
 import NextConfigStore from './stores/next-config-store.js';
 riot.EVT.nextConfigStore = NextConfigStore.constants.WELLKNOWN_EVENTS;
 let nextConfigStore = new NextConfigStore();
 
 import SidebarStore 				from './stores/sidebar-store.js';
 let sidebarStore = new SidebarStore();
-
-nextConfigStore.bindEvents();
-sidebarStore.bindEvents();
 
 riot.control.addStore(nextConfigStore);
 riot.control.addStore(sidebarStore);
