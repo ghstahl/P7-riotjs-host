@@ -46,8 +46,8 @@ export default class FetchStore {
 
   }
 
-  _onFetch(input, init, trigger, jsonFixup = true) {
-    console.log(Constants.WELLKNOWN_EVENTS.in.fetch, input, init, trigger, jsonFixup);
+  _onFetch(input, init, ack, jsonFixup = true) {
+    console.log(Constants.WELLKNOWN_EVENTS.in.fetch, input, init, ack, jsonFixup);
 
         // we are a json shop
 
@@ -81,7 +81,7 @@ export default class FetchStore {
       }
     }
 
-    let myTrigger = JSON.parse(JSON.stringify(trigger));
+ //   let myTrigger = JSON.parse(JSON.stringify(ack));
 
     fetch(input, init).then(function (response) {
       riot.control.trigger(riot.EVT.fetchStore.out.inprogressDone);
@@ -89,26 +89,26 @@ export default class FetchStore {
 
       if (response.status === 204) {
         result.error = 'Fire the person that returns this 204 garbage!';
-        riot.control.trigger(myTrigger.name, result, myTrigger);
+        riot.control.trigger(ack.evt, result, ack);
       }
       if (response.ok) {
         if (init.method === 'HEAD') {
-          riot.control.trigger(myTrigger.name, result, myTrigger);
+          riot.control.trigger(ack.evt, result, ack);
         } else {
           response.json().then((data)=>{
             console.log(data);
             result.json = data;
             result.error = null;
-            riot.control.trigger(myTrigger.name, result, myTrigger);
+            riot.control.trigger(ack.evt, result, ack);
           });
         }
       } else {
-        riot.control.trigger(myTrigger.name, result, myTrigger);
+        riot.control.trigger(ack.evt, result, ack);
       }
     }).catch(function (ex) {
       console.log('fetch failed', ex);
       self.error = ex;
-            // todo: event out error to mytrigger
+            // todo: event out error to ack
       riot.control.trigger(riot.EVT.fetchStore.out.inprogressDone);
     });
   }

@@ -13979,7 +13979,6 @@ Constants.NAME = 'route-store';
 Constants.NAMESPACE = Constants.NAME + ':';
 Constants.WELLKNOWN_EVENTS = {
   in: {
-    routeCatchallReset: 'route-catchall-reset',
     routeDispatch: 'riot-route-dispatch',
     contributeCatchAllRoute: 'contribute-catchall-route',
     riotRouteAddView: 'riot-route-add-view',
@@ -14010,7 +14009,6 @@ var RouteStore = function () {
     if (this._bound === false) {
       this.on(Constants.WELLKNOWN_EVENTS.in.contributeCatchAllRoute, this._onContributeCatchAllRoute);
       this.on(Constants.WELLKNOWN_EVENTS.in.routeDispatch, this._onRouteDispatch);
-      this.on(Constants.WELLKNOWN_EVENTS.in.routeCatchallReset, this._onRouteCatchallReset);
       this.on(Constants.WELLKNOWN_EVENTS.in.riotRouteAddView, this._onRiotRouteAddView);
       this.on(Constants.WELLKNOWN_EVENTS.in.riotRouteRemoveView, this._onRiotRouteRemoveView);
       this.on(Constants.WELLKNOWN_EVENTS.in.riotRouteLoadView, this._onRiotRouteLoadView);
@@ -14022,7 +14020,6 @@ var RouteStore = function () {
     if (this._bound === true) {
       this.off(Constants.WELLKNOWN_EVENTS.in.contributeCatchAllRoute, this._onContributeCatchAllRoute);
       this.off(Constants.WELLKNOWN_EVENTS.in.routeDispatch, this._onRouteDispatch);
-      this.off(Constants.WELLKNOWN_EVENTS.in.routeCatchallReset, this._onRouteCatchallReset);
       this.off(Constants.WELLKNOWN_EVENTS.in.riotRouteAddView, this._onRiotRouteAddView);
       this.off(Constants.WELLKNOWN_EVENTS.in.riotRouteRemoveView, this._onRiotRouteRemoveView);
       this.off(Constants.WELLKNOWN_EVENTS.in.riotRouteLoadView, this._onRiotRouteLoadView);
@@ -14101,11 +14098,6 @@ var RouteStore = function () {
 
     riot.routeState.route = route;
     this.trigger(Constants.WELLKNOWN_EVENTS.out.routeDispatchAck, route);
-  };
-
-  RouteStore.prototype._onRouteCatchallReset = function _onRouteCatchallReset() {
-    console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.routeCatchallReset);
-    riot.router.resetCatchAll();
   };
 
   RouteStore.prototype._onRiotRouteAddView = function _onRiotRouteAddView(view) {
@@ -14692,12 +14684,10 @@ var RiotControlExt = function () {
 
   RiotControlExt.prototype.add = function add(name, store) {
     this._stores[name] = store;
-    console.log(riot.EVT.riotControlStore.in.riotContolAddStore, store);
     riot.control.addStore(store);
   };
 
   RiotControlExt.prototype.remove = function remove(name) {
-    console.log(riot.EVT.riotControlStore.in.riotContolRemoveStore, name);
     var store = this._stores[name];
 
     while (riot.control._stores.indexOf(store) !== -1) {
@@ -14869,10 +14859,10 @@ var FetchStore = function () {
     }
   };
 
-  FetchStore.prototype._onFetch = function _onFetch(input, init, trigger) {
+  FetchStore.prototype._onFetch = function _onFetch(input, init, ack) {
     var jsonFixup = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
 
-    console.log(Constants.WELLKNOWN_EVENTS.in.fetch, input, init, trigger, jsonFixup);
+    console.log(Constants.WELLKNOWN_EVENTS.in.fetch, input, init, ack, jsonFixup);
 
     // we are a json shop
 
@@ -14906,7 +14896,7 @@ var FetchStore = function () {
       }
     }
 
-    var myTrigger = JSON.parse(JSON.stringify(trigger));
+    //   let myTrigger = JSON.parse(JSON.stringify(ack));
 
     fetch(input, init).then(function (response) {
       riot.control.trigger(riot.EVT.fetchStore.out.inprogressDone);
@@ -14914,26 +14904,26 @@ var FetchStore = function () {
 
       if (response.status === 204) {
         result.error = 'Fire the person that returns this 204 garbage!';
-        riot.control.trigger(myTrigger.name, result, myTrigger);
+        riot.control.trigger(ack.evt, result, ack);
       }
       if (response.ok) {
         if (init.method === 'HEAD') {
-          riot.control.trigger(myTrigger.name, result, myTrigger);
+          riot.control.trigger(ack.evt, result, ack);
         } else {
           response.json().then(function (data) {
             console.log(data);
             result.json = data;
             result.error = null;
-            riot.control.trigger(myTrigger.name, result, myTrigger);
+            riot.control.trigger(ack.evt, result, ack);
           });
         }
       } else {
-        riot.control.trigger(myTrigger.name, result, myTrigger);
+        riot.control.trigger(ack.evt, result, ack);
       }
     }).catch(function (ex) {
       console.log('fetch failed', ex);
       self.error = ex;
-      // todo: event out error to mytrigger
+      // todo: event out error to ack
       riot.control.trigger(riot.EVT.fetchStore.out.inprogressDone);
     });
   };
@@ -15439,7 +15429,9 @@ Constants.WELLKNOWN_EVENTS = {
     componentsAdded: Constants.NAMESPACE + 'components-added'
 
   },
-  out: {}
+  out: {
+    configComplete: Constants.NAMESPACE + 'config-complete'
+  }
 };
 
 _deepFreeze2.default.freeze(Constants);
@@ -15505,37 +15497,35 @@ var StartupStore = function () {
 
   StartupStore.prototype._onComponentsAdded = function _onComponentsAdded(ack) {
     console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.componentsAdded, ack);
-    riot.control.trigger(ack.ack.evt, ack.ack);
+    this.trigger(Constants.WELLKNOWN_EVENTS.out.configComplete);
+    //    riot.control.trigger(ack.ack.evt, ack.ack);
   };
 
-  StartupStore.prototype._onFetchConfigResult = function _onFetchConfigResult(result, myTrigger) {
-    console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.fetchConfigResult, result, myTrigger);
+  StartupStore.prototype._onFetchConfigResult = function _onFetchConfigResult(result, ack) {
+    console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.fetchConfigResult, result, ack);
     if (result.error || !result.response.ok) {
       riot.control.trigger(riot.EVT.errorStore.in.errorCatchAll, { code: 'startup-config1234' });
     } else {
-      riot.control.trigger(riot.EVT.componentLoaderStore.in.addDynamicComponents, result.json.components, { evt: Constants.WELLKNOWN_EVENTS.in.componentsAdded,
-        ack: myTrigger.ack });
+      riot.control.trigger(riot.EVT.componentLoaderStore.in.addDynamicComponents, result.json.components, { evt: Constants.WELLKNOWN_EVENTS.in.componentsAdded });
     }
   };
 
-  StartupStore.prototype._onFetchConfigResult2 = function _onFetchConfigResult2(result, myTrigger) {
-    console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.fetchConfigResult2, result, myTrigger);
+  StartupStore.prototype._onFetchConfigResult2 = function _onFetchConfigResult2(result, ack) {
+    console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.fetchConfigResult2, result, ack);
   };
 
-  StartupStore.prototype._onFetchConfig = function _onFetchConfig(path, ack) {
+  StartupStore.prototype._onFetchConfig = function _onFetchConfig(path) {
     console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.fetchConfig, path);
     var url = path;
-    var trigger = {
-      name: Constants.WELLKNOWN_EVENTS.in.fetchConfigResult,
-      ack: ack
+    var myAck = {
+      evt: Constants.WELLKNOWN_EVENTS.in.fetchConfigResult
     };
-    var trigger2 = {
-      name: Constants.WELLKNOWN_EVENTS.in.fetchConfigResult2,
-      ack: ack
+    var myAck2 = {
+      evt: Constants.WELLKNOWN_EVENTS.in.fetchConfigResult2
     };
 
-    riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, { method: 'HEAD' }, trigger2);
-    riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, null, trigger);
+    riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, { method: 'HEAD' }, myAck2);
+    riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, null, myAck);
   };
 
   StartupStore.prototype._onStart = function _onStart(nextTag) {
@@ -15804,45 +15794,75 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var Constants = function Constants() {
+  _classCallCheck(this, Constants);
+};
+
+Constants.NAME = 'next-config-store';
+Constants.NAMESPACE = Constants.NAME + ':';
+Constants.WELLKNOWN_EVENTS = {
+  in: {
+    fetchConfig: Constants.NAMESPACE + 'fetch-config',
+    fetchConfigResult: Constants.NAMESPACE + 'fetch-config-result'
+  },
+  out: {
+    configComplete: Constants.NAMESPACE + 'config-complete'
+  }
+};
+_deepFreeze2.default.freeze(Constants);
+
 var NextConfigStore = function () {
+  NextConfigStore.getConstants = function getConstants() {
+    return Constants;
+  };
+
   function NextConfigStore() {
     _classCallCheck(this, NextConfigStore);
 
-    var self = this;
-    self.name = 'NextConfigStore';
-    self.namespace = self.name + ':';
-    riot.EVT.nextConfigStore = {
-      in: {
-        fetchConfig: self.namespace + 'fetch-config',
-        fetchConfigResult: self.namespace + 'fetch-config-result'
-      },
-      out: {}
-    };
+    riot.observable(this);
+    this._bound = false;
+    this.bindEvents();
   }
 
   NextConfigStore.prototype.bindEvents = function bindEvents() {
-    var self = this;
-    riot.observable(self);
-    //------------------------------------------------------------
-    self.on(riot.EVT.nextConfigStore.in.fetchConfig, function (path, ack) {
-      console.log(self.name, riot.EVT.nextConfigStore.in.fetchConfig, path);
-      var url = path;
-      var trigger = {
-        name: riot.EVT.nextConfigStore.in.fetchConfigResult,
-        ack: ack
-      };
-      riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, null, trigger);
-    });
+    if (this._bound === false) {
+      this.on(Constants.WELLKNOWN_EVENTS.in.fetchConfig, this._onFetchConfig);
+      this.on(riot.EVT.nextConfigStore.in.fetchConfigResult, this._onFetchConfigResult);
 
-    //------------------------------------------------------------
-    self.on(riot.EVT.nextConfigStore.in.fetchConfigResult, function (result, myTrigger) {
-      console.log(self.name, riot.EVT.nextConfigStore.in.fetchConfigResult, result, myTrigger);
-      if (result.error || !result.response.ok) {
-        riot.control.trigger(riot.EVT.errorStore.in.errorCatchAll, { code: 'startup-config1234' });
-      } else {
-        riot.control.trigger(myTrigger.ack.evt, myTrigger.ack);
-      }
-    });
+      this._bound = !this._bound;
+    }
+  };
+
+  NextConfigStore.prototype.unbindEvents = function unbindEvents() {
+    if (this._bound === true) {
+      this.off(Constants.WELLKNOWN_EVENTS.in.fetchConfig, this._onFetchConfig);
+      this.off(riot.EVT.nextConfigStore.in.fetchConfigResult, this._onFetchConfigResult);
+
+      this._bound = !this._bound;
+    }
+  };
+
+  NextConfigStore.prototype._onFetchConfig = function _onFetchConfig(path) {
+    console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.fetchConfig, path);
+    this.off(Constants.WELLKNOWN_EVENTS.in.fetchConfig, this._onFetchConfig); // done with this one.
+
+    var url = path;
+    var myAck = {
+      evt: riot.EVT.nextConfigStore.in.fetchConfigResult
+    };
+
+    riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, null, myAck);
+  };
+
+  NextConfigStore.prototype._onFetchConfigResult = function _onFetchConfigResult(result, ack) {
+    console.log(Constants.NAME, riot.EVT.nextConfigStore.in.fetchConfigResult, result, ack);
+    this.off(riot.EVT.nextConfigStore.in.fetchConfigResult, this._onFetchConfigResult); // done with this one
+
+    if (result.error || !result.response.ok) {
+      riot.control.trigger(riot.EVT.errorStore.in.errorCatchAll, { code: 'startup-config1234' });
+    } else {
+      this.trigger(Constants.WELLKNOWN_EVENTS.out.configComplete);
+    }
   };
 
   return NextConfigStore;
@@ -16055,23 +16075,33 @@ riot.tag2('my-next-startup', '', '', '', function (opts) {
   if (self.opts.config) {
     self.config = self.opts.config;
   }
-  self.ack = {
-    evt: 'my-next-tag-fetch-config-ack'
-  };
+  self.nextTag = 'app';
+  if (self.opts.nextTag) {
+    self.nextTag = self.opts.nextTag;
+  }
 
   self.loaded = false;
+
+  self._bind = function () {
+    riot.control.on('next-config-store:config-complete', self.onConfigComplete);
+  };
+  self._unbind = function () {
+    riot.control.off('next-config-store:config-complete', self.onConfigComplete);
+  };
+
   self.on('mount', function () {
-    riot.control.on(self.ack.evt, self.onAck);
-    riot.control.trigger('NextConfigStore:fetch-config', self.config, { evt: self.ack.evt });
+    self._bind();
+    riot.control.trigger('next-config-store:fetch-config', self.config);
   });
 
   self.on('unmount', function () {
-    riot.control.off(self.ack.evt, self.onAck);
+    self._unbind();
   });
-  self.onAck = function () {
+
+  self.onConfigComplete = function () {
     if (!self.loaded) {
       self.loaded = true;
-      riot.control.off(self.ack.evt, self.onAck);
+      self._unbind();
       riot.control.trigger(riot.EVT.startupStore.in.start, self.nextTag);
     }
   };
@@ -16219,6 +16249,7 @@ riot.mixin('opts-mixin', _optsMixin2.default);
 
 var routeContributer = new _routeContributer2.default();
 
+riot.EVT.nextConfigStore = _nextConfigStore2.default.getConstants().WELLKNOWN_EVENTS;
 var nextConfigStore = new _nextConfigStore2.default();
 
 var sidebarStore = new _sidebarStore2.default();
@@ -16614,18 +16645,26 @@ riot.tag2('startup', '', '', '', function (opts) {
     self.nextTag = self.opts.nextTag;
   }
   self.loaded = false;
+  self._bind = function () {
+    riot.control.on('startup-store:config-complete', self.onConfigComplete);
+  };
+  self._unbind = function () {
+    riot.control.off('startup-store:config-complete', self.onConfigComplete);
+  };
+
   self.on('mount', function () {
-    riot.control.on('startup-tag-fetch-config-ack', self.onStartupTagFetchConfigAck);
-    riot.control.trigger(riot.EVT.startupStore.in.fetchConfig, self.config, { evt: 'startup-tag-fetch-config-ack' });
+    self._bind();
+    riot.control.trigger(riot.EVT.startupStore.in.fetchConfig, self.config);
   });
 
   self.on('unmount', function () {
-    riot.control.off('startup-tag-fetch-config-ack', self.onStartupTagFetchConfigAck);
+    self._unbind();
   });
-  self.onStartupTagFetchConfigAck = function () {
+
+  self.onConfigComplete = function () {
     if (!self.loaded) {
       self.loaded = true;
-      riot.control.off('startup-tag-fetch-config-ack', self.onStartupTagFetchConfigAck);
+      self._unbind();
       riot.control.trigger(riot.EVT.startupStore.in.start, self.nextTag);
     }
   };

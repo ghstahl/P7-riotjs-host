@@ -9,22 +9,28 @@
     self.nextTag = self.opts.nextTag;
   }
   self.loaded = false;
+  self._bind =()=>{
+    riot.control.on('startup-store:config-complete',
+                    self.onConfigComplete);
+  }
+  self._unbind =()=>{
+    riot.control.off('startup-store:config-complete',
+                    self.onConfigComplete);
+  }
+
   self.on('mount', () => {
-    riot.control.on('startup-tag-fetch-config-ack',
-                    self.onStartupTagFetchConfigAck);
-    riot.control.trigger(riot.EVT.startupStore.in.fetchConfig,self.config,
-      {evt:'startup-tag-fetch-config-ack'});
+    self._bind();
+    riot.control.trigger(riot.EVT.startupStore.in.fetchConfig,self.config);
   });
 
   self.on('unmount', () => {
-    riot.control.off('startup-tag-fetch-config-ack',
-                    self.onStartupTagFetchConfigAck);
+    self._unbind();
   });
-  self.onStartupTagFetchConfigAck = () =>{
+
+  self.onConfigComplete = () =>{
     if(!self.loaded){
       self.loaded = true;
-      riot.control.off('startup-tag-fetch-config-ack',
-                    self.onStartupTagFetchConfigAck);
+      self._unbind();
       riot.control.trigger(riot.EVT.startupStore.in.start,self.nextTag);
     }
   }

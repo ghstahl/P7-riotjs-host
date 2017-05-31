@@ -34,7 +34,6 @@ export default class RouteStore {
     if (this._bound === false) {
       this.on(Constants.WELLKNOWN_EVENTS.in.contributeCatchAllRoute, this._onContributeCatchAllRoute);
       this.on(Constants.WELLKNOWN_EVENTS.in.routeDispatch, this._onRouteDispatch);
-      
       this.on(Constants.WELLKNOWN_EVENTS.in.riotRouteAddView, this._onRiotRouteAddView);
       this.on(Constants.WELLKNOWN_EVENTS.in.riotRouteRemoveView, this._onRiotRouteRemoveView);
       this.on(Constants.WELLKNOWN_EVENTS.in.riotRouteLoadView, this._onRiotRouteLoadView);
@@ -46,7 +45,6 @@ export default class RouteStore {
     if (this._bound === true) {
       this.off(Constants.WELLKNOWN_EVENTS.in.contributeCatchAllRoute, this._onContributeCatchAllRoute);
       this.off(Constants.WELLKNOWN_EVENTS.in.routeDispatch, this._onRouteDispatch);
-    
       this.off(Constants.WELLKNOWN_EVENTS.in.riotRouteAddView, this._onRiotRouteAddView);
       this.off(Constants.WELLKNOWN_EVENTS.in.riotRouteRemoveView, this._onRiotRouteRemoveView);
       this.off(Constants.WELLKNOWN_EVENTS.in.riotRouteLoadView, this._onRiotRouteLoadView);

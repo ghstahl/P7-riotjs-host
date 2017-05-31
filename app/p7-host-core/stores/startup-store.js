@@ -14,7 +14,7 @@ Constants.WELLKNOWN_EVENTS = {
 
   },
   out: {
-
+    configComplete: Constants.NAMESPACE + 'config-complete'
   }
 };
 
@@ -78,36 +78,34 @@ export default class StartupStore {
 
   _onComponentsAdded(ack) {
     console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.componentsAdded, ack);
-    riot.control.trigger(ack.ack.evt, ack.ack);
+    this.trigger(Constants.WELLKNOWN_EVENTS.out.configComplete);
+//    riot.control.trigger(ack.ack.evt, ack.ack);
   }
-  _onFetchConfigResult(result, myTrigger) {
-    console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.fetchConfigResult, result, myTrigger);
+  _onFetchConfigResult(result, ack) {
+    console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.fetchConfigResult, result, ack);
     if (result.error || !result.response.ok) {
       riot.control.trigger(riot.EVT.errorStore.in.errorCatchAll, {code: 'startup-config1234'});
     } else {
       riot.control.trigger(riot.EVT.componentLoaderStore.in.addDynamicComponents
-        , result.json.components, {evt: Constants.WELLKNOWN_EVENTS.in.componentsAdded,
-          ack: myTrigger.ack});
+        , result.json.components, {evt: Constants.WELLKNOWN_EVENTS.in.componentsAdded});
     }
   }
-  _onFetchConfigResult2(result, myTrigger) {
+  _onFetchConfigResult2(result, ack) {
     console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.fetchConfigResult2,
-      result, myTrigger);
+      result, ack);
   }
-  _onFetchConfig(path, ack) {
+  _onFetchConfig(path) {
     console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.fetchConfig, path);
     let url = path;
-    let trigger = {
-      name: Constants.WELLKNOWN_EVENTS.in.fetchConfigResult,
-      ack: ack
+    let myAck = {
+      evt: Constants.WELLKNOWN_EVENTS.in.fetchConfigResult
     };
-    let trigger2 = {
-      name: Constants.WELLKNOWN_EVENTS.in.fetchConfigResult2,
-      ack: ack
+    let myAck2 = {
+      evt: Constants.WELLKNOWN_EVENTS.in.fetchConfigResult2
     };
 
-    riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, {method: 'HEAD'}, trigger2);
-    riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, null, trigger);
+    riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, {method: 'HEAD'}, myAck2);
+    riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, null, myAck);
   }
   _onStart(nextTag) {
     console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.start, this._done, nextTag);

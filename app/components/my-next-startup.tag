@@ -4,24 +4,35 @@
   if(self.opts.config){
     self.config = self.opts.config;
   }
-  self.ack = {
-    evt:'my-next-tag-fetch-config-ack'
-  };
+  self.nextTag = 'app';
+  if(self.opts.nextTag){
+    self.nextTag = self.opts.nextTag;
+  }
 
   self.loaded = false;
+
+  self._bind =()=>{
+    riot.control.on('next-config-store:config-complete',
+                    self.onConfigComplete);
+  }
+  self._unbind =()=>{
+    riot.control.off('next-config-store:config-complete',
+                    self.onConfigComplete);
+  }
+  
   self.on('mount', () => {
-    riot.control.on(self.ack.evt,self.onAck);
-    riot.control.trigger('NextConfigStore:fetch-config',self.config,
-      {evt:self.ack.evt});
+    self._bind();
+    riot.control.trigger('next-config-store:fetch-config',self.config);
   });
 
   self.on('unmount', () => {
-    riot.control.off(self.ack.evt,self.onAck);
+    self._unbind();
   });
-  self.onAck = () =>{
+
+  self.onConfigComplete = () =>{
     if(!self.loaded){
       self.loaded = true;
-      riot.control.off(self.ack.evt,self.onAck);
+      self._unbind();
       riot.control.trigger(riot.EVT.startupStore.in.start,self.nextTag);
     }
   }
