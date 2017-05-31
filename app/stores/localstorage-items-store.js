@@ -25,7 +25,8 @@ function LocalStorageItemsStore(name) {
   self.onLocalStorageGet = (items) => {
     if (!items) {
       self.items = [];
-      RiotControl.trigger(riot.EVT.localStorageStore.in.localstorageSet, {key: self._localStorageKey, data: self.items});
+      RiotControl.trigger(riot.EVT.localStorageStore.in.localstorageSet,
+        {key: self._localStorageKey, data: self.items});
     } else {
       self.items = items;
     }

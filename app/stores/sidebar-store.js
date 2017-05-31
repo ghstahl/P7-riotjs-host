@@ -1,89 +1,85 @@
 import DeepFreeze from '../p7-host-core/utils/deep-freeze.js';
 
-class SidebarStore {
+export default class SidebarStore {
 
   constructor() {
-    var self = this;
-
-    self.name = 'SidebarStore';
-    self.namespace = self.name + ':';
+    riot.observable(this);
+    this.name = 'SidebarStore';
+    this.namespace = this.name + ':';
     riot.EVT.sidebarStore = {
       in: {
-        sidebarAddItem: self.namespace + 'sidebar-add-item',
-        sidebarRemoveItem: self.namespace + 'sidebar-remove-item'
+        sidebarAddItem: this.namespace + 'sidebar-add-item',
+        sidebarRemoveItem: this.namespace + 'sidebar-remove-item'
       },
       out: {
         riotRouteDispatchAck: riot.EVT.routeStore.out.riotRouteDispatchAck
       }
     };
 
-    self.state = riot.state.sidebar;
-    self.itemsSet = new Set();
+    this.state = riot.state.sidebar;
+    this.itemsSet = new Set();
 
-    self._loadFromState();
+    this._loadFromState();
+    this._bound = false;
+    this.bindEvents();
   }
 
   _commitToState() {
-    var self = this;
-
-    self.state.items = Array.from(self.itemsSet);
-    self.trigger(riot.EVT.sidebarStore.out.riotRouteDispatchAck);
+    this.state.items = Array.from(this.itemsSet);
+    this.trigger(riot.EVT.sidebarStore.out.riotRouteDispatchAck);
   }
 
   _loadFromState() {
-    var self = this;
-
-    for (let item of self.state.items) {
-      self.itemsSet.add(item);
+    for (let item of this.state.items) {
+      this.itemsSet.add(item);
     }
   }
 
   _findItem(item) {
-    var self = this;
-
-    for (let t of self.state.items) {
+    for (let t of this.state.items) {
       if (t.title === item.title && t.view === item.view) {
         return t;
       }
-      return null;
     }
+    return null;
   }
 
   _deleteItem(item) {
-    var self = this;
-
-    for (let t of self.state.items) {
+    for (let t of this.state.items) {
       if (t.title === item.title) {
-        self.itemsSet.delete(t);
+        this.itemsSet.delete(t);
         break;
       }
     }
   }
 
   _onSidebarAddItem(item) {
-    var self = this;
-    var t = self._findItem(item);
+    var t = this._findItem(item);
 
     if (t == null) {
-      self.itemsSet.add(item);
+      this.itemsSet.add(item);
+      this._commitToState();
     }
-    self._commitToState();
   }
 
   _onSidebarRemoveItem(item) {
-    var self = this;
-
-    self._deleteItem(item);
-    self._commitToState();
+    this._deleteItem(item);
+    this._commitToState();
   }
 
   bindEvents() {
-    var self = this;
-
-    riot.observable(self);
-    self.on(riot.EVT.sidebarStore.in.sidebarAddItem, self._onSidebarAddItem);
-    self.on(riot.EVT.sidebarStore.in.sidebarRemoveItem, self._onSidebarRemoveItem);
+    if (this._bound === false) {
+      this.on(riot.EVT.sidebarStore.in.sidebarAddItem, this._onSidebarAddItem);
+      this.on(riot.EVT.sidebarStore.in.sidebarRemoveItem, this._onSidebarRemoveItem);
+      this._bound = !this._bound;
+    }
   }
 
+  unbindEvents() {
+    if (this._bound === true) {
+      this.off(riot.EVT.sidebarStore.in.sidebarAddItem, this._onSidebarAddItem);
+      this.off(riot.EVT.sidebarStore.in.sidebarRemoveItem, this._onSidebarRemoveItem);
+      this._bound = !this._bound;
+    }
+  }
 }
-export default SidebarStore;
