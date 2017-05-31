@@ -6,8 +6,6 @@ Constants.NAMESPACE = Constants.NAME + ':';
 Constants.WELLKNOWN_EVENTS = {
   in: {
     routeDispatch: 'riot-route-dispatch',
-    riotRouteAddView: 'riot-route-add-view',
-    riotRouteRemoveView: 'riot-route-remove-view',
     riotRouteLoadView: 'riot-route-load-view'
   },
   out: {
@@ -32,8 +30,6 @@ export default class RouteStore {
   bindEvents() {
     if (this._bound === false) {
       this.on(Constants.WELLKNOWN_EVENTS.in.routeDispatch, this._onRouteDispatch);
-      this.on(Constants.WELLKNOWN_EVENTS.in.riotRouteAddView, this._onRiotRouteAddView);
-      this.on(Constants.WELLKNOWN_EVENTS.in.riotRouteRemoveView, this._onRiotRouteRemoveView);
       this.on(Constants.WELLKNOWN_EVENTS.in.riotRouteLoadView, this._onRiotRouteLoadView);
       this._bound = !this._bound;
     }
@@ -42,8 +38,6 @@ export default class RouteStore {
   unbindEvents() {
     if (this._bound === true) {
       this.off(Constants.WELLKNOWN_EVENTS.in.routeDispatch, this._onRouteDispatch);
-      this.off(Constants.WELLKNOWN_EVENTS.in.riotRouteAddView, this._onRiotRouteAddView);
-      this.off(Constants.WELLKNOWN_EVENTS.in.riotRouteRemoveView, this._onRiotRouteRemoveView);
       this.off(Constants.WELLKNOWN_EVENTS.in.riotRouteLoadView, this._onRiotRouteLoadView);
       this._bound = !this._bound;
     }
@@ -70,20 +64,6 @@ export default class RouteStore {
     this.trigger(Constants.WELLKNOWN_EVENTS.out.routeDispatchAck, route);
   }
 
-  _onRiotRouteAddView(view) {
-    console.log(Constants.NAME, 'riot-route-add-view', view);
-    let s = this._viewsSet;
-
-    s.add(view);
-    riot.routeState.views = Array.from(s);
-  }
-  _onRiotRouteRemoveView(view) {
-    console.log(Constants.NAME, 'riot-route-remove-view', view);
-    let s = this._viewsSet;
-
-    s.delete(view);
-    riot.routeState.views = Array.from(s);
-  }
   _onRiotRouteLoadView(view) {
     console.log(Constants.NAME, 'riot-route-load-view', view);
     riot.router.loadView(view);
