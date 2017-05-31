@@ -39,20 +39,25 @@
 
   self.on('mount', () => {
     console.log('header mount');
-    riot.control.on('riot-route-dispatch-ack',self.onRiotRouteDispatchAck);
+    riot.control.on( 
+      riot.EVT.routeStore.out.riotRouteDispatchAck,
+      self._onRiotRouteDispatchAck);
   });
   self.on('unmount', () => {
     console.log('header unmount')
-    riot.control.off('riot-route-dispatch-ack',self.onRiotRouteDispatchAck);
+    riot.control.off(
+      riot.EVT.routeStore.out.riotRouteDispatchAck,
+      self._onRiotRouteDispatchAck);
   });
 
-  self.onRiotRouteDispatchAck = () =>{
-    console.log('header riot-route-dispatch-ack')
+  self._onRiotRouteDispatchAck = () =>{
+    console.log('header',
+      riot.EVT.routeStore.out.riotRouteDispatchAck)
     self.update()
   }
 
   self.route = (evt) => {
-    riot.control.trigger('riot-route-dispatch',evt.item.route);
+    riot.control.trigger(riot.EVT.routeStore.in.routeDispatch,evt.item.route);
   };
 
 </script>

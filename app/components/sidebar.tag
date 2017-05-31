@@ -15,20 +15,24 @@
 
 	self.on('mount', () => {
 	    console.log('sidebar mount');
-	    riot.control.on('riot-route-dispatch-ack',self.onRiotRouteDispatchAck);
+	    riot.control.on(
+	    	riot.EVT.routeStore.out.riotRouteDispatchAck,
+	    	self.onRiotRouteDispatchAck);
 	  });
 	  self.on('unmount', () => {
 	    console.log('sidebar unmount')
-	    riot.control.off('riot-route-dispatch-ack',self.onRiotRouteDispatchAck);
+	    riot.control.off(
+	    	riot.EVT.routeStore.out.riotRouteDispatchAck,
+	    	self.onRiotRouteDispatchAck);
 	  });
 
 	  self.onRiotRouteDispatchAck = () =>{
-	    console.log('sidebar riot-route-dispatch-ack')
+	    console.log('sidebar',riot.EVT.routeStore.out.riotRouteDispatchAck);
 	    self.update()
 	  }
 
 	  self.route = (evt) => {
-		riot.control.trigger('riot-route-dispatch',evt.item.route);
+		riot.control.trigger(riot.EVT.routeStore.in.routeDispatch,evt.item.route);
 	  };
 	  
 	</script>

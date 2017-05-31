@@ -98,7 +98,6 @@ riot.control.trigger('init-component-loader-store');
 //      dispatcher forwards on the riot.EVT.finalMount.  Only one handler and only one time.
 // //////////////////////////////////////////////////////
 // riot.control.trigger('riot-dispatch',riot.EVT.finalMount,'some data');
-// riot.control.trigger('riot-dispatch','riot-route-dispatch-ack');
 // riot.control.trigger(riot.EVT.startupStore.in.start);
 
 riot.mount('startup');
