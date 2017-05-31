@@ -1,6 +1,6 @@
 
-import 'bootswatch/slate/bootstrap.css';
-import 'bootstrap';
+// import 'bootswatch/slate/bootstrap.css';
+// import 'bootstrap';
 import './css/index.css';
 import './components/my-next-startup.tag';
 import './app.tag';

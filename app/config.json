@@ -2,10 +2,10 @@
   "components": [{
     "key": "typicode-component",
     "jsBundle": {
-      "path": "/partial/typicode_component/bundle.js"
+      "path": "/externals/typicode_component/bundle.js"
     },
     "cssBundle": {
-      "path": "/partial/typicode_component/styles.css"
+      "path": "/externals/typicode_component/styles.css"
     },
 
     "trigger": {

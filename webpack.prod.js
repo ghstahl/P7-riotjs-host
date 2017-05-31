@@ -1,28 +1,34 @@
 const webpack = require('webpack');
 var path = require('path');
+
 module.exports = {
   entry: './app/index.js',
   output: {
     filename: 'bundle.min.js',
-    path: path.resolve(__dirname, 'dist') 
+    path: path.resolve(__dirname, 'dist')
   },
-  module:{
+  externals: {
+    $: 'jQuery',
+    jquery: 'jQuery',
+    'window.jQuery': 'jquery'
+  },
+  module: {
     rules: [
       {
-          test: /bootstrap\/js\//,
-          loader: 'imports?jQuery=jquery'
+        test: /bootstrap\/js\//,
+        loader: 'imports?jQuery=jquery'
       },
       {
-            test: /\.tag$/,
-            exclude: /node_modules/,
-            enforce: "pre",
-            use:[
-              {loader: 'riot-tag-loader',options: {hot: false}}
-            ]
-          },
-        {
-          test: /\.css$/,
-          use: [ 'style-loader', 'css-loader' ]
+        test: /\.tag$/,
+        exclude: /node_modules/,
+        enforce: 'pre',
+        use: [
+              {loader: 'riot-tag-loader', options: {hot: false}}
+        ]
+      },
+      {
+        test: /\.css$/,
+        use: [ 'style-loader', 'css-loader' ]
       },
       {
         test: /\.(png|woff|woff2|eot|ttf|svg)$/,
@@ -34,7 +40,7 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['es2015','es2015-riot']
+            presets: ['es2015', 'es2015-riot']
           }
         }
       }
@@ -57,10 +63,9 @@ module.exports = {
       comments: false
     }),
     new webpack.ProvidePlugin({
-              $: "jquery",
-              jQuery: "jquery",
-              "window.jQuery": "jquery",
-              riot: 'riot'
-          })
+      riot: 'riot',
+      'riot-route': 'riot-route',
+      'riotcontrol': 'riotcontrol'
+    })
   ]
-}
+};

@@ -6,13 +6,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "fonts": "cpx node_modules/bootstrap/fonts/**/*   dist/fonts  -v",
+    "jqbootswatchbundle": "cpx node_modules/webpack2-bootstrap3-jquery3/dist/**/*   dist/externals/jqb  -v",
     "json": "cpx ./app/*.json                         dist       -v",
     "html": "cpx ./app/*.html                         dist       -v",
     "public": "cpx ./dist/**/*                        public    -v",
     "build:dev": "webpack --env=dev --progress --profile --colors",
     "build:prod": "webpack --env=prod --progress --profile --colors",
     "build:library": "webpack --env=library --progress --profile --colors",
-    "postBuild": "npm-run-all html json fonts",
+    "postBuild": "npm-run-all html json fonts jqbootswatchbundle",
     "serve": "webpack-dev-server --env=dev --hot",
     "dev:0": "npm-run-all build:dev postBuild",
     "dev": "npm-run-all dev:0 serve",
@@ -61,6 +62,7 @@
     "url-loader": "^0.5.8",
     "webpack": "^2.6.1",
     "webpack-dev-server": "^2.4.5",
+    "webpack2-bootstrap3-jquery3": "git+https://github.com/ghstahl/webpack2-bootswatch3-jquery3.git",
     "whatwg-fetch": "^2.0.3"
   }
 }

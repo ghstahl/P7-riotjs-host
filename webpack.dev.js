@@ -8,6 +8,11 @@ module.exports = {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist')
   },
+  externals: {
+    $: 'jQuery',
+    jquery: 'jQuery',
+    'window.jQuery': 'jquery'
+  },
   module: {
     rules: [
       {
@@ -45,9 +50,6 @@ module.exports = {
   },
   plugins: [
     new webpack.ProvidePlugin({
-      $: 'jquery',
-      jQuery: 'jquery',
-      'window.jQuery': 'jquery',
       'riot': 'riot',
       'riot-route': 'riot-route',
       'riotcontrol': 'riotcontrol'
