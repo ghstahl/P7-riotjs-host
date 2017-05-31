@@ -6,7 +6,6 @@ Constants.NAMESPACE = Constants.NAME + ':';
 Constants.WELLKNOWN_EVENTS = {
   in: {
     routeDispatch: 'riot-route-dispatch',
-    contributeCatchAllRoute: 'contribute-catchall-route',
     riotRouteAddView: 'riot-route-add-view',
     riotRouteRemoveView: 'riot-route-remove-view',
     riotRouteLoadView: 'riot-route-load-view'
@@ -32,7 +31,6 @@ export default class RouteStore {
 
   bindEvents() {
     if (this._bound === false) {
-      this.on(Constants.WELLKNOWN_EVENTS.in.contributeCatchAllRoute, this._onContributeCatchAllRoute);
       this.on(Constants.WELLKNOWN_EVENTS.in.routeDispatch, this._onRouteDispatch);
       this.on(Constants.WELLKNOWN_EVENTS.in.riotRouteAddView, this._onRiotRouteAddView);
       this.on(Constants.WELLKNOWN_EVENTS.in.riotRouteRemoveView, this._onRiotRouteRemoveView);
@@ -43,7 +41,6 @@ export default class RouteStore {
 
   unbindEvents() {
     if (this._bound === true) {
-      this.off(Constants.WELLKNOWN_EVENTS.in.contributeCatchAllRoute, this._onContributeCatchAllRoute);
       this.off(Constants.WELLKNOWN_EVENTS.in.routeDispatch, this._onRouteDispatch);
       this.off(Constants.WELLKNOWN_EVENTS.in.riotRouteAddView, this._onRiotRouteAddView);
       this.off(Constants.WELLKNOWN_EVENTS.in.riotRouteRemoveView, this._onRiotRouteRemoveView);
@@ -52,37 +49,6 @@ export default class RouteStore {
     }
   }
 
-  _onContributeCatchAllRoute(r) {
-    console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.contributeCatchAllRoute, r);
-    if (riot.state.componentLoaderState && riot.state.componentLoaderState.components) {
-      for (let item of riot.state.componentLoaderState.components) {
-        let component = item[1];
-
-        if (component.state.loaded === false) {
-          r(component.routeLoad.route, ()=>{
-            console.log('catchall route handler of:', component.routeLoad.route);
-
-            let path = riot.route.currentPath();
-
-            this.postResetRoute = path;
-            riot.control.trigger(riot.EVT.componentLoaderStore.in.loadDynamicComponent, component.key);
-          });
-        }
-      }
-    }
-
-    r('/..', ()=>{
-      console.log('route handler of /  ');
-      riot.control.trigger(Constants.WELLKNOWN_EVENTS.in.routeDispatch,
-        riot.state.route.defaultRoute);
-    });
-    if (this.postResetRoute != null) {
-      let postResetRoute = this.postResetRoute;
-
-      this.postResetRoute = null;
-      riot.control.trigger('riot-route-dispatch', postResetRoute, true);
-    }
-  }
   _onRouteDispatch(route, force) {
     console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.routeDispatch, route);
     let current = riot.route.currentPath();

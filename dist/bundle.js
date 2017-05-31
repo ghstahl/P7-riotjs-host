@@ -13161,6 +13161,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _deepFreeze = __webpack_require__(1);
 
 var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
@@ -13233,9 +13235,12 @@ Constants.WELLKNOWN_EVENTS = {
 _deepFreeze2.default.freeze(Constants);
 
 var DynamicJsCssLoader = function () {
-  DynamicJsCssLoader.getConstants = function getConstants() {
-    return Constants;
-  };
+  _createClass(DynamicJsCssLoader, null, [{
+    key: 'constants',
+    get: function get() {
+      return Constants;
+    }
+  }]);
 
   function DynamicJsCssLoader() {
     _classCallCheck(this, DynamicJsCssLoader);
@@ -13388,6 +13393,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _deepFreeze = __webpack_require__(1);
 
 var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
@@ -13410,9 +13417,12 @@ Constants.WELLKNOWN_EVENTS = {
 _deepFreeze2.default.freeze(Constants);
 
 var Router = function () {
-  Router.getConstants = function getConstants() {
-    return Constants;
-  };
+  _createClass(Router, null, [{
+    key: 'constants',
+    get: function get() {
+      return Constants;
+    }
+  }]);
 
   function Router() {
     _classCallCheck(this, Router);
@@ -13525,6 +13535,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _deepFreeze = __webpack_require__(1);
 
 var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
@@ -13612,9 +13624,12 @@ Constants.WELLKNOWN_EVENTS = {
 _deepFreeze2.default.freeze(Constants);
 
 var ComponentLoaderStore = function () {
-  ComponentLoaderStore.getConstants = function getConstants() {
-    return Constants;
-  };
+  _createClass(ComponentLoaderStore, null, [{
+    key: 'constants',
+    get: function get() {
+      return Constants;
+    }
+  }]);
 
   function ComponentLoaderStore(dynamicJsCssLoader) {
     _classCallCheck(this, ComponentLoaderStore);
@@ -13864,6 +13879,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _deepFreeze = __webpack_require__(1);
 
 var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
@@ -13895,9 +13912,12 @@ Constants.WELLKNOWN_EVENTS = {
 _deepFreeze2.default.freeze(Constants);
 
 var ProgressStore = function () {
-  ProgressStore.getConstants = function getConstants() {
-    return Constants;
-  };
+  _createClass(ProgressStore, null, [{
+    key: 'constants',
+    get: function get() {
+      return Constants;
+    }
+  }]);
 
   function ProgressStore() {
     _classCallCheck(this, ProgressStore);
@@ -13963,6 +13983,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _deepFreeze = __webpack_require__(1);
 
 var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
@@ -13980,7 +14002,6 @@ Constants.NAMESPACE = Constants.NAME + ':';
 Constants.WELLKNOWN_EVENTS = {
   in: {
     routeDispatch: 'riot-route-dispatch',
-    contributeCatchAllRoute: 'contribute-catchall-route',
     riotRouteAddView: 'riot-route-add-view',
     riotRouteRemoveView: 'riot-route-remove-view',
     riotRouteLoadView: 'riot-route-load-view'
@@ -13992,9 +14013,12 @@ Constants.WELLKNOWN_EVENTS = {
 _deepFreeze2.default.freeze(Constants);
 
 var RouteStore = function () {
-  RouteStore.getConstants = function getConstants() {
-    return Constants;
-  };
+  _createClass(RouteStore, null, [{
+    key: 'constants',
+    get: function get() {
+      return Constants;
+    }
+  }]);
 
   function RouteStore() {
     _classCallCheck(this, RouteStore);
@@ -14007,7 +14031,6 @@ var RouteStore = function () {
 
   RouteStore.prototype.bindEvents = function bindEvents() {
     if (this._bound === false) {
-      this.on(Constants.WELLKNOWN_EVENTS.in.contributeCatchAllRoute, this._onContributeCatchAllRoute);
       this.on(Constants.WELLKNOWN_EVENTS.in.routeDispatch, this._onRouteDispatch);
       this.on(Constants.WELLKNOWN_EVENTS.in.riotRouteAddView, this._onRiotRouteAddView);
       this.on(Constants.WELLKNOWN_EVENTS.in.riotRouteRemoveView, this._onRiotRouteRemoveView);
@@ -14018,64 +14041,11 @@ var RouteStore = function () {
 
   RouteStore.prototype.unbindEvents = function unbindEvents() {
     if (this._bound === true) {
-      this.off(Constants.WELLKNOWN_EVENTS.in.contributeCatchAllRoute, this._onContributeCatchAllRoute);
       this.off(Constants.WELLKNOWN_EVENTS.in.routeDispatch, this._onRouteDispatch);
       this.off(Constants.WELLKNOWN_EVENTS.in.riotRouteAddView, this._onRiotRouteAddView);
       this.off(Constants.WELLKNOWN_EVENTS.in.riotRouteRemoveView, this._onRiotRouteRemoveView);
       this.off(Constants.WELLKNOWN_EVENTS.in.riotRouteLoadView, this._onRiotRouteLoadView);
       this._bound = !this._bound;
-    }
-  };
-
-  RouteStore.prototype._onContributeCatchAllRoute = function _onContributeCatchAllRoute(r) {
-    var _this = this;
-
-    console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.contributeCatchAllRoute, r);
-    if (riot.state.componentLoaderState && riot.state.componentLoaderState.components) {
-      var _loop = function _loop() {
-        if (_isArray) {
-          if (_i >= _iterator.length) return 'break';
-          _ref = _iterator[_i++];
-        } else {
-          _i = _iterator.next();
-          if (_i.done) return 'break';
-          _ref = _i.value;
-        }
-
-        var item = _ref;
-
-        var component = item[1];
-
-        if (component.state.loaded === false) {
-          r(component.routeLoad.route, function () {
-            console.log('catchall route handler of:', component.routeLoad.route);
-
-            var path = riot.route.currentPath();
-
-            _this.postResetRoute = path;
-            riot.control.trigger(riot.EVT.componentLoaderStore.in.loadDynamicComponent, component.key);
-          });
-        }
-      };
-
-      for (var _iterator = riot.state.componentLoaderState.components, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-        var _ref;
-
-        var _ret = _loop();
-
-        if (_ret === 'break') break;
-      }
-    }
-
-    r('/..', function () {
-      console.log('route handler of /  ');
-      riot.control.trigger(Constants.WELLKNOWN_EVENTS.in.routeDispatch, riot.state.route.defaultRoute);
-    });
-    if (this.postResetRoute != null) {
-      var postResetRoute = this.postResetRoute;
-
-      this.postResetRoute = null;
-      riot.control.trigger('riot-route-dispatch', postResetRoute, true);
     }
   };
 
@@ -14649,6 +14619,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _deepFreeze = __webpack_require__(1);
 
 var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
@@ -14670,9 +14642,12 @@ Constants.WELLKNOWN_EVENTS = {
 _deepFreeze2.default.freeze(Constants);
 
 var RiotControlExt = function () {
-  RiotControlExt.getConstants = function getConstants() {
-    return Constants;
-  };
+  _createClass(RiotControlExt, null, [{
+    key: 'constants',
+    get: function get() {
+      return Constants;
+    }
+  }]);
 
   function RiotControlExt() {
     _classCallCheck(this, RiotControlExt);
@@ -14712,6 +14687,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _deepFreeze = __webpack_require__(1);
 
 var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
@@ -14724,7 +14701,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var RSWKE = _routeStore2.default.getConstants().WELLKNOWN_EVENTS;
+var RSWKE = _routeStore2.default.constants.WELLKNOWN_EVENTS;
 
 var Constants = function Constants() {
   _classCallCheck(this, Constants);
@@ -14743,9 +14720,12 @@ Constants.WELLKNOWN_EVENTS = {
 _deepFreeze2.default.freeze(Constants);
 
 var ErrorStore = function () {
-  ErrorStore.getConstants = function getConstants() {
-    return Constants;
-  };
+  _createClass(ErrorStore, null, [{
+    key: 'constants',
+    get: function get() {
+      return Constants;
+    }
+  }]);
 
   function ErrorStore() {
     _classCallCheck(this, ErrorStore);
@@ -14796,6 +14776,8 @@ Object.defineProperty(exports, "__esModule", {
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 __webpack_require__(67);
 
 var _deepFreeze = __webpack_require__(1);
@@ -14813,7 +14795,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                                                                                                                                                            */
 
 
-var PSWKE = _progressStore2.default.getConstants().WELLKNOWN_EVENTS;
+var PSWKE = _progressStore2.default.constants.WELLKNOWN_EVENTS;
 
 var Constants = function Constants() {
   _classCallCheck(this, Constants);
@@ -14833,9 +14815,12 @@ Constants.WELLKNOWN_EVENTS = {
 _deepFreeze2.default.freeze(Constants);
 
 var FetchStore = function () {
-  FetchStore.getConstants = function getConstants() {
-    return Constants;
-  };
+  _createClass(FetchStore, null, [{
+    key: 'constants',
+    get: function get() {
+      return Constants;
+    }
+  }]);
 
   function FetchStore() {
     _classCallCheck(this, FetchStore);
@@ -14945,6 +14930,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _deepFreeze = __webpack_require__(1);
 
 var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
@@ -14974,9 +14961,12 @@ Constants.WELLKNOWN_EVENTS = {
 _deepFreeze2.default.freeze(Constants);
 
 var LocalStorageStore = function () {
-  LocalStorageStore.getConstants = function getConstants() {
-    return Constants;
-  };
+  _createClass(LocalStorageStore, null, [{
+    key: 'constants',
+    get: function get() {
+      return Constants;
+    }
+  }]);
 
   function LocalStorageStore() {
     _classCallCheck(this, LocalStorageStore);
@@ -15083,6 +15073,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _deepFreeze = __webpack_require__(1);
 
 var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
@@ -15149,9 +15141,12 @@ Constants.WELLKNOWN_EVENTS = {
 _deepFreeze2.default.freeze(Constants);
 
 var PluginRegistrationStore = function () {
-  PluginRegistrationStore.getConstants = function getConstants() {
-    return Constants;
-  };
+  _createClass(PluginRegistrationStore, null, [{
+    key: 'constants',
+    get: function get() {
+      return Constants;
+    }
+  }]);
 
   function PluginRegistrationStore(riotControlExt, dynamicJsCssLoader, componentLoaderStore) {
     _classCallCheck(this, PluginRegistrationStore);
@@ -15331,6 +15326,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _deepFreeze = __webpack_require__(1);
 
 var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
@@ -15354,9 +15351,12 @@ Constants.WELLKNOWN_EVENTS = {
 _deepFreeze2.default.freeze(Constants);
 
 var RiotControlDispatchStore = function () {
-  RiotControlDispatchStore.getConstants = function getConstants() {
-    return Constants;
-  };
+  _createClass(RiotControlDispatchStore, null, [{
+    key: 'constants',
+    get: function get() {
+      return Constants;
+    }
+  }]);
 
   function RiotControlDispatchStore() {
     _classCallCheck(this, RiotControlDispatchStore);
@@ -15402,6 +15402,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _deepFreeze = __webpack_require__(1);
 
 var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
@@ -15437,9 +15439,12 @@ Constants.WELLKNOWN_EVENTS = {
 _deepFreeze2.default.freeze(Constants);
 
 var StartupStore = function () {
-  StartupStore.getConstants = function getConstants() {
-    return Constants;
-  };
+  _createClass(StartupStore, null, [{
+    key: 'constants',
+    get: function get() {
+      return Constants;
+    }
+  }]);
 
   function StartupStore() {
     _classCallCheck(this, StartupStore);
@@ -15786,6 +15791,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _deepFreeze = __webpack_require__(1);
 
 var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
@@ -15812,9 +15819,12 @@ Constants.WELLKNOWN_EVENTS = {
 _deepFreeze2.default.freeze(Constants);
 
 var NextConfigStore = function () {
-  NextConfigStore.getConstants = function getConstants() {
-    return Constants;
-  };
+  _createClass(NextConfigStore, null, [{
+    key: 'constants',
+    get: function get() {
+      return Constants;
+    }
+  }]);
 
   function NextConfigStore() {
     _classCallCheck(this, NextConfigStore);
@@ -15895,6 +15905,7 @@ var SidebarStore = function () {
     _classCallCheck(this, SidebarStore);
 
     var self = this;
+
     self.name = 'SidebarStore';
     self.namespace = self.name + ':';
     riot.EVT.sidebarStore = {
@@ -15915,12 +15926,14 @@ var SidebarStore = function () {
 
   SidebarStore.prototype._commitToState = function _commitToState() {
     var self = this;
+
     self.state.items = Array.from(self.itemsSet);
     self.trigger(riot.EVT.sidebarStore.out.riotRouteDispatchAck);
   };
 
   SidebarStore.prototype._loadFromState = function _loadFromState() {
     var self = this;
+
     for (var _iterator = self.state.items, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
       var _ref;
 
@@ -15941,6 +15954,7 @@ var SidebarStore = function () {
 
   SidebarStore.prototype._findItem = function _findItem(item) {
     var self = this;
+
     for (var _iterator2 = self.state.items, _isArray2 = Array.isArray(_iterator2), _i2 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
       var _ref2;
 
@@ -15964,6 +15978,7 @@ var SidebarStore = function () {
 
   SidebarStore.prototype._deleteItem = function _deleteItem(item) {
     var self = this;
+
     for (var _iterator3 = self.state.items, _isArray3 = Array.isArray(_iterator3), _i3 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
       var _ref3;
 
@@ -15988,6 +16003,7 @@ var SidebarStore = function () {
   SidebarStore.prototype._onSidebarAddItem = function _onSidebarAddItem(item) {
     var self = this;
     var t = self._findItem(item);
+
     if (t == null) {
       self.itemsSet.add(item);
     }
@@ -15996,12 +16012,14 @@ var SidebarStore = function () {
 
   SidebarStore.prototype._onSidebarRemoveItem = function _onSidebarRemoveItem(item) {
     var self = this;
+
     self._deleteItem(item);
     self._commitToState();
   };
 
   SidebarStore.prototype.bindEvents = function bindEvents() {
     var self = this;
+
     riot.observable(self);
     self.on(riot.EVT.sidebarStore.in.sidebarAddItem, self._onSidebarAddItem);
     self.on(riot.EVT.sidebarStore.in.sidebarRemoveItem, self._onSidebarRemoveItem);
@@ -16249,7 +16267,7 @@ riot.mixin('opts-mixin', _optsMixin2.default);
 
 var routeContributer = new _routeContributer2.default();
 
-riot.EVT.nextConfigStore = _nextConfigStore2.default.getConstants().WELLKNOWN_EVENTS;
+riot.EVT.nextConfigStore = _nextConfigStore2.default.constants.WELLKNOWN_EVENTS;
 var nextConfigStore = new _nextConfigStore2.default();
 
 var sidebarStore = new _sidebarStore2.default();
@@ -16412,16 +16430,16 @@ var MasterEventTable = function MasterEventTable() {
 
   riot.EVT = {};
 
-  riot.EVT.progressStore = _progressStore2.default.getConstants().WELLKNOWN_EVENTS;
-  riot.EVT.routeStore = _routeStore2.default.getConstants().WELLKNOWN_EVENTS;
-  riot.EVT.componentLoaderStore = _componentLoaderStore2.default.getConstants().WELLKNOWN_EVENTS;
-  riot.EVT.errorStore = _errorStore2.default.getConstants().WELLKNOWN_EVENTS;
-  riot.EVT.fetchStore = _fetchStore2.default.getConstants().WELLKNOWN_EVENTS;
-  riot.EVT.localStorageStore = _localstorageStore2.default.getConstants().WELLKNOWN_EVENTS;
-  riot.EVT.riotControlDispatchStore = _riotcontrolDispatchStore2.default.getConstants().WELLKNOWN_EVENTS;
-  riot.EVT.pluginRegistrationStore = _pluginRegistrationStore2.default.getConstants().WELLKNOWN_EVENTS;
-  riot.EVT.startupStore = _startupStore2.default.getConstants().WELLKNOWN_EVENTS;
-  riot.EVT.router = _router2.default.getConstants().WELLKNOWN_EVENTS;
+  riot.EVT.progressStore = _progressStore2.default.constants.WELLKNOWN_EVENTS;
+  riot.EVT.routeStore = _routeStore2.default.constants.WELLKNOWN_EVENTS;
+  riot.EVT.componentLoaderStore = _componentLoaderStore2.default.constants.WELLKNOWN_EVENTS;
+  riot.EVT.errorStore = _errorStore2.default.constants.WELLKNOWN_EVENTS;
+  riot.EVT.fetchStore = _fetchStore2.default.constants.WELLKNOWN_EVENTS;
+  riot.EVT.localStorageStore = _localstorageStore2.default.constants.WELLKNOWN_EVENTS;
+  riot.EVT.riotControlDispatchStore = _riotcontrolDispatchStore2.default.constants.WELLKNOWN_EVENTS;
+  riot.EVT.pluginRegistrationStore = _pluginRegistrationStore2.default.constants.WELLKNOWN_EVENTS;
+  riot.EVT.startupStore = _startupStore2.default.constants.WELLKNOWN_EVENTS;
+  riot.EVT.router = _router2.default.constants.WELLKNOWN_EVENTS;
 };
 
 exports.default = MasterEventTable;
