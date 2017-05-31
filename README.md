@@ -11,7 +11,7 @@ Its a plugin, because the plugin has to obey some rules of the host and not carr
 
 In this example, you will notice the plugin bundle.js does not contain riot, bootstrap, or jquery amongst other libraries that are already present in the host app.  Its quite small, and the child plugin considers itself autonomous.
 
-The plugin is self-contained [P7-riotjs-typicode-component](plugins/typicode_component) and can be built using the followoing;  
+The plugin is self-contained [typicode-component](plugins/typicode_component) and can be built using the followoing;  
 ```
 npm run prod-typicode
 npm run dev-typicode
