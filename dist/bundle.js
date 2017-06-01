@@ -7127,7 +7127,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var riot = __webpack_require__(0);
 
-riot.tag2('app', '<loading-indicator></loading-indicator> <header></header> <div class="container"> <div class="row"> <div class="col-sm-3 col-md-2 sidebar"> <div class="list-group table-of-contents"> <sidebar></sidebar> </div> </div> <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main"> <div id="riot-app"></div> </div> </div> </div>', '', '', function (opts) {
+riot.tag2('app', '<loading-indicator></loading-indicator> <header></header> <div class="container-fluid"> <div class="row"> <div class="col-sm-3 col-md-2 sidebar"> <div class="list-group table-of-contents"> <sidebar></sidebar> </div> </div> <div id="mainContent" class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main"> <div id="riot-app"></div> </div> </div> </div>', '', '', function (opts) {
   var self = this;
   self.name = 'app';
   self.on('before-mount', function () {
@@ -7725,7 +7725,7 @@ exports = module.exports = __webpack_require__(2)(undefined);
 
 
 // module
-exports.push([module.i, "/*\r\n * Base structure\r\n */\r\n\r\n/* Move down content because we have a fixed navbar that is 50px tall */\r\nbody {\r\n  padding-top: 70px;\r\n}\r\n a:hover {\r\n  cursor:pointer;\r\n }\r\n\r\n .spacer { margin:0; padding:0; height:15px; }\r\n \r\n\r\n/*\r\n * Sidebar\r\n */\r\n\r\n/* Hide for mobile, show later */\r\n.sidebar {\r\n  display: none;\r\n}\r\n@media (min-width: 768px) {\r\n  .sidebar {\r\n    position: fixed;\r\n    top: 51px;\r\n    bottom: 0;\r\n    left: 0;\r\n    z-index: 1000;\r\n    display: block;\r\n    padding: 20px;\r\n    overflow-x: hidden;\r\n    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */\r\n    \r\n    border-right: 1px solid #eee;\r\n  }\r\n}\r\n\r\n \r\n\r\n\r\n/*\r\n * Main content\r\n */\r\n\r\n.main {\r\n  padding: 20px;\r\n}\r\n@media (min-width: 768px) {\r\n  .main {\r\n    padding-right: 40px;\r\n    padding-left: 40px;\r\n  }\r\n}\r\n.main .page-header {\r\n  margin-top: 0;\r\n}\r\n\r\n\r\n", ""]);
+exports.push([module.i, "/*\r\n * Base structure\r\n */\r\n\r\n/* Move down content because we have a fixed navbar that is 50px tall */\r\nbody {\r\n  padding-top: 70px;\r\n}\r\n a:hover {\r\n  cursor:pointer;\r\n }\r\n\r\n .spacer { margin:0; padding:0; height:15px; }\r\n \r\n\r\n/*\r\n * Sidebar\r\n */\r\n\r\n/* Hide for mobile, show later */\r\n/*\r\n.sidebar {\r\n  display: none;\r\n}\r\n@media (min-width: 768px) {\r\n  .sidebar {\r\n    position: fixed;\r\n    top: 51px;\r\n    bottom: 0;\r\n    left: 0;\r\n    z-index: 1000;\r\n    display: block;\r\n    padding: 20px;\r\n    overflow-x: hidden;\r\n    overflow-y: auto; \r\n    border-right: 1px solid #eee;\r\n  }\r\n}\r\n*/\r\n  .sidebar {\r\n    position: absolute;\r\n    top: 51px;\r\n    bottom: 0;\r\n    left: 0;\r\n    z-index: 1000;\r\n    display: block;\r\n    padding: 20px;\r\n    overflow-x: hidden;\r\n    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */\r\n    width: 200px;\r\n    height: 100%;\r\n    border-right: 1px solid #eee;\r\n  }\r\n \r\n#mainContent {\r\n  float: left;\r\n     \r\n    margin-left: 200px;\r\n}\r\n\r\n/*\r\n * Main content\r\n */\r\n\r\n.main {\r\n  padding-right: 20px;\r\n    padding-left: 20px;\r\n}\r\n@media (min-width: 768px) {\r\n  .main {\r\n    padding-right: 20px;\r\n    padding-left: 20px;\r\n  }\r\n}\r\n.main .page-header {\r\n  margin-top: 0;\r\n}\r\n\r\n\r\n", ""]);
 
 // exports
 

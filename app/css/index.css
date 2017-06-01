@@ -18,6 +18,7 @@ body {
  */
 
 /* Hide for mobile, show later */
+/*
 .sidebar {
   display: none;
 }
@@ -31,26 +32,44 @@ body {
     display: block;
     padding: 20px;
     overflow-x: hidden;
-    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
-    
+    overflow-y: auto; 
     border-right: 1px solid #eee;
   }
 }
-
+*/
+  .sidebar {
+    position: absolute;
+    top: 51px;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    display: block;
+    padding: 20px;
+    overflow-x: hidden;
+    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+    width: 200px;
+    height: 100%;
+    border-right: 1px solid #eee;
+  }
  
-
+#mainContent {
+  float: left;
+     
+    margin-left: 200px;
+}
 
 /*
  * Main content
  */
 
 .main {
-  padding: 20px;
+  padding-right: 20px;
+    padding-left: 20px;
 }
 @media (min-width: 768px) {
   .main {
-    padding-right: 40px;
-    padding-left: 40px;
+    padding-right: 20px;
+    padding-left: 20px;
   }
 }
 .main .page-header {
