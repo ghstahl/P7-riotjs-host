@@ -28,6 +28,7 @@ export default class NextConfigStore {
     if (this._bound === false) {
       this.on(Constants.WELLKNOWN_EVENTS.in.fetchConfig, this._onFetchConfig);
       this.on(riot.EVT.nextConfigStore.in.fetchConfigResult, this._onFetchConfigResult);
+      this.on('http-monitor', this._onHttpMonitor);
 
       this._bound = !this._bound;
     }
@@ -36,11 +37,14 @@ export default class NextConfigStore {
     if (this._bound === true) {
       this.off(Constants.WELLKNOWN_EVENTS.in.fetchConfig, this._onFetchConfig);
       this.off(riot.EVT.nextConfigStore.in.fetchConfigResult, this._onFetchConfigResult);
+      this.off('http-monitor', this._onHttpMonitor);
 
       this._bound = !this._bound;
     }
   }
-
+  _onHttpMonitor(url, status) {
+    var self = this;
+  }
   _onFetchConfig(path) {
     console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.fetchConfig, path);
     this.off(Constants.WELLKNOWN_EVENTS.in.fetchConfig, this._onFetchConfig); // done with this one.

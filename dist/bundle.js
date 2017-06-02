@@ -4268,6 +4268,7 @@ var NextConfigStore = function () {
     if (this._bound === false) {
       this.on(Constants.WELLKNOWN_EVENTS.in.fetchConfig, this._onFetchConfig);
       this.on(riot.EVT.nextConfigStore.in.fetchConfigResult, this._onFetchConfigResult);
+      this.on('http-monitor', this._onHttpMonitor);
 
       this._bound = !this._bound;
     }
@@ -4277,9 +4278,14 @@ var NextConfigStore = function () {
     if (this._bound === true) {
       this.off(Constants.WELLKNOWN_EVENTS.in.fetchConfig, this._onFetchConfig);
       this.off(riot.EVT.nextConfigStore.in.fetchConfigResult, this._onFetchConfigResult);
+      this.off('http-monitor', this._onHttpMonitor);
 
       this._bound = !this._bound;
     }
+  };
+
+  NextConfigStore.prototype._onHttpMonitor = function _onHttpMonitor(url, status) {
+    var self = this;
   };
 
   NextConfigStore.prototype._onFetchConfig = function _onFetchConfig(path) {
@@ -7265,7 +7271,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // import 'bootswatch/slate/bootstrap.css';
 // import 'bootstrap';
 var p7HostCore = new _P7HostCore2.default(riot);
-
+//import FetchWrapper from './fetch-wrapper.js';
+//let fetchWrapper = new FetchWrapper();
 /*
 import P7HostCore from './p7-host-core/index.js';
 */
