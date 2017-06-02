@@ -2,9 +2,12 @@
 import './components/header.tag';
 import './components/sidebar.tag';
 import './components/loading-indicator.tag';
-import RouteContributer     from './route-contributer.js';
+import './components/keep-alive.tag';
 
+import RouteContributer     from './route-contributer.js';
 <app>
+
+<keep-alive url='config.json'></keep-alive>
 
 <loading-indicator></loading-indicator>
 <header></header>
