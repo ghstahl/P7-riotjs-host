@@ -8,6 +8,7 @@ import RouteStore from './stores/route-store.js';
 import RiotControlDispatchStore from './stores/riotcontrol-dispatch-store.js';
 import PluginRegistrationStore from './stores/plugin-registration-store.js';
 import StartupStore from './stores/startup-store.js';
+import KeepAliveStore from './stores/keep-alive-store.js';
 import Router from './router.js';
 
 export default class MasterEventTable {
@@ -15,6 +16,7 @@ export default class MasterEventTable {
   constructor() {
     riot.EVT = {};
 
+    riot.EVT.keepAliveStore = KeepAliveStore.constants.WELLKNOWN_EVENTS;
     riot.EVT.progressStore = ProgressStore.constants.WELLKNOWN_EVENTS;
     riot.EVT.routeStore = RouteStore.constants.WELLKNOWN_EVENTS;
     riot.EVT.componentLoaderStore = ComponentLoaderStore.constants.WELLKNOWN_EVENTS;

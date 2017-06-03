@@ -14,8 +14,10 @@ import RouteStore from './stores/route-store.js';
 import PluginRegistrationStore from './stores/plugin-registration-store.js';
 import StartupStore from './stores/startup-store.js';
 import RiotControlDispatchStore from './stores/riotcontrol-dispatch-store.js';
-import MasterEventTable from './master-event-table.js';
+import KeepAliveStore from './stores/keep-alive-store.js';
 
+import MasterEventTable from './master-event-table.js';
+import './components/keep-alive.tag';
 import './components/startup.tag';
 
 export default class P7HostCore {
@@ -58,6 +60,7 @@ export default class P7HostCore {
     this._localStorageStore = new LocalStorageStore();
     this._riotControlExt = new RiotControlExt();
     this._routeStore = new RouteStore();
+    this._keepAliveStore = new KeepAliveStore();
 
     this._componentLoaderStore = new ComponentLoaderStore(this._dynamicJsCssLoader);
     this._pluginRegistrationStore = new PluginRegistrationStore(this._riotControlExt,
@@ -75,6 +78,7 @@ export default class P7HostCore {
     riot.control.addStore(this._routeStore);
     riot.control.addStore(this._pluginRegistrationStore);
     riot.control.addStore(this._riotControlDispatchStore);
+    riot.control.addStore(this._keepAliveStore);
     riot.control.addStore(this._startupStore);
 
     return riot;
