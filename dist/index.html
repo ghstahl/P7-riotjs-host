@@ -20,6 +20,10 @@
   <script src="bundle.js"></script>
   <script>
     var oldOpen = XMLHttpRequest.prototype.open;
+
+    riot.global.window = window;
+    riot.control.trigger('keep-alive-store:enable');
+
     function onStateChange(event) {
       if(event.currentTarget.readyState === 4){
          riot.control.trigger('http-monitor',
@@ -33,7 +37,7 @@
         // run the real `open`
         oldOpen.apply(this, arguments);
     }
-
+/*
     const oldFetch = fetch;
     var FetchWrapper = function () {
       var self = this;
@@ -57,6 +61,7 @@
       return FetchWrapper;
     }();
     var fw = new FetchWrapper();
+    */
   </script>
 </body>
 </html>

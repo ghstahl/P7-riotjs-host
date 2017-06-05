@@ -6,7 +6,8 @@ Constants.NAMESPACE = Constants.NAME + ':';
 Constants.WELLKNOWN_EVENTS = {
   in: {
     fetchHeadResult: Constants.NAMESPACE + 'fetch-head-result',
-    keepAliveHookFetch: Constants.NAMESPACE + 'hook-fetch'
+    enable: Constants.NAMESPACE + 'enable',
+    disable: Constants.NAMESPACE + 'disable'
   },
   out: {
   }
@@ -18,20 +19,20 @@ export default class KeepAliveStore {
     return Constants;
   }
   constructor() {
-    var self = this;
+    let self = this;
 
     riot.observable(this);
     self._bound = false;
     self.bindEvents();
-    self.timer = setInterval(()=>{
-      self._onTimer();
-    }, 5000);
+    self._keepAlive = false;
+
   }
 
   bindEvents() {
     if (this._bound === false) {
       this.on(Constants.WELLKNOWN_EVENTS.in.fetchHeadResult, this._onFetchHeadResult);
-      this.on(Constants.WELLKNOWN_EVENTS.in.keepAliveHookFetch, this._onHookFetch);
+      this.on(Constants.WELLKNOWN_EVENTS.in.enable, this._onEnable);
+      this.on(Constants.WELLKNOWN_EVENTS.in.disable, this._onDisable);
       this.on('http-monitor', this._onHttpMonitor);
 
       this._bound = !this._bound;
@@ -40,17 +41,44 @@ export default class KeepAliveStore {
   unbindEvents() {
     if (this._bound === true) {
       this.off(Constants.WELLKNOWN_EVENTS.in.fetchConfigHeadResult, this._onFetchHeadResult);
-      this.off(Constants.WELLKNOWN_EVENTS.in.keepAliveHookFetch, this._onHookFetch);
+      this.off(Constants.WELLKNOWN_EVENTS.in.enable, this._onEnable);
+      this.off(Constants.WELLKNOWN_EVENTS.in.disable, this._onDisable);
       this.off('http-monitor', this._onHttpMonitor);
 
       this._bound = !this._bound;
     }
   }
 
-  _onHookFetch(w) {
-    var polyfill = w.fetch.polyfill;
+  _onEnable() {
+    let w = riot.global.window;
+    let self = this;
 
-    riot.ppp = polyfill;
+    if (!w.fetch.polyfill) {
+      w._oldFetch = w.fetch;
+
+      w.fetch = (input, init) =>{
+        return w._oldFetch(input, init).then(response =>{
+          self._onHttpMonitor(response.url, response.status);
+//          riot.control.trigger('http-monitor', response.url, response.status);
+          return response;
+        });
+      };
+    }
+
+    self.timer = setInterval(()=>{
+      self._onTimer();
+    }, 5000);
+
+  }
+
+  _onDisable() {
+    let w = riot.global.window;
+
+    clearInterval(this.timer);
+    if (w._oldFetch) {
+      w.fetch = w._oldFetch;
+      w._oldFetch = null;
+    }
   }
 
   _onHttpMonitor(url, status) {

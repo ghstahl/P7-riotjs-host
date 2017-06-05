@@ -6000,7 +6000,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       Constants.NAMESPACE = Constants.NAME + ':';
       Constants.WELLKNOWN_EVENTS = {
         in: {
-          fetchHeadResult: Constants.NAMESPACE + 'fetch-head-result'
+          fetchHeadResult: Constants.NAMESPACE + 'fetch-head-result',
+          enable: Constants.NAMESPACE + 'enable',
+          disable: Constants.NAMESPACE + 'disable'
         },
         out: {}
       };
@@ -6022,14 +6024,14 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
           riot.observable(this);
           self._bound = false;
           self.bindEvents();
-          self.timer = setInterval(function () {
-            self._onTimer();
-          }, 5000);
+          self._keepAlive = false;
         }
 
         KeepAliveStore.prototype.bindEvents = function bindEvents() {
           if (this._bound === false) {
             this.on(Constants.WELLKNOWN_EVENTS.in.fetchHeadResult, this._onFetchHeadResult);
+            this.on(Constants.WELLKNOWN_EVENTS.in.enable, this._onEnable);
+            this.on(Constants.WELLKNOWN_EVENTS.in.disable, this._onDisable);
             this.on('http-monitor', this._onHttpMonitor);
 
             this._bound = !this._bound;
@@ -6039,9 +6041,42 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         KeepAliveStore.prototype.unbindEvents = function unbindEvents() {
           if (this._bound === true) {
             this.off(Constants.WELLKNOWN_EVENTS.in.fetchConfigHeadResult, this._onFetchHeadResult);
+            this.off(Constants.WELLKNOWN_EVENTS.in.enable, this._onEnable);
+            this.off(Constants.WELLKNOWN_EVENTS.in.disable, this._onDisable);
             this.off('http-monitor', this._onHttpMonitor);
 
             this._bound = !this._bound;
+          }
+        };
+
+        KeepAliveStore.prototype._onEnable = function _onEnable() {
+          var w = riot.global.window;
+          var self = this;
+
+          if (!w.fetch.polyfill) {
+            w._oldFetch = w.fetch;
+
+            w.fetch = function (input, init) {
+              return w._oldFetch(input, init).then(function (response) {
+                self._onHttpMonitor(response.url, response.status);
+                //          riot.control.trigger('http-monitor', response.url, response.status);
+                return response;
+              });
+            };
+          }
+
+          self.timer = setInterval(function () {
+            self._onTimer();
+          }, 5000);
+        };
+
+        KeepAliveStore.prototype._onDisable = function _onDisable() {
+          var w = riot.global.window;
+
+          clearInterval(this.timer);
+          if (w._oldFetch) {
+            w.fetch = w._oldFetch;
+            w._oldFetch = null;
           }
         };
 
@@ -7174,6 +7209,8 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
           throw new TypeError("Cannot call a class as a function");
         }
       }
+
+      riot.global = {};
 
       var P7HostCore = function () {
         function P7HostCore() {
