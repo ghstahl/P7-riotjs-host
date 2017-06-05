@@ -5,7 +5,8 @@ Constants.NAME = 'keep-alive-store';
 Constants.NAMESPACE = Constants.NAME + ':';
 Constants.WELLKNOWN_EVENTS = {
   in: {
-    fetchHeadResult: Constants.NAMESPACE + 'fetch-head-result'
+    fetchHeadResult: Constants.NAMESPACE + 'fetch-head-result',
+    keepAliveHookFetch: Constants.NAMESPACE + 'hook-fetch'
   },
   out: {
   }
@@ -30,6 +31,7 @@ export default class KeepAliveStore {
   bindEvents() {
     if (this._bound === false) {
       this.on(Constants.WELLKNOWN_EVENTS.in.fetchHeadResult, this._onFetchHeadResult);
+      this.on(Constants.WELLKNOWN_EVENTS.in.keepAliveHookFetch, this._onHookFetch);
       this.on('http-monitor', this._onHttpMonitor);
 
       this._bound = !this._bound;
@@ -38,11 +40,19 @@ export default class KeepAliveStore {
   unbindEvents() {
     if (this._bound === true) {
       this.off(Constants.WELLKNOWN_EVENTS.in.fetchConfigHeadResult, this._onFetchHeadResult);
+      this.off(Constants.WELLKNOWN_EVENTS.in.keepAliveHookFetch, this._onHookFetch);
       this.off('http-monitor', this._onHttpMonitor);
 
       this._bound = !this._bound;
     }
   }
+
+  _onHookFetch(w) {
+    var polyfill = w.fetch.polyfill;
+
+    riot.ppp = polyfill;
+  }
+
   _onHttpMonitor(url, status) {
     var n = url.startsWith(window.location.origin);
 
