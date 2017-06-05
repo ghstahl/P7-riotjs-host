@@ -1,9 +1,13 @@
 <startup>
 <script>
 	var self = this;
+
+  riot.global.window = self.opts.window;
+
   if(self.opts.config){
     self.config = self.opts.config;
   }
+  self.keepAlive = self.opts.keepAlive;
   self.nextTag = 'app';
   if(self.opts.nextTag){
     self.nextTag = self.opts.nextTag;
@@ -21,6 +25,9 @@
   self.on('mount', () => {
     self._bind();
     riot.control.trigger(riot.EVT.startupStore.in.fetchConfig,self.config);
+    if(self.keepAlive){
+      riot.control.trigger('keep-alive-store:enable');
+    }
   });
 
   self.on('unmount', () => {

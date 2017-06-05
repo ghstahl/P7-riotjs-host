@@ -11,57 +11,16 @@
 	the logic here is that startup runs first to fetch all data
 	The app then starts with everything in place.
 -->
-  <startup config="config.json" next-tag="my-next-startup"></startup>
+  <startup  window = {window}
+            keep-alive="true" 
+            config="config.json" 
+            next-tag="my-next-startup"></startup>
   <my-next-startup config="next-config.json"></my-next-startup>
 <!--
 	The app gets mounted only after the startup logic has completed
 -->
   <app></app>
   <script src="bundle.js"></script>
-  <script>
-    var oldOpen = XMLHttpRequest.prototype.open;
-
-    riot.global.window = window;
-    riot.control.trigger('keep-alive-store:enable');
-
-    function onStateChange(event) {
-      if(event.currentTarget.readyState === 4){
-         riot.control.trigger('http-monitor',
-          event.currentTarget.responseURL,event.currentTarget.status);
-      }
-    }
-
-    XMLHttpRequest.prototype.open = function() {
-        // when an XHR object is opened, add a listener for its readystatechange events
-        this.addEventListener("readystatechange", onStateChange)
-        // run the real `open`
-        oldOpen.apply(this, arguments);
-    }
-/*
-    const oldFetch = fetch;
-    var FetchWrapper = function () {
-      var self = this;
-      function FetchWrapper() {
-        if (fetch) {
-          window.fetch = self._fetch;
-        }
-      }
-
-      self._fetch = function(input, init) {
-        return oldFetch(input, init).then(response =>{
-          riot.control.trigger('http-monitor',response.url,response.status);
-          var n = response.url.startsWith(window.location.origin);
-          if(n === false){
-            // not ours, need 
-          }
-          return response;
-        })
-      };
-
-      return FetchWrapper;
-    }();
-    var fw = new FetchWrapper();
-    */
-  </script>
+  
 </body>
 </html>

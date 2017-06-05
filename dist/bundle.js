@@ -6032,8 +6032,6 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
             this.on(Constants.WELLKNOWN_EVENTS.in.fetchHeadResult, this._onFetchHeadResult);
             this.on(Constants.WELLKNOWN_EVENTS.in.enable, this._onEnable);
             this.on(Constants.WELLKNOWN_EVENTS.in.disable, this._onDisable);
-            this.on('http-monitor', this._onHttpMonitor);
-
             this._bound = !this._bound;
           }
         };
@@ -6043,15 +6041,30 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
             this.off(Constants.WELLKNOWN_EVENTS.in.fetchConfigHeadResult, this._onFetchHeadResult);
             this.off(Constants.WELLKNOWN_EVENTS.in.enable, this._onEnable);
             this.off(Constants.WELLKNOWN_EVENTS.in.disable, this._onDisable);
-            this.off('http-monitor', this._onHttpMonitor);
-
             this._bound = !this._bound;
           }
         };
 
         KeepAliveStore.prototype._onEnable = function _onEnable() {
-          var w = riot.global.window;
+          var _this = this,
+              _arguments = arguments;
+
           var self = this;
+          var w = riot.global.window;
+
+          w._oldOpen = XMLHttpRequest.prototype.open;
+          var onStateChange = function onStateChange(event) {
+            if (event.currentTarget.readyState === 4) {
+              self._onHttpMonitor(event.currentTarget.responseURL, event.currentTarget.status);
+            }
+          };
+
+          XMLHttpRequest.prototype.open = function () {
+            // when an XHR object is opened, add a listener for its readystatechange events
+            _this.addEventListener('readystatechange', onStateChange);
+            // run the real `open`
+            w._oldOpen.apply(_this, _arguments);
+          };
 
           if (!w.fetch.polyfill) {
             w._oldFetch = w.fetch;
@@ -6059,7 +6072,6 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
             w.fetch = function (input, init) {
               return w._oldFetch(input, init).then(function (response) {
                 self._onHttpMonitor(response.url, response.status);
-                //          riot.control.trigger('http-monitor', response.url, response.status);
                 return response;
               });
             };
@@ -6071,12 +6083,20 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         };
 
         KeepAliveStore.prototype._onDisable = function _onDisable() {
+          var self = this;
           var w = riot.global.window;
 
-          clearInterval(this.timer);
+          if (self.timer) {
+            clearInterval(this.timer);
+          }
+
           if (w._oldFetch) {
             w.fetch = w._oldFetch;
             w._oldFetch = null;
+          }
+          if (w._oldOpen) {
+            XMLHttpRequest.prototype.open = w._oldOpen;
+            w._oldOpen = null;
           }
         };
 
@@ -7058,9 +7078,13 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       var riot = __webpack_require__(5);
       riot.tag2('startup', '', '', '', function (opts) {
         var self = this;
+
+        riot.global.window = self.opts.window;
+
         if (self.opts.config) {
           self.config = self.opts.config;
         }
+        self.keepAlive = self.opts.keepAlive;
         self.nextTag = 'app';
         if (self.opts.nextTag) {
           self.nextTag = self.opts.nextTag;
@@ -7076,6 +7100,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         self.on('mount', function () {
           self._bind();
           riot.control.trigger(riot.EVT.startupStore.in.fetchConfig, self.config);
+          if (self.keepAlive) {
+            riot.control.trigger('keep-alive-store:enable');
+          }
         });
 
         self.on('unmount', function () {

@@ -25,7 +25,6 @@ export default class KeepAliveStore {
     self._bound = false;
     self.bindEvents();
     self._keepAlive = false;
-
   }
 
   bindEvents() {
@@ -33,8 +32,6 @@ export default class KeepAliveStore {
       this.on(Constants.WELLKNOWN_EVENTS.in.fetchHeadResult, this._onFetchHeadResult);
       this.on(Constants.WELLKNOWN_EVENTS.in.enable, this._onEnable);
       this.on(Constants.WELLKNOWN_EVENTS.in.disable, this._onDisable);
-      this.on('http-monitor', this._onHttpMonitor);
-
       this._bound = !this._bound;
     }
   }
@@ -43,15 +40,27 @@ export default class KeepAliveStore {
       this.off(Constants.WELLKNOWN_EVENTS.in.fetchConfigHeadResult, this._onFetchHeadResult);
       this.off(Constants.WELLKNOWN_EVENTS.in.enable, this._onEnable);
       this.off(Constants.WELLKNOWN_EVENTS.in.disable, this._onDisable);
-      this.off('http-monitor', this._onHttpMonitor);
-
       this._bound = !this._bound;
     }
   }
 
   _onEnable() {
-    let w = riot.global.window;
     let self = this;
+    let w = riot.global.window;
+
+    w._oldOpen = XMLHttpRequest.prototype.open;
+    let onStateChange = (event) =>{
+      if (event.currentTarget.readyState === 4) {
+        self._onHttpMonitor(event.currentTarget.responseURL, event.currentTarget.status);
+      }
+    };
+
+    XMLHttpRequest.prototype.open = () =>{
+        // when an XHR object is opened, add a listener for its readystatechange events
+      this.addEventListener('readystatechange', onStateChange);
+        // run the real `open`
+      w._oldOpen.apply(this, arguments);
+    };
 
     if (!w.fetch.polyfill) {
       w._oldFetch = w.fetch;
@@ -59,7 +68,6 @@ export default class KeepAliveStore {
       w.fetch = (input, init) =>{
         return w._oldFetch(input, init).then(response =>{
           self._onHttpMonitor(response.url, response.status);
-//          riot.control.trigger('http-monitor', response.url, response.status);
           return response;
         });
       };
@@ -72,17 +80,25 @@ export default class KeepAliveStore {
   }
 
   _onDisable() {
+    let self = this;
     let w = riot.global.window;
 
-    clearInterval(this.timer);
+    if (self.timer) {
+      clearInterval(this.timer);
+    }
+
     if (w._oldFetch) {
       w.fetch = w._oldFetch;
       w._oldFetch = null;
     }
+    if (w._oldOpen) {
+      XMLHttpRequest.prototype.open = w._oldOpen;
+      w._oldOpen = null;
+    }
   }
 
   _onHttpMonitor(url, status) {
-    var n = url.startsWith(window.location.origin);
+    let n = url.startsWith(window.location.origin);
 
     if (n === false) {
       this._keepAlive = true;
