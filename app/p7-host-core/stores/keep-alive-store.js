@@ -10,6 +10,7 @@ Constants.WELLKNOWN_EVENTS = {
     disable: Constants.NAMESPACE + 'disable'
   },
   out: {
+    keptAlive: Constants.NAMESPACE + 'kept-alive'
   }
 };
 DeepFreeze.freeze(Constants);
@@ -106,17 +107,19 @@ export default class KeepAliveStore {
   }
   _onTimer() {
     if (this._keepAlive) {
+      this._keepAlive = false;
       let myAck = {
-        evt: Constants.WELLKNOWN_EVENTS.in.fetchConfigHeadResult
+        evt: Constants.WELLKNOWN_EVENTS.in.fetchHeadResult
       };
 
-      riot.control.trigger(riot.EVT.fetchStore.in.fetch, riot.state.keepAlive.url, {method: 'HEAD'}, myAck);
-      this._keepAlive = false;
+      riot.control.trigger(riot.EVT.fetchStore.in.fetch, riot.state.keepAlive.url,
+                                {method: 'HEAD'}, myAck);
     }
   }
   _onFetchHeadResult(result, ack) {
-    console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.fetchConfigResult2,
+    console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.fetchHeadResult,
       result, ack);
+    this.trigger(Constants.WELLKNOWN_EVENTS.out.keptAlive);
   }
 
 }
