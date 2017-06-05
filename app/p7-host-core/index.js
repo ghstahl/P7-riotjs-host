@@ -17,8 +17,8 @@ import RiotControlDispatchStore from './stores/riotcontrol-dispatch-store.js';
 import KeepAliveStore from './stores/keep-alive-store.js';
 
 import MasterEventTable from './master-event-table.js';
-import './components/keep-alive.tag';
 import './components/startup.tag';
+
 riot.global = {};
 
 export default class P7HostCore {

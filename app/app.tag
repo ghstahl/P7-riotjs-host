@@ -7,8 +7,6 @@ import './components/loading-indicator.tag';
 import RouteContributer     from './route-contributer.js';
 <app>
 
-<keep-alive url='config.json'></keep-alive>
-
 <loading-indicator></loading-indicator>
 <header></header>
 <div class="container-fluid">

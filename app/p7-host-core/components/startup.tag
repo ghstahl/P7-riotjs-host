@@ -7,7 +7,9 @@
   if(self.opts.config){
     self.config = self.opts.config;
   }
-  self.keepAlive = self.opts.keepAlive;
+  self.keepAlive = self.opts.keepAlive; 
+  riot.state.keepAlive = { url:self.keepAlive };
+
   self.nextTag = 'app';
   if(self.opts.nextTag){
     self.nextTag = self.opts.nextTag;
