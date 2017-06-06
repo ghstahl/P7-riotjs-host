@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "fonts": "cpx node_modules/bootstrap/fonts/**/*   dist/fonts  -v",
-    "jqbootswatchbundle": "cpx node_modules/webpack2-bootstrap3-jquery3/dist/**/*   dist/externals/jqb  -v",
+    "jqbootswatchbundle": "cpx node_modules/webpack2-bootswatch3-jquery3/dist/**/*   dist/externals/jqb  -v",
     "json": "cpx ./app/*.json                         dist       -v",
     "html": "cpx ./app/*.html                         dist       -v",
     "public": "cpx ./dist/**/*                        public    -v",
@@ -68,7 +68,7 @@
     "url-loader": "^0.5.8",
     "webpack": "^2.6.1",
     "webpack-dev-server": "^2.4.5",
-    "webpack2-bootstrap3-jquery3": "git+https://github.com/ghstahl/webpack2-bootswatch3-jquery3.git",
+    "webpack2-bootswatch3-jquery3": "git+https://github.com/ghstahl/webpack2-bootswatch3-jquery3.git",
     "whatwg-fetch": "^2.0.3"
   }
 }
