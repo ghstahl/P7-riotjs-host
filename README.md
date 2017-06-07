@@ -55,7 +55,13 @@ $ npm run prod
 ```
 This will build everything.
 
+## Plugin Authors
 
+### cookies
+Cookies are supplied via riot.Cookies.  The implementation comes from js-cookies.   
+'''
+	let blah = riot.Cookies.get('blah-blah-blah');
+'''
 
 ## Bootswatch Theming
 

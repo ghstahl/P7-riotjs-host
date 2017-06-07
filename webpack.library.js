@@ -27,9 +27,10 @@ const config = {
     $: 'jQuery',
     jquery: 'jQuery',
     riot: 'riot',
+    'js-cookie': 'js-cookie',
     'riot-route': 'riot-route',
     'riotcontrol': 'riotcontrol',
-    'whatwg-fetch':'whatwg-fetch'
+    'whatwg-fetch': 'whatwg-fetch'
   },
   module: {
     rules: [

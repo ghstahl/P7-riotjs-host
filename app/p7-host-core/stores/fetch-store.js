@@ -38,6 +38,7 @@ export default class FetchStore {
     }
 
   }
+
   unbindEvents() {
     if (this._bound === true) {
       this.off(Constants.WELLKNOWN_EVENTS.in.fetch, this._onFetch);
@@ -45,21 +46,12 @@ export default class FetchStore {
     }
 
   }
-  _readCookie(name) {
-    name += '=';
-    for (let ca = document.cookie.split(/;\s*/), i = ca.length - 1; i >= 0; i--) {
-      if (!ca[i].indexOf(name)) {
-        return ca[i].replace(name, '');
-      }
-    }
-    return null;
-  }
 
   _onFetch(input, init, ack, jsonFixup = true) {
     console.log(Constants.WELLKNOWN_EVENTS.in.fetch, input, init, ack, jsonFixup);
 
         // we are a json shop
-    let token = this._readCookie('XSRF-TOKEN');
+    let token = riot.Cookies.get('XSRF-TOKEN');
 
     riot.control.trigger(riot.EVT.fetchStore.out.inprogressStart);
     if (jsonFixup === true) {

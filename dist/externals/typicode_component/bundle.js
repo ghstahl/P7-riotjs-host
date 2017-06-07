@@ -208,7 +208,7 @@ var TypicodeUserStore = function () {
   TypicodeUserStore.prototype._onTypicodeUserFetch = function _onTypicodeUserFetch(query) {
     console.log(riot.EVT.typicodeUserStore.in.typicodeUserFetch);
     var restoredSession = JSON.parse(localStorage.getItem(userCache));
-
+    var blah = riot.Cookies.get('blah-blah-blah');
     var id = parseInt(query.id, 10); // query.id is a string
 
     if (restoredSession) {
@@ -226,7 +226,8 @@ var TypicodeUserStore = function () {
       var myQuery = {
         type: 'riotControlTrigger',
         evt: riot.EVT.typicodeUserStore.in.typicodeUserFetch,
-        query: query
+        query: query,
+        blah: blah
       };
 
       riot.control.trigger(riot.EVT.typicodeUserStore.in.typicodeUsersFetch, myQuery);

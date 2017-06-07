@@ -42,7 +42,7 @@ export default class TypicodeUserStore {
   _onTypicodeUserFetch(query) {
     console.log(riot.EVT.typicodeUserStore.in.typicodeUserFetch);
     let restoredSession = JSON.parse(localStorage.getItem(userCache));
-
+    let blah = riot.Cookies.get('blah-blah-blah');
     let id = parseInt(query.id, 10);  // query.id is a string
 
     if (restoredSession) {
@@ -60,7 +60,8 @@ export default class TypicodeUserStore {
       let myQuery = {
         type: 'riotControlTrigger',
         evt: riot.EVT.typicodeUserStore.in.typicodeUserFetch,
-        query: query
+        query: query,
+        blah: blah
       };
 
       riot.control.trigger(riot.EVT.typicodeUserStore.in.typicodeUsersFetch, myQuery);

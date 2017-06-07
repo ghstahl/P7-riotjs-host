@@ -1,5 +1,6 @@
 import 'riot';
 import route from 'riot-route';
+import Cookies from 'js-cookie';
 import RiotControl from 'riotcontrol';
 import RandomString from './utils/random-string.js';
 import RiotRouteExtension from './extensions/riot-route-extension.js';
@@ -20,7 +21,7 @@ import MasterEventTable from './master-event-table.js';
 import './components/startup.tag';
 
 riot.global = {};
-
+riot.Cookies = Cookies;
 export default class P7HostCore {
 
   constructor() {
