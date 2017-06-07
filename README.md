@@ -27,7 +27,7 @@ A starter riotjs project based upon the following;
 * [RiotControl](https://github.com/jimsparkman/RiotControl/)
 * [Webpack 2](http://webpack.github.io/)
 * [jQuery](https://github.com/jquery/jquery)
-
+* [Cookies](https://github.com/js-cookie/js-cookie)
 ## Get the kit
 
 ```
@@ -59,9 +59,21 @@ This will build everything.
 
 ### cookies
 Cookies are supplied via riot.Cookies.  The implementation comes from js-cookies.   
-'''
-	let blah = riot.Cookies.get('blah-blah-blah');
-'''
+```
+let blah = riot.Cookies.get('blah-blah-blah');
+```
+### AntiForgery Token
+Adopted the angular standard, which looks for 
+For more reading on this subject look [here](http://www.dotnetcurry.com/aspnet/1343/aspnet-core-csrf-antiforgery-token)
+```
+the fetch-store has the following implementation
+let token = riot.Cookies.get('XSRF-TOKEN');
+if (token) {
+        init.headers['X-XSRF-TOKEN'] = token;
+      }
+
+```
+Your server implementation is required to write the 'XSRF-TOKEN' as a cookie after every request.  
 
 ## Bootswatch Theming
 
