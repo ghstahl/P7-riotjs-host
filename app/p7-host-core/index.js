@@ -25,7 +25,7 @@ riot.Cookies = Cookies;
 export default class P7HostCore {
 
   constructor() {
-    this._masterEventTable = new MasterEventTable();
+    this._masterEventTable = new MasterEventTable(riot);
     this._name = 'P7HostCore';
     window.riot = riot;  // TODO: ask Zeke about this
     riot.route = route;
@@ -53,7 +53,7 @@ export default class P7HostCore {
         defaultRoute: 'main/home'
       }
     };
-    this._riotRouteExtension = new RiotRouteExtension();
+    this._riotRouteExtension = new RiotRouteExtension(riot);
 
     this._progressStore = new ProgressStore();
     this._dynamicJsCssLoader = new DynamicJsCssLoader();

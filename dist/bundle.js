@@ -7011,22 +7011,10 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       "use strict";
 
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-
-      function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-          throw new TypeError("Cannot call a class as a function");
-        }
-      }
-
+      Object.defineProperty(exports, "__esModule", { value: true });
       var Validator = function () {
-        function Validator() {
-          _classCallCheck(this, Validator);
-        }
-
-        Validator.validateType = function validateType(obj, type, name) {
+        function Validator() {}
+        Validator.validateType = function (obj, type, name) {
           if (!obj) {
             throw new Error(name + ': is NULL');
           }
@@ -7034,12 +7022,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
             throw new Error(name + ': is NOT of type:' + type.name);
           }
         };
-
         return Validator;
       }();
-
       exports.default = Validator;
-      module.exports = exports['default'];
 
       /***/
     },
@@ -7058,7 +7043,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         }
       }
 
-      var RiotRouteExtension = function RiotRouteExtension() {
+      var RiotRouteExtension = function RiotRouteExtension(riot) {
         _classCallCheck(this, RiotRouteExtension);
 
         var self = this;
@@ -7395,7 +7380,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         function P7HostCore() {
           _classCallCheck(this, P7HostCore);
 
-          this._masterEventTable = new _masterEventTable2.default();
+          this._masterEventTable = new _masterEventTable2.default(riot);
           this._name = 'P7HostCore';
           window.riot = riot; // TODO: ask Zeke about this
           riot.route = _riotRoute2.default;
@@ -7419,7 +7404,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
               defaultRoute: 'main/home'
             }
           };
-          this._riotRouteExtension = new _riotRouteExtension2.default();
+          this._riotRouteExtension = new _riotRouteExtension2.default(riot);
 
           this._progressStore = new _progressStore2.default();
           this._dynamicJsCssLoader = new _dynamicJscssLoader2.default();

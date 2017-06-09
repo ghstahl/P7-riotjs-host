@@ -20,7 +20,7 @@ riot.control.trigger('plugin-registration',registerRecord);
 
 */
 import DeepFreeze from '../utils/deep-freeze.js';
-import Validator from '../utils/validators.js';
+import Validator from '../utils/validators.tsx';
 import RiotControlExt from '../riotcontrol-ext.js';
 import '../router.js';
 import DynamicJsCssLoader from '../dynamic-jscss-loader.js';

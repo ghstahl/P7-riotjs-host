@@ -44,7 +44,7 @@ riot.control.trigger('add-dynamic-component',testComponent);
 
 */
 import DeepFreeze from '../utils/deep-freeze.js';
-import Validator from '../utils/validators.js';
+import Validator from '../utils/validators.tsx';
 import DynamicJsCssLoader from '../dynamic-jscss-loader.js';
 
 class Constants {}
