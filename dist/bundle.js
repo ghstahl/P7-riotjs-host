@@ -7043,13 +7043,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         }
       }
 
-      var RiotRouteExtension = function RiotRouteExtension(riot) {
+      var RiotRouteExtension = function RiotRouteExtension() {
         _classCallCheck(this, RiotRouteExtension);
 
         var self = this;
 
-        self.name = 'RiotRouteExtension';
-        self.namespace = self.name + ':';
         self.currentPath = '';
 
         self._defaultParser = function (path) {

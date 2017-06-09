@@ -1,9 +1,7 @@
 export default class RiotRouteExtension {
-  constructor(riot) {
+  constructor() {
     var self = this;
 
-    self.name = 'RiotRouteExtension';
-    self.namespace = self.name + ':';
     self.currentPath = '';
 
     self._defaultParser = (path) =>{
