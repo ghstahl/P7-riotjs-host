@@ -1,5 +1,5 @@
 export default class RiotRouteExtension {
-  constructor() {
+  constructor(riot) {
     var self = this;
 
     self.currentPath = '';
