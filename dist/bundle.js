@@ -7174,65 +7174,6 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       "use strict";
 
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-
-      function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-          throw new TypeError("Cannot call a class as a function");
-        }
-      }
-
-      var RandomString = function RandomString() {
-        _classCallCheck(this, RandomString);
-
-        var self = this;
-
-        self.name = 'RandomString';
-        self.namespace = self.name + ':';
-        self.generateRandomString = function (length) {
-          if (length && length > 16) {
-            length = 16;
-          } else {
-            length = 16;
-          }
-
-          var text = '';
-          var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-          for (var i = 0; i < length; i++) {
-            text += possible.charAt(Math.floor(Math.random() * possible.length));
-          }
-          return text;
-        };
-        self.hashString = function (str) {
-          var hash = 5381;
-          var i = str.length;
-
-          while (i) {
-            hash = hash * 33 ^ str.charCodeAt(--i);
-          }
-          /* JavaScript does bitwise operations (like XOR, above) on 32-bit signed
-          * integers. Since we want the results to be always positive, convert the
-          * signed int to an unsigned by doing an unsigned bitshift. */
-          return hash >>> 0;
-        };
-        self.randomHash = function (length) {
-          return self.hashString(self.generateRandomString(length));
-        };
-      };
-
-      exports.default = RandomString;
-      module.exports = exports['default'];
-
-      /***/
-    },
-    /* 19 */
-    /***/function (module, exports, __webpack_require__) {
-
-      "use strict";
-
       var riot = __webpack_require__(14);
       riot.tag2('startup', '', '', '', function (opts) {
         var self = this;
@@ -7277,6 +7218,47 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
           }
         };
       });
+
+      /***/
+    },
+    /* 19 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var RandomString = function () {
+        function RandomString() {}
+        RandomString.prototype.generateRandomString = function (length) {
+          if (length && length > 16) {
+            length = 16;
+          } else {
+            length = 16;
+          }
+          var text = '';
+          var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+          for (var i = 0; i < length; i++) {
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+          }
+          return text;
+        };
+        RandomString.prototype.hashString = function (str) {
+          var hash = 5381;
+          var i = str.length;
+          while (i) {
+            hash = hash * 33 ^ str.charCodeAt(--i);
+          }
+          /* JavaScript does bitwise operations (like XOR, above) on 32-bit signed
+          * integers. Since we want the results to be always positive, convert the
+          * signed int to an unsigned by doing an unsigned bitshift. */
+          return hash >>> 0;
+        };
+        RandomString.prototype.randomHash = function (str) {
+          return this.hashString(this.generateRandomString(length));
+        };
+        return RandomString;
+      }();
+      exports.default = RandomString;
 
       /***/
     },
@@ -7334,7 +7316,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _riotcontrol2 = _interopRequireDefault(_riotcontrol);
 
-      var _randomString = __webpack_require__(18);
+      var _randomString = __webpack_require__(19);
 
       var _randomString2 = _interopRequireDefault(_randomString);
 
@@ -7394,7 +7376,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _masterEventTable2 = _interopRequireDefault(_masterEventTable);
 
-      __webpack_require__(19);
+      __webpack_require__(18);
 
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : { default: obj };

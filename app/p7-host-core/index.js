@@ -2,7 +2,7 @@ import 'riot';
 import route from 'riot-route';
 import Cookies from 'js-cookie';
 import RiotControl from 'riotcontrol';
-import RandomString from './utils/random-string.js';
+import RandomString from './utils/random-string.tsx';
 import RiotRouteExtension from './extensions/riot-route-extension.js';
 import ProgressStore from './stores/progress-store.js';
 import DynamicJsCssLoader from './dynamic-jscss-loader.js';
