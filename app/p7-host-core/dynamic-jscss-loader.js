@@ -150,6 +150,30 @@ export default class DynamicJsCssLoader {
     }
   }
 
+  _preFetchExternalJsCss(component) {
+    let jsBundle = component.jsBundle;
+    let cssBundle = component.cssBundle;
+
+    if (jsBundle && jsBundle.path) {
+      let fileref = document.createElement('link');
+
+      fileref.setAttribute('rel', 'prefetch');
+      fileref.setAttribute('href', jsBundle.path);
+      if (typeof fileref !== 'undefined') {
+        document.getElementsByTagName('head')[0].appendChild(fileref);
+      }
+    }
+    if (cssBundle && cssBundle.path) {
+      let fileref = document.createElement('link');
+
+      fileref.setAttribute('rel', 'prefetch');
+      fileref.setAttribute('href', cssBundle.path);
+      if (typeof fileref !== 'undefined') {
+        document.getElementsByTagName('head')[0].appendChild(fileref);
+      }
+    }
+  }
+
   _loadExternalJsCss(component) {
     let jsBundle = component.jsBundle;
     let cssBundle = component.cssBundle;

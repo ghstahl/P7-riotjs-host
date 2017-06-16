@@ -127,6 +127,7 @@ export default class ComponentLoaderStore {
 
     if (this._findComponent(component.key) == null) {
       this._components.add(component);
+      this.dynamicJsCssLoader._preFetchExternalJsCss(component);
       this._commitToState();
     }
   }

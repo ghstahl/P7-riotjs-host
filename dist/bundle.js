@@ -5101,6 +5101,30 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
           }
         };
 
+        DynamicJsCssLoader.prototype._preFetchExternalJsCss = function _preFetchExternalJsCss(component) {
+          var jsBundle = component.jsBundle;
+          var cssBundle = component.cssBundle;
+
+          if (jsBundle && jsBundle.path) {
+            var fileref = document.createElement('link');
+
+            fileref.setAttribute('rel', 'prefetch');
+            fileref.setAttribute('href', jsBundle.path);
+            if (typeof fileref !== 'undefined') {
+              document.getElementsByTagName('head')[0].appendChild(fileref);
+            }
+          }
+          if (cssBundle && cssBundle.path) {
+            var _fileref = document.createElement('link');
+
+            _fileref.setAttribute('rel', 'prefetch');
+            _fileref.setAttribute('href', cssBundle.path);
+            if (typeof _fileref !== 'undefined') {
+              document.getElementsByTagName('head')[0].appendChild(_fileref);
+            }
+          }
+        };
+
         DynamicJsCssLoader.prototype._loadExternalJsCss = function _loadExternalJsCss(component) {
           var jsBundle = component.jsBundle;
           var cssBundle = component.cssBundle;
@@ -5115,13 +5139,13 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
             }
           }
           if (cssBundle && cssBundle.path) {
-            var _fileref = document.createElement('link');
+            var _fileref2 = document.createElement('link');
 
-            _fileref.setAttribute('rel', 'stylesheet');
-            _fileref.setAttribute('type', 'text/css');
-            _fileref.setAttribute('href', cssBundle.path);
-            if (typeof _fileref !== 'undefined') {
-              document.getElementsByTagName('head')[0].appendChild(_fileref);
+            _fileref2.setAttribute('rel', 'stylesheet');
+            _fileref2.setAttribute('type', 'text/css');
+            _fileref2.setAttribute('href', cssBundle.path);
+            if (typeof _fileref2 !== 'undefined') {
+              document.getElementsByTagName('head')[0].appendChild(_fileref2);
             }
           }
         };
@@ -5310,6 +5334,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
           if (this._findComponent(component.key) == null) {
             this._components.add(component);
+            this.dynamicJsCssLoader._preFetchExternalJsCss(component);
             this._commitToState();
           }
         };
