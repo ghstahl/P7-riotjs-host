@@ -1,6 +1,7 @@
 
 import DeepFreeze from '../utils/deep-freeze.js';
 import RouteStore from './route-store.js';
+import StoreBase from './store-base.js';
 
 const RSWKE = RouteStore.constants.WELLKNOWN_EVENTS;
 
@@ -17,30 +18,22 @@ Constants.WELLKNOWN_EVENTS = {
 };
 DeepFreeze.freeze(Constants);
 
-export default class ErrorStore {
+export default class ErrorStore extends StoreBase {
   static get constants() {
     return Constants;
   }
 
   constructor() {
+    super();
     riot.observable(this);
     this._bound = false;
     this._error = {};
+    this.riotHandlers = [
+      {event: Constants.WELLKNOWN_EVENTS.in.errorCatchAll, handler: this._onError}
+    ];
     this.bindEvents();
   }
 
-  bindEvents() {
-    if (this._bound === false) {
-      this.on(Constants.WELLKNOWN_EVENTS.in.errorCatchAll, this._onError);
-      this._bound = !this._bound;
-    }
-  }
-  unbindEvents() {
-    if (this._bound === true) {
-      this.off(Constants.WELLKNOWN_EVENTS.in.errorCatchAll, this._onError);
-      this._bound = !this._bound;
-    }
-  }
   _onError(error) {
     console.log(this.name, Constants.WELLKNOWN_EVENTS.in.errorCatchAll, error);
     this._error = error;

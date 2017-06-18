@@ -70,7 +70,7 @@
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(riot) {/* Riot v3.6.0, @license MIT */
+/* WEBPACK VAR INJECTION */(function(riot) {/* Riot v3.5.1, @license MIT */
 (function (global, factory) {
 	 true ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -455,87 +455,8 @@ var styleManager = {
 
 /**
  * The riot template engine
- * @version v3.0.8
+ * @version v3.0.5
  */
-
-var skipRegex = (function () { //eslint-disable-line no-unused-vars
-
-  var beforeReChars = '[{(,;:?=|&!^~>%*/';
-
-  var beforeReWords = [
-    'case',
-    'default',
-    'do',
-    'else',
-    'in',
-    'instanceof',
-    'prefix',
-    'return',
-    'typeof',
-    'void',
-    'yield'
-  ];
-
-  var wordsLastChar = beforeReWords.reduce(function (s, w) {
-    return s + w.slice(-1)
-  }, '');
-
-  var RE_REGEX = /^\/(?=[^*>/])[^[/\\]*(?:(?:\\.|\[(?:\\.|[^\]\\]*)*\])[^[\\/]*)*?\/[gimuy]*/;
-  var RE_VN_CHAR = /[$\w]/;
-
-  function prev (code, pos) {
-    while (--pos >= 0 && /\s/.test(code[pos])){  }
-    return pos
-  }
-
-  function _skipRegex (code, start) {
-
-    var re = /.*/g;
-    var pos = re.lastIndex = start++;
-    var match = re.exec(code)[0].match(RE_REGEX);
-
-    if (match) {
-      var next = pos + match[0].length;
-
-      pos = prev(code, pos);
-      var c = code[pos];
-
-      if (pos < 0 || ~beforeReChars.indexOf(c)) {
-        return next
-      }
-
-      if (c === '.') {
-
-        if (code[pos - 1] === '.') {
-          start = next;
-        }
-
-      } else if (c === '+' || c === '-') {
-
-        if (code[--pos] !== c ||
-            (pos = prev(code, pos)) < 0 ||
-            !RE_VN_CHAR.test(code[pos])) {
-          start = next;
-        }
-
-      } else if (~wordsLastChar.indexOf(c)) {
-
-        var end = pos + 1;
-
-        while (--pos >= 0 && RE_VN_CHAR.test(code[pos])){  }
-        if (~beforeReWords.indexOf(code.slice(pos + 1, end))) {
-          start = next;
-        }
-      }
-    }
-
-    return start
-  }
-
-  return _skipRegex
-
-})();
-
 /**
  * riot.util.brackets
  *
@@ -565,12 +486,10 @@ var brackets = (function (UNDEF) {
 
     NEED_ESCAPE = /(?=[[\]()*+?.^$|])/g,
 
-    S_QBLOCK2 = R_STRINGS.source + '|' + /(\/)(?![*\/])/.source,
-
     FINDBRACES = {
-      '(': RegExp('([()])|'   + S_QBLOCK2, REGLOB),
-      '[': RegExp('([[\\]])|' + S_QBLOCK2, REGLOB),
-      '{': RegExp('([{}])|'   + S_QBLOCK2, REGLOB)
+      '(': RegExp('([()])|'   + S_QBLOCKS, REGLOB),
+      '[': RegExp('([[\\]])|' + S_QBLOCKS, REGLOB),
+      '{': RegExp('([{}])|'   + S_QBLOCKS, REGLOB)
     },
 
     DEFAULT = '{ }';
@@ -581,7 +500,7 @@ var brackets = (function (UNDEF) {
     /{[^}]*}/,
     /\\([{}])/g,
     /\\({)|{/g,
-    RegExp('\\\\(})|([[({])|(})|' + S_QBLOCK2, REGLOB),
+    RegExp('\\\\(})|([[({])|(})|' + S_QBLOCKS, REGLOB),
     DEFAULT,
     /^\s*{\^?\s*([$\w]+)(?:\s*,\s*(\S+))?\s+in\s+(\S.*)\s*}/,
     /(^|[^\\]){=[\S\s]*?}/
@@ -615,7 +534,7 @@ var brackets = (function (UNDEF) {
     arr[4] = _rewrite(arr[1].length > 1 ? /{[\S\s]*?}/ : _pairs[4], arr);
     arr[5] = _rewrite(pair.length > 3 ? /\\({|})/g : _pairs[5], arr);
     arr[6] = _rewrite(_pairs[6], arr);
-    arr[7] = RegExp('\\\\(' + arr[3] + ')|([[({])|(' + arr[3] + ')|' + S_QBLOCK2, REGLOB);
+    arr[7] = RegExp('\\\\(' + arr[3] + ')|([[({])|(' + arr[3] + ')|' + S_QBLOCKS, REGLOB);
     arr[8] = pair;
     return arr
   }
@@ -636,40 +555,19 @@ var brackets = (function (UNDEF) {
       pos,
       re = _bp[6];
 
-    var qblocks = [];
-    var prevStr = '';
-    var mark, lastIndex;
-
     isexpr = start = re.lastIndex = 0;
 
     while ((match = re.exec(str))) {
 
-      lastIndex = re.lastIndex;
       pos = match.index;
 
       if (isexpr) {
 
         if (match[2]) {
-
-          var ch = match[2];
-          var rech = FINDBRACES[ch];
-          var ix = 1;
-
-          rech.lastIndex = lastIndex;
-          while ((match = rech.exec(str))) {
-            if (match[1]) {
-              if (match[1] === ch) { ++ix; }
-              else if (!--ix) { break }
-            } else {
-              rech.lastIndex = pushQBlock(match.index, rech.lastIndex, match[2]);
-            }
-          }
-          re.lastIndex = ix ? str.length : rech.lastIndex;
+          re.lastIndex = skipBraces(str, match[2], re.lastIndex);
           continue
         }
-
         if (!match[3]) {
-          re.lastIndex = pushQBlock(pos, lastIndex, match[4]);
           continue
         }
       }
@@ -686,15 +584,9 @@ var brackets = (function (UNDEF) {
       unescapeStr(str.slice(start));
     }
 
-    parts.qblocks = qblocks;
-
     return parts
 
     function unescapeStr (s) {
-      if (prevStr) {
-        s = prevStr + s;
-        prevStr = '';
-      }
       if (tmpl || isexpr) {
         parts.push(s && s.replace(_bp[5], '$1'));
       } else {
@@ -702,18 +594,18 @@ var brackets = (function (UNDEF) {
       }
     }
 
-    function pushQBlock(_pos, _lastIndex, slash) { //eslint-disable-line
-      if (slash) {
-        _lastIndex = skipRegex(str, _pos);
-      }
+    function skipBraces (s, ch, ix) {
+      var
+        match,
+        recch = FINDBRACES[ch];
 
-      if (tmpl && _lastIndex > _pos + 2) {
-        mark = '\u2057' + qblocks.length + '~';
-        qblocks.push(str.slice(_pos, _lastIndex));
-        prevStr += str.slice(start, _pos) + mark;
-        start = _lastIndex;
+      recch.lastIndex = ix;
+      ix = 1;
+      while ((match = recch.exec(s))) {
+        if (match[1] &&
+          !(match[1] === ch ? ++ix : --ix)) { break }
       }
-      return _lastIndex
+      return ix ? s.length : recch.lastIndex
     }
   };
 
@@ -764,12 +656,10 @@ var brackets = (function (UNDEF) {
   /* istanbul ignore next: in the browser riot is always in the scope */
   _brackets.settings = typeof riot !== 'undefined' && riot.settings || {};
   _brackets.set = _reset;
-  _brackets.skipRegex = skipRegex;
 
   _brackets.R_STRINGS = R_STRINGS;
   _brackets.R_MLCOMMS = R_MLCOMMS;
   _brackets.S_QBLOCKS = S_QBLOCKS;
-  _brackets.S_QBLOCK2 = S_QBLOCK2;
 
   return _brackets
 
@@ -834,13 +724,18 @@ var tmpl = (function () {
     return new Function('E', expr + ';')    // eslint-disable-line no-new-func
   }
 
-  var RE_DQUOTE = /\u2057/g;
-  var RE_QBMARK = /\u2057(\d+)~/g;
+  var
+    CH_IDEXPR = String.fromCharCode(0x2057),
+    RE_CSNAME = /^(?:(-?[_A-Za-z\xA0-\xFF][-\w\xA0-\xFF]*)|\u2057(\d+)~):/,
+    RE_QBLOCK = RegExp(brackets.S_QBLOCKS, 'g'),
+    RE_DQUOTE = /\u2057/g,
+    RE_QBMARK = /\u2057(\d+)~/g;
 
   function _getTmpl (str) {
-    var parts = brackets.split(str.replace(RE_DQUOTE, '"'), 1);
-    var qstr = parts.qblocks;
-    var expr;
+    var
+      qstr = [],
+      expr,
+      parts = brackets.split(str.replace(RE_DQUOTE, '"'), 1);
 
     if (parts.length > 2 || parts[0]) {
       var i, j, list = [];
@@ -871,7 +766,7 @@ var tmpl = (function () {
       expr = _parseExpr(parts[1], 0, qstr);
     }
 
-    if (qstr.length) {
+    if (qstr[0]) {
       expr = expr.replace(RE_QBMARK, function (_, pos) {
         return qstr[pos]
           .replace(/\r/g, '\\r')
@@ -881,7 +776,6 @@ var tmpl = (function () {
     return expr
   }
 
-  var RE_CSNAME = /^(?:(-?[_A-Za-z\xA0-\xFF][-\w\xA0-\xFF]*)|\u2057(\d+)~):/;
   var
     RE_BREND = {
       '(': /[()]/g,
@@ -892,8 +786,11 @@ var tmpl = (function () {
   function _parseExpr (expr, asText, qstr) {
 
     expr = expr
-      .replace(/\s+/g, ' ').trim()
-      .replace(/\ ?([[\({},?\.:])\ ?/g, '$1');
+          .replace(RE_QBLOCK, function (s, div) {
+            return s.length > 2 && !div ? CH_IDEXPR + (qstr.push(s) - 1) + '~' : s
+          })
+          .replace(/\s+/g, ' ').trim()
+          .replace(/\ ?([[\({},?\.:])\ ?/g, '$1');
 
     if (expr) {
       var
@@ -984,7 +881,7 @@ var tmpl = (function () {
     return expr
   }
 
-  _tmpl.version = brackets.version = 'v3.0.8';
+  _tmpl.version = brackets.version = 'v3.0.5';
 
   return _tmpl
 
@@ -1213,9 +1110,7 @@ var misc = Object.freeze({
 });
 
 var settings$1 = extend(Object.create(brackets.settings), {
-  skipAnonymousTags: true,
-  // handle the auto updates on any DOM event
-  autoUpdate: true
+  skipAnonymousTags: true
 });
 
 /**
@@ -1245,9 +1140,6 @@ function handleEvent(dom, handler, e) {
   e.item = item;
 
   handler.call(this, e);
-
-  // avoid auto updates
-  if (!settings$1.autoUpdate) { return }
 
   if (!e.preventUpdate) {
     var p = getImmediateCustomParentTag(this);
@@ -1478,7 +1370,7 @@ var IfExpr = {
     remAttr(dom, CONDITIONAL_DIRECTIVE);
     this.tag = tag;
     this.expr = expr;
-    this.stub = createDOMPlaceholder();
+    this.stub = document.createTextNode('');
     this.pristine = dom;
 
     var p = dom.parentNode;
@@ -2225,7 +2117,7 @@ function unregister$1(name) {
   __TAG_IMPL[name] = null;
 }
 
-var version$1 = 'v3.6.0';
+var version$1 = 'v3.5.1';
 
 
 var core = Object.freeze({
@@ -3810,10 +3702,10 @@ function insertStyleElement (options, style) {
 }
 
 function removeStyleElement (style) {
-	if (style.parentNode === null) return false;
 	style.parentNode.removeChild(style);
 
 	var idx = stylesInsertedAtTop.indexOf(style);
+
 	if(idx >= 0) {
 		stylesInsertedAtTop.splice(idx, 1);
 	}
@@ -4758,7 +4650,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
 				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));else if ((typeof exports === 'undefined' ? 'undefined' : _typeof2(exports)) === 'object') exports["P7HostCore"] = factory(require("riot"), require("js-cookie"), require("riot-route"), require("riotcontrol"), require("whatwg-fetch"));else root["P7HostCore"] = factory(root["riot"], root["js-cookie"], root["riot-route"], root["riotcontrol"], root["whatwg-fetch"]);
-})(undefined, function (__WEBPACK_EXTERNAL_MODULE_14__, __WEBPACK_EXTERNAL_MODULE_20__, __WEBPACK_EXTERNAL_MODULE_21__, __WEBPACK_EXTERNAL_MODULE_22__, __WEBPACK_EXTERNAL_MODULE_24__) {
+})(undefined, function (__WEBPACK_EXTERNAL_MODULE_15__, __WEBPACK_EXTERNAL_MODULE_21__, __WEBPACK_EXTERNAL_MODULE_22__, __WEBPACK_EXTERNAL_MODULE_23__, __WEBPACK_EXTERNAL_MODULE_25__) {
   return (/******/function (modules) {
       // webpackBootstrap
       /******/ // The module cache
@@ -4838,7 +4730,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       /******/__webpack_require__.p = "";
       /******/
       /******/ // Load entry module and return exports
-      /******/return __webpack_require__(__webpack_require__.s = 23);
+      /******/return __webpack_require__(__webpack_require__.s = 24);
       /******/
     }(
     /************************************************************************/
@@ -5181,7 +5073,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
 
-      var _validators = __webpack_require__(15);
+      var _validators = __webpack_require__(16);
 
       var _validators2 = _interopRequireDefault(_validators);
 
@@ -5189,8 +5081,24 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _dynamicJscssLoader2 = _interopRequireDefault(_dynamicJscssLoader);
 
+      var _storeBase = __webpack_require__(6);
+
+      var _storeBase2 = _interopRequireDefault(_storeBase);
+
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : { default: obj };
+      }
+
+      function _possibleConstructorReturn(self, call) {
+        if (!self) {
+          throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }return call && ((typeof call === 'undefined' ? 'undefined' : _typeof2(call)) === "object" || typeof call === "function") ? call : self;
+      }
+
+      function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+          throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === 'undefined' ? 'undefined' : _typeof2(superClass)));
+        }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
       }
 
       function _classCallCheck(instance, Constructor) {
@@ -5268,7 +5176,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       _deepFreeze2.default.freeze(Constants);
 
-      var ComponentLoaderStore = function () {
+      var ComponentLoaderStore = function (_StoreBase) {
+        _inherits(ComponentLoaderStore, _StoreBase);
+
         _createClass(ComponentLoaderStore, null, [{
           key: 'constants',
           get: function get() {
@@ -5279,46 +5189,20 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         function ComponentLoaderStore(dynamicJsCssLoader) {
           _classCallCheck(this, ComponentLoaderStore);
 
+          var _this = _possibleConstructorReturn(this, _StoreBase.call(this));
+
           _validators2.default.validateType(dynamicJsCssLoader, _dynamicJscssLoader2.default, 'dynamicJsCssLoader');
-          this.dynamicJsCssLoader = dynamicJsCssLoader;
+          _this.dynamicJsCssLoader = dynamicJsCssLoader;
 
-          riot.observable(this);
-          this._components = new Set();
+          riot.observable(_this);
+          _this._components = new Set();
           riot.state.componentLoaderState = {};
-          this.state = riot.state.componentLoaderState;
-          this._bound = false;
-          this.bindEvents();
+          _this.state = riot.state.componentLoaderState;
+
+          _this.riotHandlers = [{ event: Constants.WELLKNOWN_EVENTS.in.loadDynamicComponent, handler: _this._onLoadDynamicComponent }, { event: Constants.WELLKNOWN_EVENTS.in.unloadDynamicComponent, handler: _this._onUnloadDymanicComponent }, { event: Constants.WELLKNOWN_EVENTS.in.addDynamicComponent, handler: _this._onAddDynamicComponent }, { event: Constants.WELLKNOWN_EVENTS.in.addDynamicComponents, handler: _this._onAddDynamicComponents }, { event: Constants.WELLKNOWN_EVENTS.in.pluginRegistered, handler: _this._onPluginRegistered }, { event: Constants.WELLKNOWN_EVENTS.in.pluginUnregistered, handler: _this._onPluginUnregistered }];
+          _this.bindEvents();
+          return _this;
         }
-
-        ComponentLoaderStore.prototype.bindEvents = function bindEvents() {
-          if (this._bound === false) {
-            this.on(Constants.WELLKNOWN_EVENTS.in.loadDynamicComponent, this._onLoadDynamicComponent);
-            this.on(Constants.WELLKNOWN_EVENTS.in.unloadDynamicComponent, this._onUnloadDymanicComponent);
-
-            this.on(Constants.WELLKNOWN_EVENTS.in.addDynamicComponent, this._onAddDynamicComponent);
-            this.on(Constants.WELLKNOWN_EVENTS.in.addDynamicComponents, this._onAddDynamicComponents);
-
-            this.on(Constants.WELLKNOWN_EVENTS.in.pluginRegistered, this._onPluginRegistered);
-            this.on(Constants.WELLKNOWN_EVENTS.in.pluginUnregistered, this._onPluginUnregistered);
-
-            this._bound = !this._bound;
-          }
-        };
-
-        ComponentLoaderStore.prototype.unbindEvents = function unbindEvents() {
-          if (this._bound === true) {
-            this.off(Constants.WELLKNOWN_EVENTS.in.loadDynamicComponent, this._onLoadDynamicComponent);
-            this.off(Constants.WELLKNOWN_EVENTS.in.unloadDynamicComponent, this._onUnloadDymanicComponent);
-
-            this.off(Constants.WELLKNOWN_EVENTS.in.addDynamicComponent, this._onAddDynamicComponent);
-            this.off(Constants.WELLKNOWN_EVENTS.in.addDynamicComponents, this._onAddDynamicComponents);
-
-            this.off(Constants.WELLKNOWN_EVENTS.in.pluginRegistered, this._onPluginRegistered);
-            this.off(Constants.WELLKNOWN_EVENTS.in.pluginUnregistered, this._onPluginUnregistered);
-
-            this._bound = !this._bound;
-          }
-        };
 
         ComponentLoaderStore.prototype._commitToState = function _commitToState() {
 
@@ -5509,7 +5393,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         };
 
         return ComponentLoaderStore;
-      }();
+      }(_storeBase2.default);
 
       exports.default = ComponentLoaderStore;
       module.exports = exports['default'];
@@ -5915,6 +5799,59 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         value: true
       });
 
+      function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+          throw new TypeError("Cannot call a class as a function");
+        }
+      }
+
+      var StoreBase = function () {
+        function StoreBase() {
+          _classCallCheck(this, StoreBase);
+
+          this._bound = false;
+          this.riotHandlers = [];
+        }
+
+        StoreBase.bindHandler = function bindHandler(element, index, array) {
+          this.on(element.event, element.handler);
+        };
+
+        StoreBase.unbindHandler = function unbindHandler(element, index, array) {
+          this.off(element.event, element.handler);
+        };
+
+        StoreBase.prototype.bindEvents = function bindEvents() {
+          if (this._bound === false) {
+            this.riotHandlers.forEach(StoreBase.bindHandler, this);
+            this._bound = !this._bound;
+          }
+        };
+
+        StoreBase.prototype.unbindEvents = function unbindEvents() {
+          if (this._bound === true) {
+            this.riotHandlers.forEach(StoreBase.unbindHandler, this);
+            this._bound = !this._bound;
+          }
+        };
+
+        return StoreBase;
+      }();
+
+      exports.default = StoreBase;
+      module.exports = exports["default"];
+
+      /***/
+    },
+    /* 7 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+
       var _createClass = function () {
         function defineProperties(target, props) {
           for (var i = 0; i < props.length; i++) {
@@ -5988,7 +5925,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 7 */
+    /* 8 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -6015,8 +5952,24 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _routeStore2 = _interopRequireDefault(_routeStore);
 
+      var _storeBase = __webpack_require__(6);
+
+      var _storeBase2 = _interopRequireDefault(_storeBase);
+
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : { default: obj };
+      }
+
+      function _possibleConstructorReturn(self, call) {
+        if (!self) {
+          throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }return call && ((typeof call === 'undefined' ? 'undefined' : _typeof2(call)) === "object" || typeof call === "function") ? call : self;
+      }
+
+      function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+          throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === 'undefined' ? 'undefined' : _typeof2(superClass)));
+        }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
       }
 
       function _classCallCheck(instance, Constructor) {
@@ -6043,7 +5996,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       };
       _deepFreeze2.default.freeze(Constants);
 
-      var ErrorStore = function () {
+      var ErrorStore = function (_StoreBase) {
+        _inherits(ErrorStore, _StoreBase);
+
         _createClass(ErrorStore, null, [{
           key: 'constants',
           get: function get() {
@@ -6054,25 +6009,15 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         function ErrorStore() {
           _classCallCheck(this, ErrorStore);
 
-          riot.observable(this);
-          this._bound = false;
-          this._error = {};
-          this.bindEvents();
+          var _this = _possibleConstructorReturn(this, _StoreBase.call(this));
+
+          riot.observable(_this);
+          _this._bound = false;
+          _this._error = {};
+          _this.riotHandlers = [{ event: Constants.WELLKNOWN_EVENTS.in.errorCatchAll, handler: _this._onError }];
+          _this.bindEvents();
+          return _this;
         }
-
-        ErrorStore.prototype.bindEvents = function bindEvents() {
-          if (this._bound === false) {
-            this.on(Constants.WELLKNOWN_EVENTS.in.errorCatchAll, this._onError);
-            this._bound = !this._bound;
-          }
-        };
-
-        ErrorStore.prototype.unbindEvents = function unbindEvents() {
-          if (this._bound === true) {
-            this.off(Constants.WELLKNOWN_EVENTS.in.errorCatchAll, this._onError);
-            this._bound = !this._bound;
-          }
-        };
 
         ErrorStore.prototype._onError = function _onError(error) {
           console.log(this.name, Constants.WELLKNOWN_EVENTS.in.errorCatchAll, error);
@@ -6082,14 +6027,14 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         };
 
         return ErrorStore;
-      }();
+      }(_storeBase2.default);
 
       exports.default = ErrorStore;
       module.exports = exports['default'];
 
       /***/
     },
-    /* 8 */
+    /* 9 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -6114,7 +6059,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         };
       }();
 
-      __webpack_require__(24);
+      __webpack_require__(25);
 
       var _deepFreeze = __webpack_require__(0);
 
@@ -6124,8 +6069,24 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _progressStore2 = _interopRequireDefault(_progressStore);
 
+      var _storeBase = __webpack_require__(6);
+
+      var _storeBase2 = _interopRequireDefault(_storeBase);
+
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : { default: obj };
+      }
+
+      function _possibleConstructorReturn(self, call) {
+        if (!self) {
+          throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }return call && ((typeof call === 'undefined' ? 'undefined' : _typeof2(call)) === "object" || typeof call === "function") ? call : self;
+      }
+
+      function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+          throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === 'undefined' ? 'undefined' : _typeof2(superClass)));
+        }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
       }
 
       function _classCallCheck(instance, Constructor) {
@@ -6155,7 +6116,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       };
       _deepFreeze2.default.freeze(Constants);
 
-      var FetchStore = function () {
+      var FetchStore = function (_StoreBase) {
+        _inherits(FetchStore, _StoreBase);
+
         _createClass(FetchStore, null, [{
           key: 'constants',
           get: function get() {
@@ -6166,24 +6129,13 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         function FetchStore() {
           _classCallCheck(this, FetchStore);
 
-          riot.observable(this);
-          this._bound = false;
-          this.bindEvents();
+          var _this = _possibleConstructorReturn(this, _StoreBase.call(this));
+
+          riot.observable(_this);
+          _this.riotHandlers = [{ event: Constants.WELLKNOWN_EVENTS.in.fetch, handler: _this._onFetch }];
+          _this.bindEvents();
+          return _this;
         }
-
-        FetchStore.prototype.bindEvents = function bindEvents() {
-          if (this._bound === false) {
-            this.on(Constants.WELLKNOWN_EVENTS.in.fetch, this._onFetch);
-            this._bound = !this._bound;
-          }
-        };
-
-        FetchStore.prototype.unbindEvents = function unbindEvents() {
-          if (this._bound === true) {
-            this.off(Constants.WELLKNOWN_EVENTS.in.fetch, this._onFetch);
-            this._bound = !this._bound;
-          }
-        };
 
         FetchStore.prototype._onFetch = function _onFetch(input, init, ack) {
           var jsonFixup = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
@@ -6260,14 +6212,14 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         };
 
         return FetchStore;
-      }();
+      }(_storeBase2.default);
 
       exports.default = FetchStore;
       module.exports = exports['default'];
 
       /***/
     },
-    /* 9 */
+    /* 10 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -6442,7 +6394,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 10 */
+    /* 11 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -6595,7 +6547,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 11 */
+    /* 12 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -6618,11 +6570,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
 
-      var _validators = __webpack_require__(15);
+      var _validators = __webpack_require__(16);
 
       var _validators2 = _interopRequireDefault(_validators);
 
-      var _riotcontrolExt = __webpack_require__(6);
+      var _riotcontrolExt = __webpack_require__(7);
 
       var _riotcontrolExt2 = _interopRequireDefault(_riotcontrolExt);
 
@@ -6861,7 +6813,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 12 */
+    /* 13 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -6951,7 +6903,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 13 */
+    /* 14 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -7134,14 +7086,14 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 14 */
+    /* 15 */
     /***/function (module, exports) {
 
-      module.exports = __WEBPACK_EXTERNAL_MODULE_14__;
+      module.exports = __WEBPACK_EXTERNAL_MODULE_15__;
 
       /***/
     },
-    /* 15 */
+    /* 16 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -7178,7 +7130,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 16 */
+    /* 17 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -7218,7 +7170,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 17 */
+    /* 18 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -7231,7 +7183,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _progressStore2 = _interopRequireDefault(_progressStore);
 
-      var _fetchStore = __webpack_require__(8);
+      var _fetchStore = __webpack_require__(9);
 
       var _fetchStore2 = _interopRequireDefault(_fetchStore);
 
@@ -7239,11 +7191,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _componentLoaderStore2 = _interopRequireDefault(_componentLoaderStore);
 
-      var _localstorageStore = __webpack_require__(10);
+      var _localstorageStore = __webpack_require__(11);
 
       var _localstorageStore2 = _interopRequireDefault(_localstorageStore);
 
-      var _errorStore = __webpack_require__(7);
+      var _errorStore = __webpack_require__(8);
 
       var _errorStore2 = _interopRequireDefault(_errorStore);
 
@@ -7251,19 +7203,19 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _routeStore2 = _interopRequireDefault(_routeStore);
 
-      var _riotcontrolDispatchStore = __webpack_require__(12);
+      var _riotcontrolDispatchStore = __webpack_require__(13);
 
       var _riotcontrolDispatchStore2 = _interopRequireDefault(_riotcontrolDispatchStore);
 
-      var _pluginRegistrationStore = __webpack_require__(11);
+      var _pluginRegistrationStore = __webpack_require__(12);
 
       var _pluginRegistrationStore2 = _interopRequireDefault(_pluginRegistrationStore);
 
-      var _startupStore = __webpack_require__(13);
+      var _startupStore = __webpack_require__(14);
 
       var _startupStore2 = _interopRequireDefault(_startupStore);
 
-      var _keepAliveStore = __webpack_require__(9);
+      var _keepAliveStore = __webpack_require__(10);
 
       var _keepAliveStore2 = _interopRequireDefault(_keepAliveStore);
 
@@ -7304,7 +7256,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 18 */
+    /* 19 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -7363,12 +7315,12 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 19 */
+    /* 20 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
 
-      var riot = __webpack_require__(14);
+      var riot = __webpack_require__(15);
       riot.tag2('startup', '', '', '', function (opts) {
         var self = this;
 
@@ -7415,13 +7367,6 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 20 */
-    /***/function (module, exports) {
-
-      module.exports = __WEBPACK_EXTERNAL_MODULE_20__;
-
-      /***/
-    },
     /* 21 */
     /***/function (module, exports) {
 
@@ -7437,6 +7382,13 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       /***/
     },
     /* 23 */
+    /***/function (module, exports) {
+
+      module.exports = __WEBPACK_EXTERNAL_MODULE_23__;
+
+      /***/
+    },
+    /* 24 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -7455,25 +7407,25 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         };
       }();
 
-      __webpack_require__(14);
+      __webpack_require__(15);
 
-      var _riotRoute = __webpack_require__(21);
+      var _riotRoute = __webpack_require__(22);
 
       var _riotRoute2 = _interopRequireDefault(_riotRoute);
 
-      var _jsCookie = __webpack_require__(20);
+      var _jsCookie = __webpack_require__(21);
 
       var _jsCookie2 = _interopRequireDefault(_jsCookie);
 
-      var _riotcontrol = __webpack_require__(22);
+      var _riotcontrol = __webpack_require__(23);
 
       var _riotcontrol2 = _interopRequireDefault(_riotcontrol);
 
-      var _randomString = __webpack_require__(18);
+      var _randomString = __webpack_require__(19);
 
       var _randomString2 = _interopRequireDefault(_randomString);
 
-      var _riotRouteExtension = __webpack_require__(16);
+      var _riotRouteExtension = __webpack_require__(17);
 
       var _riotRouteExtension2 = _interopRequireDefault(_riotRouteExtension);
 
@@ -7489,19 +7441,19 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _componentLoaderStore2 = _interopRequireDefault(_componentLoaderStore);
 
-      var _errorStore = __webpack_require__(7);
+      var _errorStore = __webpack_require__(8);
 
       var _errorStore2 = _interopRequireDefault(_errorStore);
 
-      var _fetchStore = __webpack_require__(8);
+      var _fetchStore = __webpack_require__(9);
 
       var _fetchStore2 = _interopRequireDefault(_fetchStore);
 
-      var _localstorageStore = __webpack_require__(10);
+      var _localstorageStore = __webpack_require__(11);
 
       var _localstorageStore2 = _interopRequireDefault(_localstorageStore);
 
-      var _riotcontrolExt = __webpack_require__(6);
+      var _riotcontrolExt = __webpack_require__(7);
 
       var _riotcontrolExt2 = _interopRequireDefault(_riotcontrolExt);
 
@@ -7509,27 +7461,27 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _routeStore2 = _interopRequireDefault(_routeStore);
 
-      var _pluginRegistrationStore = __webpack_require__(11);
+      var _pluginRegistrationStore = __webpack_require__(12);
 
       var _pluginRegistrationStore2 = _interopRequireDefault(_pluginRegistrationStore);
 
-      var _startupStore = __webpack_require__(13);
+      var _startupStore = __webpack_require__(14);
 
       var _startupStore2 = _interopRequireDefault(_startupStore);
 
-      var _riotcontrolDispatchStore = __webpack_require__(12);
+      var _riotcontrolDispatchStore = __webpack_require__(13);
 
       var _riotcontrolDispatchStore2 = _interopRequireDefault(_riotcontrolDispatchStore);
 
-      var _keepAliveStore = __webpack_require__(9);
+      var _keepAliveStore = __webpack_require__(10);
 
       var _keepAliveStore2 = _interopRequireDefault(_keepAliveStore);
 
-      var _masterEventTable = __webpack_require__(17);
+      var _masterEventTable = __webpack_require__(18);
 
       var _masterEventTable2 = _interopRequireDefault(_masterEventTable);
 
-      __webpack_require__(19);
+      __webpack_require__(20);
 
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : { default: obj };
@@ -7618,10 +7570,10 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 24 */
+    /* 25 */
     /***/function (module, exports) {
 
-      module.exports = __WEBPACK_EXTERNAL_MODULE_24__;
+      module.exports = __WEBPACK_EXTERNAL_MODULE_25__;
 
       /***/
     }])

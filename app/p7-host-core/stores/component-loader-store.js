@@ -46,6 +46,7 @@ riot.control.trigger('add-dynamic-component',testComponent);
 import DeepFreeze from '../utils/deep-freeze.js';
 import Validator from '../utils/validators.js';
 import DynamicJsCssLoader from '../dynamic-jscss-loader.js';
+import StoreBase from './store-base.js';
 
 class Constants {}
 Constants.NAME = 'component-loader-store';
@@ -69,13 +70,14 @@ Constants.WELLKNOWN_EVENTS = {
 
 DeepFreeze.freeze(Constants);
 
-export default class ComponentLoaderStore {
+export default class ComponentLoaderStore extends StoreBase {
 
   static get constants() {
     return Constants;
   }
 
   constructor(dynamicJsCssLoader) {
+    super();
     Validator.validateType(dynamicJsCssLoader, DynamicJsCssLoader, 'dynamicJsCssLoader');
     this.dynamicJsCssLoader = dynamicJsCssLoader;
 
@@ -83,37 +85,16 @@ export default class ComponentLoaderStore {
     this._components = new Set();
     riot.state.componentLoaderState = {};
     this.state = riot.state.componentLoaderState;
-    this._bound = false;
+
+    this.riotHandlers = [
+      {event: Constants.WELLKNOWN_EVENTS.in.loadDynamicComponent, handler: this._onLoadDynamicComponent},
+      {event: Constants.WELLKNOWN_EVENTS.in.unloadDynamicComponent, handler: this._onUnloadDymanicComponent},
+      {event: Constants.WELLKNOWN_EVENTS.in.addDynamicComponent, handler: this._onAddDynamicComponent},
+      {event: Constants.WELLKNOWN_EVENTS.in.addDynamicComponents, handler: this._onAddDynamicComponents},
+      {event: Constants.WELLKNOWN_EVENTS.in.pluginRegistered, handler: this._onPluginRegistered},
+      {event: Constants.WELLKNOWN_EVENTS.in.pluginUnregistered, handler: this._onPluginUnregistered}
+    ];
     this.bindEvents();
-  }
-
-  bindEvents() {
-    if (this._bound === false) {
-      this.on(Constants.WELLKNOWN_EVENTS.in.loadDynamicComponent, this._onLoadDynamicComponent);
-      this.on(Constants.WELLKNOWN_EVENTS.in.unloadDynamicComponent, this._onUnloadDymanicComponent);
-
-      this.on(Constants.WELLKNOWN_EVENTS.in.addDynamicComponent, this._onAddDynamicComponent);
-      this.on(Constants.WELLKNOWN_EVENTS.in.addDynamicComponents, this._onAddDynamicComponents);
-
-      this.on(Constants.WELLKNOWN_EVENTS.in.pluginRegistered, this._onPluginRegistered);
-      this.on(Constants.WELLKNOWN_EVENTS.in.pluginUnregistered, this._onPluginUnregistered);
-
-      this._bound = !this._bound;
-    }
-  }
-  unbindEvents() {
-    if (this._bound === true) {
-      this.off(Constants.WELLKNOWN_EVENTS.in.loadDynamicComponent, this._onLoadDynamicComponent);
-      this.off(Constants.WELLKNOWN_EVENTS.in.unloadDynamicComponent, this._onUnloadDymanicComponent);
-
-      this.off(Constants.WELLKNOWN_EVENTS.in.addDynamicComponent, this._onAddDynamicComponent);
-      this.off(Constants.WELLKNOWN_EVENTS.in.addDynamicComponents, this._onAddDynamicComponents);
-
-      this.off(Constants.WELLKNOWN_EVENTS.in.pluginRegistered, this._onPluginRegistered);
-      this.off(Constants.WELLKNOWN_EVENTS.in.pluginUnregistered, this._onPluginUnregistered);
-
-      this._bound = !this._bound;
-    }
   }
 
   _commitToState() {
