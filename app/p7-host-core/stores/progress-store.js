@@ -2,6 +2,7 @@
  * Created by Herb on 9/27/2016.
  */
 import DeepFreeze from '../utils/deep-freeze.js';
+import StoreBase from './store-base.js';
 
 class Constants {}
 Constants.NAME = 'progress-store';
@@ -19,32 +20,21 @@ Constants.WELLKNOWN_EVENTS = {
 };
 DeepFreeze.freeze(Constants);
 
-export default class ProgressStore {
+export default class ProgressStore extends StoreBase {
   static get constants() {
     return Constants;
   }
   constructor() {
+    super();
     riot.observable(this);
     this._count = 0;
-    this._bound = false;
+    this.riotHandlers = [
+      {event: Constants.WELLKNOWN_EVENTS.in.inprogressStart, handler: this._onInProgressStart},
+      {event: Constants.WELLKNOWN_EVENTS.in.inprogressDone, handler: this._onInProgressDone}
+    ];
     this.bindEvents();
   }
-  bindEvents() {
-    if (this._bound === false) {
-      this.on(Constants.WELLKNOWN_EVENTS.in.inprogressStart, this._onInProgressStart);
-      this.on(Constants.WELLKNOWN_EVENTS.in.inprogressDone, this._onInProgressDone);
-      this._bound = !this._bound;
-    }
 
-  }
-  unbindEvents() {
-    if (this._bound === true) {
-      this.off(Constants.WELLKNOWN_EVENTS.in.inprogressStart, this._onInProgressStart);
-      this.off(Constants.WELLKNOWN_EVENTS.in.inprogressDone, this._onInProgressDone);
-      this._bound = !this._bound;
-    }
-
-  }
   _onInProgressStart() {
     if (this._count === 0) {
       this.trigger(Constants.WELLKNOWN_EVENTS.out.progressStart);

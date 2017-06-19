@@ -1,4 +1,5 @@
 import DeepFreeze from '../utils/deep-freeze.js';
+import StoreBase from './store-base.js';
 
 class Constants {}
 Constants.NAME = 'keep-alive-store';
@@ -15,34 +16,22 @@ Constants.WELLKNOWN_EVENTS = {
 };
 DeepFreeze.freeze(Constants);
 
-export default class KeepAliveStore {
+export default class KeepAliveStore extends StoreBase {
   static get constants() {
     return Constants;
   }
   constructor() {
+    super();
     let self = this;
 
     riot.observable(this);
-    self._bound = false;
+    this.riotHandlers = [
+      {event: Constants.WELLKNOWN_EVENTS.in.fetchHeadResult, handler: this._onFetchHeadResult},
+      {event: Constants.WELLKNOWN_EVENTS.in.enable, handler: this._onEnable},
+      {event: Constants.WELLKNOWN_EVENTS.in.disable, handler: this._onDisable}
+    ];
     self.bindEvents();
     self._keepAlive = false;
-  }
-
-  bindEvents() {
-    if (this._bound === false) {
-      this.on(Constants.WELLKNOWN_EVENTS.in.fetchHeadResult, this._onFetchHeadResult);
-      this.on(Constants.WELLKNOWN_EVENTS.in.enable, this._onEnable);
-      this.on(Constants.WELLKNOWN_EVENTS.in.disable, this._onDisable);
-      this._bound = !this._bound;
-    }
-  }
-  unbindEvents() {
-    if (this._bound === true) {
-      this.off(Constants.WELLKNOWN_EVENTS.in.fetchConfigHeadResult, this._onFetchHeadResult);
-      this.off(Constants.WELLKNOWN_EVENTS.in.enable, this._onEnable);
-      this.off(Constants.WELLKNOWN_EVENTS.in.disable, this._onDisable);
-      this._bound = !this._bound;
-    }
   }
 
   _onEnable() {

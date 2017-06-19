@@ -2,6 +2,7 @@
  * Created by Herb on 9/27/2016.
  */
 import DeepFreeze from '../utils/deep-freeze.js';
+import StoreBase from './store-base.js';
 
 class Constants {}
 Constants.NAME = 'localstorage-store';
@@ -17,35 +18,22 @@ Constants.WELLKNOWN_EVENTS = {
 };
 DeepFreeze.freeze(Constants);
 
-export default class LocalStorageStore {
+export default class LocalStorageStore extends StoreBase {
   static get constants() {
     return Constants;
   }
   constructor() {
+    super();
     riot.observable(this);
-    this._bound = false;
+    this.riotHandlers = [
+      {event: Constants.WELLKNOWN_EVENTS.in.localstorageSet, handler: this._onSet},
+      {event: Constants.WELLKNOWN_EVENTS.in.localstorageGet, handler: this._onGet},
+      {event: Constants.WELLKNOWN_EVENTS.in.localstorageRemove, handler: this._onRemove},
+      {event: Constants.WELLKNOWN_EVENTS.in.localstorageClear, handler: this._onClear}
+    ];
     this.bindEvents();
   }
-  bindEvents() {
-    if (this._bound === false) {
-      this.on(Constants.WELLKNOWN_EVENTS.in.localstorageSet, this._onSet);
-      this.on(Constants.WELLKNOWN_EVENTS.in.localstorageGet, this._onGet);
-      this.on(Constants.WELLKNOWN_EVENTS.in.localstorageRemove, this._onRemove);
-      this.on(Constants.WELLKNOWN_EVENTS.in.localstorageClear, this._onClear);
-      this._bound = !this._bound;
-    }
 
-  }
-  unbindEvents() {
-    if (this._bound === true) {
-      this.off(Constants.WELLKNOWN_EVENTS.in.localstorageSet, this._onSet);
-      this.off(Constants.WELLKNOWN_EVENTS.in.localstorageGet, this._onGet);
-      this.off(Constants.WELLKNOWN_EVENTS.in.localstorageRemove, this._onRemove);
-      this.off(Constants.WELLKNOWN_EVENTS.in.localstorageClear, this._onClear);
-      this._bound = !this._bound;
-    }
-
-  }
     /*
     {
         key:[string:required],

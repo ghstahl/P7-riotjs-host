@@ -63,14 +63,14 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 15);
+/******/ 	return __webpack_require__(__webpack_require__.s = 23);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(riot) {/* Riot v3.5.1, @license MIT */
+/* WEBPACK VAR INJECTION */(function(riot) {/* Riot v3.6.0, @license MIT */
 (function (global, factory) {
 	 true ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -455,8 +455,87 @@ var styleManager = {
 
 /**
  * The riot template engine
- * @version v3.0.5
+ * @version v3.0.8
  */
+
+var skipRegex = (function () { //eslint-disable-line no-unused-vars
+
+  var beforeReChars = '[{(,;:?=|&!^~>%*/';
+
+  var beforeReWords = [
+    'case',
+    'default',
+    'do',
+    'else',
+    'in',
+    'instanceof',
+    'prefix',
+    'return',
+    'typeof',
+    'void',
+    'yield'
+  ];
+
+  var wordsLastChar = beforeReWords.reduce(function (s, w) {
+    return s + w.slice(-1)
+  }, '');
+
+  var RE_REGEX = /^\/(?=[^*>/])[^[/\\]*(?:(?:\\.|\[(?:\\.|[^\]\\]*)*\])[^[\\/]*)*?\/[gimuy]*/;
+  var RE_VN_CHAR = /[$\w]/;
+
+  function prev (code, pos) {
+    while (--pos >= 0 && /\s/.test(code[pos])){  }
+    return pos
+  }
+
+  function _skipRegex (code, start) {
+
+    var re = /.*/g;
+    var pos = re.lastIndex = start++;
+    var match = re.exec(code)[0].match(RE_REGEX);
+
+    if (match) {
+      var next = pos + match[0].length;
+
+      pos = prev(code, pos);
+      var c = code[pos];
+
+      if (pos < 0 || ~beforeReChars.indexOf(c)) {
+        return next
+      }
+
+      if (c === '.') {
+
+        if (code[pos - 1] === '.') {
+          start = next;
+        }
+
+      } else if (c === '+' || c === '-') {
+
+        if (code[--pos] !== c ||
+            (pos = prev(code, pos)) < 0 ||
+            !RE_VN_CHAR.test(code[pos])) {
+          start = next;
+        }
+
+      } else if (~wordsLastChar.indexOf(c)) {
+
+        var end = pos + 1;
+
+        while (--pos >= 0 && RE_VN_CHAR.test(code[pos])){  }
+        if (~beforeReWords.indexOf(code.slice(pos + 1, end))) {
+          start = next;
+        }
+      }
+    }
+
+    return start
+  }
+
+  return _skipRegex
+
+})();
+
 /**
  * riot.util.brackets
  *
@@ -486,10 +565,12 @@ var brackets = (function (UNDEF) {
 
     NEED_ESCAPE = /(?=[[\]()*+?.^$|])/g,
 
+    S_QBLOCK2 = R_STRINGS.source + '|' + /(\/)(?![*\/])/.source,
+
     FINDBRACES = {
-      '(': RegExp('([()])|'   + S_QBLOCKS, REGLOB),
-      '[': RegExp('([[\\]])|' + S_QBLOCKS, REGLOB),
-      '{': RegExp('([{}])|'   + S_QBLOCKS, REGLOB)
+      '(': RegExp('([()])|'   + S_QBLOCK2, REGLOB),
+      '[': RegExp('([[\\]])|' + S_QBLOCK2, REGLOB),
+      '{': RegExp('([{}])|'   + S_QBLOCK2, REGLOB)
     },
 
     DEFAULT = '{ }';
@@ -500,7 +581,7 @@ var brackets = (function (UNDEF) {
     /{[^}]*}/,
     /\\([{}])/g,
     /\\({)|{/g,
-    RegExp('\\\\(})|([[({])|(})|' + S_QBLOCKS, REGLOB),
+    RegExp('\\\\(})|([[({])|(})|' + S_QBLOCK2, REGLOB),
     DEFAULT,
     /^\s*{\^?\s*([$\w]+)(?:\s*,\s*(\S+))?\s+in\s+(\S.*)\s*}/,
     /(^|[^\\]){=[\S\s]*?}/
@@ -534,7 +615,7 @@ var brackets = (function (UNDEF) {
     arr[4] = _rewrite(arr[1].length > 1 ? /{[\S\s]*?}/ : _pairs[4], arr);
     arr[5] = _rewrite(pair.length > 3 ? /\\({|})/g : _pairs[5], arr);
     arr[6] = _rewrite(_pairs[6], arr);
-    arr[7] = RegExp('\\\\(' + arr[3] + ')|([[({])|(' + arr[3] + ')|' + S_QBLOCKS, REGLOB);
+    arr[7] = RegExp('\\\\(' + arr[3] + ')|([[({])|(' + arr[3] + ')|' + S_QBLOCK2, REGLOB);
     arr[8] = pair;
     return arr
   }
@@ -555,19 +636,40 @@ var brackets = (function (UNDEF) {
       pos,
       re = _bp[6];
 
+    var qblocks = [];
+    var prevStr = '';
+    var mark, lastIndex;
+
     isexpr = start = re.lastIndex = 0;
 
     while ((match = re.exec(str))) {
 
+      lastIndex = re.lastIndex;
       pos = match.index;
 
       if (isexpr) {
 
         if (match[2]) {
-          re.lastIndex = skipBraces(str, match[2], re.lastIndex);
+
+          var ch = match[2];
+          var rech = FINDBRACES[ch];
+          var ix = 1;
+
+          rech.lastIndex = lastIndex;
+          while ((match = rech.exec(str))) {
+            if (match[1]) {
+              if (match[1] === ch) { ++ix; }
+              else if (!--ix) { break }
+            } else {
+              rech.lastIndex = pushQBlock(match.index, rech.lastIndex, match[2]);
+            }
+          }
+          re.lastIndex = ix ? str.length : rech.lastIndex;
           continue
         }
+
         if (!match[3]) {
+          re.lastIndex = pushQBlock(pos, lastIndex, match[4]);
           continue
         }
       }
@@ -584,9 +686,15 @@ var brackets = (function (UNDEF) {
       unescapeStr(str.slice(start));
     }
 
+    parts.qblocks = qblocks;
+
     return parts
 
     function unescapeStr (s) {
+      if (prevStr) {
+        s = prevStr + s;
+        prevStr = '';
+      }
       if (tmpl || isexpr) {
         parts.push(s && s.replace(_bp[5], '$1'));
       } else {
@@ -594,18 +702,18 @@ var brackets = (function (UNDEF) {
       }
     }
 
-    function skipBraces (s, ch, ix) {
-      var
-        match,
-        recch = FINDBRACES[ch];
-
-      recch.lastIndex = ix;
-      ix = 1;
-      while ((match = recch.exec(s))) {
-        if (match[1] &&
-          !(match[1] === ch ? ++ix : --ix)) { break }
+    function pushQBlock(_pos, _lastIndex, slash) { //eslint-disable-line
+      if (slash) {
+        _lastIndex = skipRegex(str, _pos);
       }
-      return ix ? s.length : recch.lastIndex
+
+      if (tmpl && _lastIndex > _pos + 2) {
+        mark = '\u2057' + qblocks.length + '~';
+        qblocks.push(str.slice(_pos, _lastIndex));
+        prevStr += str.slice(start, _pos) + mark;
+        start = _lastIndex;
+      }
+      return _lastIndex
     }
   };
 
@@ -656,10 +764,12 @@ var brackets = (function (UNDEF) {
   /* istanbul ignore next: in the browser riot is always in the scope */
   _brackets.settings = typeof riot !== 'undefined' && riot.settings || {};
   _brackets.set = _reset;
+  _brackets.skipRegex = skipRegex;
 
   _brackets.R_STRINGS = R_STRINGS;
   _brackets.R_MLCOMMS = R_MLCOMMS;
   _brackets.S_QBLOCKS = S_QBLOCKS;
+  _brackets.S_QBLOCK2 = S_QBLOCK2;
 
   return _brackets
 
@@ -724,18 +834,13 @@ var tmpl = (function () {
     return new Function('E', expr + ';')    // eslint-disable-line no-new-func
   }
 
-  var
-    CH_IDEXPR = String.fromCharCode(0x2057),
-    RE_CSNAME = /^(?:(-?[_A-Za-z\xA0-\xFF][-\w\xA0-\xFF]*)|\u2057(\d+)~):/,
-    RE_QBLOCK = RegExp(brackets.S_QBLOCKS, 'g'),
-    RE_DQUOTE = /\u2057/g,
-    RE_QBMARK = /\u2057(\d+)~/g;
+  var RE_DQUOTE = /\u2057/g;
+  var RE_QBMARK = /\u2057(\d+)~/g;
 
   function _getTmpl (str) {
-    var
-      qstr = [],
-      expr,
-      parts = brackets.split(str.replace(RE_DQUOTE, '"'), 1);
+    var parts = brackets.split(str.replace(RE_DQUOTE, '"'), 1);
+    var qstr = parts.qblocks;
+    var expr;
 
     if (parts.length > 2 || parts[0]) {
       var i, j, list = [];
@@ -766,7 +871,7 @@ var tmpl = (function () {
       expr = _parseExpr(parts[1], 0, qstr);
     }
 
-    if (qstr[0]) {
+    if (qstr.length) {
       expr = expr.replace(RE_QBMARK, function (_, pos) {
         return qstr[pos]
           .replace(/\r/g, '\\r')
@@ -776,6 +881,7 @@ var tmpl = (function () {
     return expr
   }
 
+  var RE_CSNAME = /^(?:(-?[_A-Za-z\xA0-\xFF][-\w\xA0-\xFF]*)|\u2057(\d+)~):/;
   var
     RE_BREND = {
       '(': /[()]/g,
@@ -786,11 +892,8 @@ var tmpl = (function () {
   function _parseExpr (expr, asText, qstr) {
 
     expr = expr
-          .replace(RE_QBLOCK, function (s, div) {
-            return s.length > 2 && !div ? CH_IDEXPR + (qstr.push(s) - 1) + '~' : s
-          })
-          .replace(/\s+/g, ' ').trim()
-          .replace(/\ ?([[\({},?\.:])\ ?/g, '$1');
+      .replace(/\s+/g, ' ').trim()
+      .replace(/\ ?([[\({},?\.:])\ ?/g, '$1');
 
     if (expr) {
       var
@@ -881,7 +984,7 @@ var tmpl = (function () {
     return expr
   }
 
-  _tmpl.version = brackets.version = 'v3.0.5';
+  _tmpl.version = brackets.version = 'v3.0.8';
 
   return _tmpl
 
@@ -1110,7 +1213,9 @@ var misc = Object.freeze({
 });
 
 var settings$1 = extend(Object.create(brackets.settings), {
-  skipAnonymousTags: true
+  skipAnonymousTags: true,
+  // handle the auto updates on any DOM event
+  autoUpdate: true
 });
 
 /**
@@ -1140,6 +1245,9 @@ function handleEvent(dom, handler, e) {
   e.item = item;
 
   handler.call(this, e);
+
+  // avoid auto updates
+  if (!settings$1.autoUpdate) { return }
 
   if (!e.preventUpdate) {
     var p = getImmediateCustomParentTag(this);
@@ -1370,7 +1478,7 @@ var IfExpr = {
     remAttr(dom, CONDITIONAL_DIRECTIVE);
     this.tag = tag;
     this.expr = expr;
-    this.stub = document.createTextNode('');
+    this.stub = createDOMPlaceholder();
     this.pristine = dom;
 
     var p = dom.parentNode;
@@ -2117,7 +2225,7 @@ function unregister$1(name) {
   __TAG_IMPL[name] = null;
 }
 
-var version$1 = 'v3.5.1';
+var version$1 = 'v3.6.0';
 
 
 var core = Object.freeze({
@@ -3577,7 +3685,7 @@ var singleton = null;
 var	singletonCounter = 0;
 var	stylesInsertedAtTop = [];
 
-var	fixUrls = __webpack_require__(30);
+var	fixUrls = __webpack_require__(29);
 
 module.exports = function(list, options) {
 	if (typeof DEBUG !== "undefined" && DEBUG) {
@@ -4363,6 +4471,119 @@ function updateLink (link, options, obj) {
 "use strict";
 
 
+__webpack_require__(15);
+
+__webpack_require__(19);
+
+__webpack_require__(17);
+
+var _routeContributer = __webpack_require__(24);
+
+var _routeContributer2 = _interopRequireDefault(_routeContributer);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var riot = __webpack_require__(0);
+
+riot.tag2('app', '<loading-indicator></loading-indicator> <header></header> <div class="container-fluid"> <div class="row"> <div class="col-sm-3 col-md-2 sidebar"> <div class="list-group table-of-contents"> <sidebar></sidebar> </div> </div> <div id="mainContent" class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main"> <div id="riot-app"></div> <div class="alert alert-dismissible alert-success" ref="success-alert" id="success-alert"> <button type="button" class="close" data-dismiss="alert">&times;</button> <strong>Success! </strong> A successful keep-alive has been issued. </div> </div> </div> </div>', '', '', function (opts) {
+  var self = this;
+  self.name = 'app';
+  self.on('before-mount', function () {
+    console.log('before-mount');
+    var routeContributer = new _routeContributer2.default();
+    var registerRecord = {
+      name: 'main-component',
+      stores: [],
+      registrants: {
+        routeContributer: routeContributer
+      },
+      postLoadEvents: [],
+      preUnloadEvents: []
+    };
+
+    riot.control.trigger('plugin-registration', registerRecord);
+  });
+
+  self._bind = function () {
+    riot.control.on(riot.EVT.keepAliveStore.out.keptAlive, self.onKeptAlive);
+  };
+
+  self._unbind = function () {
+    riot.control.off(riot.EVT.keepAliveStore.out.keptAlive, self.onKeptAlive);
+  };
+  self.onKeptAlive = function () {
+    console.log(self.name, 'onKeptAlive');
+
+    $("#success-alert").alert();
+    $("#success-alert").fadeTo(2000, 500).slideUp(500, function () {
+      $("#success-alert").slideUp(500);
+    });
+  };
+
+  self.on('mount', function () {
+    console.log(self.name, 'mount');
+    self._bind();
+    $("#success-alert").hide();
+  });
+
+  self.on('unmount', function () {
+    console.log(self.name, 'unmount');
+    self._unbind();
+  });
+});
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var riot = __webpack_require__(0);
+riot.tag2('my-next-startup', '', '', '', function (opts) {
+  var self = this;
+  if (self.opts.config) {
+    self.config = self.opts.config;
+  }
+  self.nextTag = 'app';
+  if (self.opts.nextTag) {
+    self.nextTag = self.opts.nextTag;
+  }
+
+  self.loaded = false;
+
+  self._bind = function () {
+    riot.control.on('next-config-store:config-complete', self.onConfigComplete);
+  };
+  self._unbind = function () {
+    riot.control.off('next-config-store:config-complete', self.onConfigComplete);
+  };
+
+  self.on('mount', function () {
+    self._bind();
+    riot.control.trigger('next-config-store:fetch-config', self.config);
+  });
+
+  self.on('unmount', function () {
+    self._unbind();
+  });
+
+  self.onConfigComplete = function () {
+    if (!self.loaded) {
+      self.loaded = true;
+      self._unbind();
+      riot.control.trigger(riot.EVT.startupStore.in.start, self.nextTag);
+    }
+  };
+});
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 var OptsMixin = {
 
   // init method is a special one which can initialize
@@ -4388,7 +4609,7 @@ var OptsMixin = {
 if (true) module.exports = OptsMixin;
 
 /***/ }),
-/* 9 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4489,7 +4710,7 @@ exports.default = NextConfigStore;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 10 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4637,7 +4858,7 @@ exports.default = SidebarStore;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 11 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4782,6 +5003,59 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       /***/
     },
     /* 1 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+
+      function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+          throw new TypeError("Cannot call a class as a function");
+        }
+      }
+
+      var StoreBase = function () {
+        function StoreBase() {
+          _classCallCheck(this, StoreBase);
+
+          this._bound = false;
+          this.riotHandlers = [];
+        }
+
+        StoreBase.bindHandler = function bindHandler(element, index, array) {
+          this.on(element.event, element.handler);
+        };
+
+        StoreBase.unbindHandler = function unbindHandler(element, index, array) {
+          this.off(element.event, element.handler);
+        };
+
+        StoreBase.prototype.bindEvents = function bindEvents() {
+          if (this._bound === false) {
+            this.riotHandlers.forEach(StoreBase.bindHandler, this);
+            this._bound = !this._bound;
+          }
+        };
+
+        StoreBase.prototype.unbindEvents = function unbindEvents() {
+          if (this._bound === true) {
+            this.riotHandlers.forEach(StoreBase.unbindHandler, this);
+            this._bound = !this._bound;
+          }
+        };
+
+        return StoreBase;
+      }();
+
+      exports.default = StoreBase;
+      module.exports = exports["default"];
+
+      /***/
+    },
+    /* 2 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -5050,7 +5324,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 2 */
+    /* 3 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -5077,11 +5351,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _validators2 = _interopRequireDefault(_validators);
 
-      var _dynamicJscssLoader = __webpack_require__(1);
+      var _dynamicJscssLoader = __webpack_require__(2);
 
       var _dynamicJscssLoader2 = _interopRequireDefault(_dynamicJscssLoader);
 
-      var _storeBase = __webpack_require__(6);
+      var _storeBase = __webpack_require__(1);
 
       var _storeBase2 = _interopRequireDefault(_storeBase);
 
@@ -5400,7 +5674,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 3 */
+    /* 4 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -5423,8 +5697,24 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
 
+      var _storeBase = __webpack_require__(1);
+
+      var _storeBase2 = _interopRequireDefault(_storeBase);
+
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : { default: obj };
+      }
+
+      function _possibleConstructorReturn(self, call) {
+        if (!self) {
+          throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }return call && ((typeof call === 'undefined' ? 'undefined' : _typeof2(call)) === "object" || typeof call === "function") ? call : self;
+      }
+
+      function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+          throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === 'undefined' ? 'undefined' : _typeof2(superClass)));
+        }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
       }
 
       function _classCallCheck(instance, Constructor) {
@@ -5454,7 +5744,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       };
       _deepFreeze2.default.freeze(Constants);
 
-      var ProgressStore = function () {
+      var ProgressStore = function (_StoreBase) {
+        _inherits(ProgressStore, _StoreBase);
+
         _createClass(ProgressStore, null, [{
           key: 'constants',
           get: function get() {
@@ -5465,27 +5757,14 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         function ProgressStore() {
           _classCallCheck(this, ProgressStore);
 
-          riot.observable(this);
-          this._count = 0;
-          this._bound = false;
-          this.bindEvents();
+          var _this = _possibleConstructorReturn(this, _StoreBase.call(this));
+
+          riot.observable(_this);
+          _this._count = 0;
+          _this.riotHandlers = [{ event: Constants.WELLKNOWN_EVENTS.in.inprogressStart, handler: _this._onInProgressStart }, { event: Constants.WELLKNOWN_EVENTS.in.inprogressDone, handler: _this._onInProgressDone }];
+          _this.bindEvents();
+          return _this;
         }
-
-        ProgressStore.prototype.bindEvents = function bindEvents() {
-          if (this._bound === false) {
-            this.on(Constants.WELLKNOWN_EVENTS.in.inprogressStart, this._onInProgressStart);
-            this.on(Constants.WELLKNOWN_EVENTS.in.inprogressDone, this._onInProgressDone);
-            this._bound = !this._bound;
-          }
-        };
-
-        ProgressStore.prototype.unbindEvents = function unbindEvents() {
-          if (this._bound === true) {
-            this.off(Constants.WELLKNOWN_EVENTS.in.inprogressStart, this._onInProgressStart);
-            this.off(Constants.WELLKNOWN_EVENTS.in.inprogressDone, this._onInProgressDone);
-            this._bound = !this._bound;
-          }
-        };
 
         ProgressStore.prototype._onInProgressStart = function _onInProgressStart() {
           if (this._count === 0) {
@@ -5510,14 +5789,14 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         };
 
         return ProgressStore;
-      }();
+      }(_storeBase2.default);
 
       exports.default = ProgressStore;
       module.exports = exports['default'];
 
       /***/
     },
-    /* 4 */
+    /* 5 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -5634,7 +5913,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 5 */
+    /* 6 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -5790,59 +6069,6 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 6 */
-    /***/function (module, exports, __webpack_require__) {
-
-      "use strict";
-
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-
-      function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-          throw new TypeError("Cannot call a class as a function");
-        }
-      }
-
-      var StoreBase = function () {
-        function StoreBase() {
-          _classCallCheck(this, StoreBase);
-
-          this._bound = false;
-          this.riotHandlers = [];
-        }
-
-        StoreBase.bindHandler = function bindHandler(element, index, array) {
-          this.on(element.event, element.handler);
-        };
-
-        StoreBase.unbindHandler = function unbindHandler(element, index, array) {
-          this.off(element.event, element.handler);
-        };
-
-        StoreBase.prototype.bindEvents = function bindEvents() {
-          if (this._bound === false) {
-            this.riotHandlers.forEach(StoreBase.bindHandler, this);
-            this._bound = !this._bound;
-          }
-        };
-
-        StoreBase.prototype.unbindEvents = function unbindEvents() {
-          if (this._bound === true) {
-            this.riotHandlers.forEach(StoreBase.unbindHandler, this);
-            this._bound = !this._bound;
-          }
-        };
-
-        return StoreBase;
-      }();
-
-      exports.default = StoreBase;
-      module.exports = exports["default"];
-
-      /***/
-    },
     /* 7 */
     /***/function (module, exports, __webpack_require__) {
 
@@ -5948,11 +6174,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
 
-      var _routeStore = __webpack_require__(4);
+      var _routeStore = __webpack_require__(5);
 
       var _routeStore2 = _interopRequireDefault(_routeStore);
 
-      var _storeBase = __webpack_require__(6);
+      var _storeBase = __webpack_require__(1);
 
       var _storeBase2 = _interopRequireDefault(_storeBase);
 
@@ -6065,11 +6291,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
 
-      var _progressStore = __webpack_require__(3);
+      var _progressStore = __webpack_require__(4);
 
       var _progressStore2 = _interopRequireDefault(_progressStore);
 
-      var _storeBase = __webpack_require__(6);
+      var _storeBase = __webpack_require__(1);
 
       var _storeBase2 = _interopRequireDefault(_storeBase);
 
@@ -6242,8 +6468,24 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
 
+      var _storeBase = __webpack_require__(1);
+
+      var _storeBase2 = _interopRequireDefault(_storeBase);
+
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : { default: obj };
+      }
+
+      function _possibleConstructorReturn(self, call) {
+        if (!self) {
+          throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }return call && ((typeof call === 'undefined' ? 'undefined' : _typeof2(call)) === "object" || typeof call === "function") ? call : self;
+      }
+
+      function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+          throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === 'undefined' ? 'undefined' : _typeof2(superClass)));
+        }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
       }
 
       function _classCallCheck(instance, Constructor) {
@@ -6270,7 +6512,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       };
       _deepFreeze2.default.freeze(Constants);
 
-      var KeepAliveStore = function () {
+      var KeepAliveStore = function (_StoreBase) {
+        _inherits(KeepAliveStore, _StoreBase);
+
         _createClass(KeepAliveStore, null, [{
           key: 'constants',
           get: function get() {
@@ -6281,34 +6525,19 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         function KeepAliveStore() {
           _classCallCheck(this, KeepAliveStore);
 
-          var self = this;
+          var _this = _possibleConstructorReturn(this, _StoreBase.call(this));
 
-          riot.observable(this);
-          self._bound = false;
+          var self = _this;
+
+          riot.observable(_this);
+          _this.riotHandlers = [{ event: Constants.WELLKNOWN_EVENTS.in.fetchHeadResult, handler: _this._onFetchHeadResult }, { event: Constants.WELLKNOWN_EVENTS.in.enable, handler: _this._onEnable }, { event: Constants.WELLKNOWN_EVENTS.in.disable, handler: _this._onDisable }];
           self.bindEvents();
           self._keepAlive = false;
+          return _this;
         }
 
-        KeepAliveStore.prototype.bindEvents = function bindEvents() {
-          if (this._bound === false) {
-            this.on(Constants.WELLKNOWN_EVENTS.in.fetchHeadResult, this._onFetchHeadResult);
-            this.on(Constants.WELLKNOWN_EVENTS.in.enable, this._onEnable);
-            this.on(Constants.WELLKNOWN_EVENTS.in.disable, this._onDisable);
-            this._bound = !this._bound;
-          }
-        };
-
-        KeepAliveStore.prototype.unbindEvents = function unbindEvents() {
-          if (this._bound === true) {
-            this.off(Constants.WELLKNOWN_EVENTS.in.fetchConfigHeadResult, this._onFetchHeadResult);
-            this.off(Constants.WELLKNOWN_EVENTS.in.enable, this._onEnable);
-            this.off(Constants.WELLKNOWN_EVENTS.in.disable, this._onDisable);
-            this._bound = !this._bound;
-          }
-        };
-
         KeepAliveStore.prototype._onEnable = function _onEnable() {
-          var _this = this,
+          var _this2 = this,
               _arguments = arguments;
 
           var self = this;
@@ -6323,9 +6552,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
           XMLHttpRequest.prototype.open = function () {
             // when an XHR object is opened, add a listener for its readystatechange events
-            _this.addEventListener('readystatechange', onStateChange);
+            _this2.addEventListener('readystatechange', onStateChange);
             // run the real `open`
-            w._oldOpen.apply(_this, _arguments);
+            w._oldOpen.apply(_this2, _arguments);
           };
 
           if (!w.fetch.polyfill) {
@@ -6387,7 +6616,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         };
 
         return KeepAliveStore;
-      }();
+      }(_storeBase2.default);
 
       exports.default = KeepAliveStore;
       module.exports = exports['default'];
@@ -6417,8 +6646,24 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
 
+      var _storeBase = __webpack_require__(1);
+
+      var _storeBase2 = _interopRequireDefault(_storeBase);
+
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : { default: obj };
+      }
+
+      function _possibleConstructorReturn(self, call) {
+        if (!self) {
+          throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }return call && ((typeof call === 'undefined' ? 'undefined' : _typeof2(call)) === "object" || typeof call === "function") ? call : self;
+      }
+
+      function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+          throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === 'undefined' ? 'undefined' : _typeof2(superClass)));
+        }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
       }
 
       function _classCallCheck(instance, Constructor) {
@@ -6446,7 +6691,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       };
       _deepFreeze2.default.freeze(Constants);
 
-      var LocalStorageStore = function () {
+      var LocalStorageStore = function (_StoreBase) {
+        _inherits(LocalStorageStore, _StoreBase);
+
         _createClass(LocalStorageStore, null, [{
           key: 'constants',
           get: function get() {
@@ -6457,30 +6704,14 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         function LocalStorageStore() {
           _classCallCheck(this, LocalStorageStore);
 
-          riot.observable(this);
-          this._bound = false;
-          this.bindEvents();
+          var _this = _possibleConstructorReturn(this, _StoreBase.call(this));
+
+          riot.observable(_this);
+          _this.riotHandlers = [{ event: Constants.WELLKNOWN_EVENTS.in.localstorageSet, handler: _this._onSet }, { event: Constants.WELLKNOWN_EVENTS.in.localstorageGet, handler: _this._onGet }, { event: Constants.WELLKNOWN_EVENTS.in.localstorageRemove, handler: _this._onRemove }, { event: Constants.WELLKNOWN_EVENTS.in.localstorageClear, handler: _this._onClear }];
+          _this.bindEvents();
+          return _this;
         }
 
-        LocalStorageStore.prototype.bindEvents = function bindEvents() {
-          if (this._bound === false) {
-            this.on(Constants.WELLKNOWN_EVENTS.in.localstorageSet, this._onSet);
-            this.on(Constants.WELLKNOWN_EVENTS.in.localstorageGet, this._onGet);
-            this.on(Constants.WELLKNOWN_EVENTS.in.localstorageRemove, this._onRemove);
-            this.on(Constants.WELLKNOWN_EVENTS.in.localstorageClear, this._onClear);
-            this._bound = !this._bound;
-          }
-        };
-
-        LocalStorageStore.prototype.unbindEvents = function unbindEvents() {
-          if (this._bound === true) {
-            this.off(Constants.WELLKNOWN_EVENTS.in.localstorageSet, this._onSet);
-            this.off(Constants.WELLKNOWN_EVENTS.in.localstorageGet, this._onGet);
-            this.off(Constants.WELLKNOWN_EVENTS.in.localstorageRemove, this._onRemove);
-            this.off(Constants.WELLKNOWN_EVENTS.in.localstorageClear, this._onClear);
-            this._bound = !this._bound;
-          }
-        };
         /*
         {
             key:[string:required],
@@ -6540,7 +6771,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         };
 
         return LocalStorageStore;
-      }();
+      }(_storeBase2.default);
 
       exports.default = LocalStorageStore;
       module.exports = exports['default'];
@@ -6578,18 +6809,34 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _riotcontrolExt2 = _interopRequireDefault(_riotcontrolExt);
 
-      __webpack_require__(5);
+      __webpack_require__(6);
 
-      var _dynamicJscssLoader = __webpack_require__(1);
+      var _dynamicJscssLoader = __webpack_require__(2);
 
       var _dynamicJscssLoader2 = _interopRequireDefault(_dynamicJscssLoader);
 
-      var _componentLoaderStore = __webpack_require__(2);
+      var _componentLoaderStore = __webpack_require__(3);
 
       var _componentLoaderStore2 = _interopRequireDefault(_componentLoaderStore);
 
+      var _storeBase = __webpack_require__(1);
+
+      var _storeBase2 = _interopRequireDefault(_storeBase);
+
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : { default: obj };
+      }
+
+      function _possibleConstructorReturn(self, call) {
+        if (!self) {
+          throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }return call && ((typeof call === 'undefined' ? 'undefined' : _typeof2(call)) === "object" || typeof call === "function") ? call : self;
+      }
+
+      function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+          throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === 'undefined' ? 'undefined' : _typeof2(superClass)));
+        }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
       }
 
       function _classCallCheck(instance, Constructor) {
@@ -6636,7 +6883,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       };
       _deepFreeze2.default.freeze(Constants);
 
-      var PluginRegistrationStore = function () {
+      var PluginRegistrationStore = function (_StoreBase) {
+        _inherits(PluginRegistrationStore, _StoreBase);
+
         _createClass(PluginRegistrationStore, null, [{
           key: 'constants',
           get: function get() {
@@ -6647,35 +6896,23 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         function PluginRegistrationStore(riotControlExt, dynamicJsCssLoader, componentLoaderStore) {
           _classCallCheck(this, PluginRegistrationStore);
 
+          var _this = _possibleConstructorReturn(this, _StoreBase.call(this));
+
           _validators2.default.validateType(riotControlExt, _riotcontrolExt2.default, 'riotControlExt');
           _validators2.default.validateType(dynamicJsCssLoader, _dynamicJscssLoader2.default, 'dynamicJsCssLoader');
           _validators2.default.validateType(componentLoaderStore, _componentLoaderStore2.default, 'componentLoaderStore');
 
-          riot.observable(this);
-          this.riotControlExt = riotControlExt;
-          this.dynamicJsCssLoader = dynamicJsCssLoader;
-          this.componentLoaderStore = componentLoaderStore;
+          riot.observable(_this);
+          _this.riotControlExt = riotControlExt;
+          _this.dynamicJsCssLoader = dynamicJsCssLoader;
+          _this.componentLoaderStore = componentLoaderStore;
 
-          this._bound = false;
-          this.bindEvents();
+          _this.riotHandlers = [{ event: Constants.WELLKNOWN_EVENTS.in.pluginRegistration, handler: _this._registerPlugin }, { event: Constants.WELLKNOWN_EVENTS.in.pluginUnregistration, handler: _this._unregisterPlugin }];
+          _this.bindEvents();
           riot.state.registeredPlugins = new Set();
+
+          return _this;
         }
-
-        PluginRegistrationStore.prototype.bindEvents = function bindEvents() {
-          if (this._bound === false) {
-            this.on(Constants.WELLKNOWN_EVENTS.in.pluginRegistration, this._registerPlugin);
-            this.on(Constants.WELLKNOWN_EVENTS.in.pluginUnregistration, this._unregisterPlugin);
-            this._bound = !this._bound;
-          }
-        };
-
-        PluginRegistrationStore.prototype.unbindEvents = function unbindEvents() {
-          if (this._bound === true) {
-            this.off(Constants.WELLKNOWN_EVENTS.in.pluginRegistration, this._registerPlugin);
-            this.off(Constants.WELLKNOWN_EVENTS.in.pluginUnregistration, this._unregisterPlugin);
-            this._bound = !this._bound;
-          }
-        };
 
         PluginRegistrationStore.prototype._findRegistration = function _findRegistration(registrationName) {
 
@@ -6806,7 +7043,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         };
 
         return PluginRegistrationStore;
-      }();
+      }(_storeBase2.default);
 
       exports.default = PluginRegistrationStore;
       module.exports = exports['default'];
@@ -6926,7 +7163,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
 
-      var _router = __webpack_require__(5);
+      var _router = __webpack_require__(6);
 
       var _router2 = _interopRequireDefault(_router);
 
@@ -7179,7 +7416,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         value: true
       });
 
-      var _progressStore = __webpack_require__(3);
+      var _progressStore = __webpack_require__(4);
 
       var _progressStore2 = _interopRequireDefault(_progressStore);
 
@@ -7187,7 +7424,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _fetchStore2 = _interopRequireDefault(_fetchStore);
 
-      var _componentLoaderStore = __webpack_require__(2);
+      var _componentLoaderStore = __webpack_require__(3);
 
       var _componentLoaderStore2 = _interopRequireDefault(_componentLoaderStore);
 
@@ -7199,7 +7436,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _errorStore2 = _interopRequireDefault(_errorStore);
 
-      var _routeStore = __webpack_require__(4);
+      var _routeStore = __webpack_require__(5);
 
       var _routeStore2 = _interopRequireDefault(_routeStore);
 
@@ -7219,7 +7456,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _keepAliveStore2 = _interopRequireDefault(_keepAliveStore);
 
-      var _router = __webpack_require__(5);
+      var _router = __webpack_require__(6);
 
       var _router2 = _interopRequireDefault(_router);
 
@@ -7429,15 +7666,15 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _riotRouteExtension2 = _interopRequireDefault(_riotRouteExtension);
 
-      var _progressStore = __webpack_require__(3);
+      var _progressStore = __webpack_require__(4);
 
       var _progressStore2 = _interopRequireDefault(_progressStore);
 
-      var _dynamicJscssLoader = __webpack_require__(1);
+      var _dynamicJscssLoader = __webpack_require__(2);
 
       var _dynamicJscssLoader2 = _interopRequireDefault(_dynamicJscssLoader);
 
-      var _componentLoaderStore = __webpack_require__(2);
+      var _componentLoaderStore = __webpack_require__(3);
 
       var _componentLoaderStore2 = _interopRequireDefault(_componentLoaderStore);
 
@@ -7457,7 +7694,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _riotcontrolExt2 = _interopRequireDefault(_riotcontrolExt);
 
-      var _routeStore = __webpack_require__(4);
+      var _routeStore = __webpack_require__(5);
 
       var _routeStore2 = _interopRequireDefault(_routeStore);
 
@@ -7579,121 +7816,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     }])
   );
 });
-//# sourceMappingURL=P7HostCore.js.map
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(31)(module)))
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-__webpack_require__(17);
-
-__webpack_require__(21);
-
-__webpack_require__(19);
-
-var _routeContributer = __webpack_require__(16);
-
-var _routeContributer2 = _interopRequireDefault(_routeContributer);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var riot = __webpack_require__(0);
-
-riot.tag2('app', '<loading-indicator></loading-indicator> <header></header> <div class="container-fluid"> <div class="row"> <div class="col-sm-3 col-md-2 sidebar"> <div class="list-group table-of-contents"> <sidebar></sidebar> </div> </div> <div id="mainContent" class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main"> <div id="riot-app"></div> <div class="alert alert-dismissible alert-success" ref="success-alert" id="success-alert"> <button type="button" class="close" data-dismiss="alert">&times;</button> <strong>Success! </strong> A successful keep-alive has been issued. </div> </div> </div> </div>', '', '', function (opts) {
-  var self = this;
-  self.name = 'app';
-  self.on('before-mount', function () {
-    console.log('before-mount');
-    var routeContributer = new _routeContributer2.default();
-    var registerRecord = {
-      name: 'main-component',
-      stores: [],
-      registrants: {
-        routeContributer: routeContributer
-      },
-      postLoadEvents: [],
-      preUnloadEvents: []
-    };
-
-    riot.control.trigger('plugin-registration', registerRecord);
-  });
-
-  self._bind = function () {
-    riot.control.on(riot.EVT.keepAliveStore.out.keptAlive, self.onKeptAlive);
-  };
-
-  self._unbind = function () {
-    riot.control.off(riot.EVT.keepAliveStore.out.keptAlive, self.onKeptAlive);
-  };
-  self.onKeptAlive = function () {
-    console.log(self.name, 'onKeptAlive');
-
-    $("#success-alert").alert();
-    $("#success-alert").fadeTo(2000, 500).slideUp(500, function () {
-      $("#success-alert").slideUp(500);
-    });
-  };
-
-  self.on('mount', function () {
-    console.log(self.name, 'mount');
-    self._bind();
-    $("#success-alert").hide();
-  });
-
-  self.on('unmount', function () {
-    console.log(self.name, 'unmount');
-    self._unbind();
-  });
-});
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var riot = __webpack_require__(0);
-riot.tag2('my-next-startup', '', '', '', function (opts) {
-  var self = this;
-  if (self.opts.config) {
-    self.config = self.opts.config;
-  }
-  self.nextTag = 'app';
-  if (self.opts.nextTag) {
-    self.nextTag = self.opts.nextTag;
-  }
-
-  self.loaded = false;
-
-  self._bind = function () {
-    riot.control.on('next-config-store:config-complete', self.onConfigComplete);
-  };
-  self._unbind = function () {
-    riot.control.off('next-config-store:config-complete', self.onConfigComplete);
-  };
-
-  self.on('mount', function () {
-    self._bind();
-    riot.control.trigger('next-config-store:fetch-config', self.config);
-  });
-
-  self.on('unmount', function () {
-    self._unbind();
-  });
-
-  self.onConfigComplete = function () {
-    if (!self.loaded) {
-      self.loaded = true;
-      self._unbind();
-      riot.control.trigger(riot.EVT.startupStore.in.start, self.nextTag);
-    }
-  };
-});
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(30)(module)))
 
 /***/ }),
 /* 14 */
@@ -7731,27 +7854,324 @@ if(false) {
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+
+
+var riot = __webpack_require__(0);
+riot.tag2('header', '<div class="navbar navbar-default navbar-fixed-top"> <div class="container"> <div class="navbar-header"> <a href="../" class="navbar-brand">Bootswatch</a> <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main"> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button> </div> <div class="navbar-collapse collapse" id="navbar-main"> <ul class="nav navbar-nav"> <li> <a href="https://github.com/ghstahl/P7-riotjs-host">github</a> </li> </ul> <ul class="nav navbar-nav navbar-right"> <li each="{navItems}" onclick="{parent.route}" class="{active : parent.routeState.route === this.route}"> <a>{this.title}</a> </li> </ul> </div> </div> </nav>', '', '', function (opts) {
+  var self = this;
+  self.routeState = riot.routeState;
+
+  self.navItems = [{ title: 'Home', route: '/main/home' }, { title: 'Projects', route: '/main/projects' }];
+
+  self.on('mount', function () {
+    console.log('header mount');
+    riot.control.on(riot.EVT.routeStore.out.riotRouteDispatchAck, self._onRiotRouteDispatchAck);
+  });
+  self.on('unmount', function () {
+    console.log('header unmount');
+    riot.control.off(riot.EVT.routeStore.out.riotRouteDispatchAck, self._onRiotRouteDispatchAck);
+  });
+
+  self._onRiotRouteDispatchAck = function () {
+    console.log('header', riot.EVT.routeStore.out.riotRouteDispatchAck);
+    self.update();
+  };
+
+  self.route = function (evt) {
+    riot.control.trigger(riot.EVT.routeStore.in.routeDispatch, evt.item.route);
+  };
+});
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var riot = __webpack_require__(0);
+riot.tag2('itemlist', '<div class="row"> <div class="col-md-6"> <h3>{opts.title}</h3> <ul> <li each="{items}">{this.name}</li> </ul> </div> <div class="col-md-6"> <h3>{opts.title}</h3> <ul> <li each="{items}">{this.name}</li> </ul> </div> </div>', '', '', function (opts) {
+  var _this = this;
+
+  var self = this;
+  self.items = [];
+
+  self.on('mount', function () {
+    console.log('itemlist mount');
+    riot.control.on(riot.EVT.loadItemsSuccess, self.onLoadItemsSuccess);
+    riot.control.trigger(riot.EVT.loadItems);
+  });
+  self.on('unmount', function () {
+    console.log('itemlist unmount');
+    riot.control.off(riot.EVT.loadItemsSuccess, self.onLoadItemsSuccess);
+  });
+  self.onLoadItemsSuccess = function (items) {
+    _this.items = items;
+    _this.update();
+  };
+});
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _nprogress = __webpack_require__(27);
+
+var nprogress = _interopRequireWildcard(_nprogress);
+
+__webpack_require__(31);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+var riot = __webpack_require__(0);
+
+
+riot.tag2('loading-indicator', '', '', '', function (opts) {
+    var self = this;
+    self.onProgressStart = function () {
+        nprogress.start();
+    };
+    self.onProgressDone = function () {
+        nprogress.done();
+    };
+    self.on('mount', function () {
+        console.log('loading-indicator mount......');
+        riot.control.on(riot.EVT.progressStore.out.progressStart, self.onProgressStart);
+        riot.control.on(riot.EVT.progressStore.out.progressDone, self.onProgressDone);
+    });
+
+    self.on('unmount', function () {
+        console.log('loading-indicator unmount......');
+        riot.control.off(riot.EVT.progressStore.out.progressStart, self.onProgressStart);
+        riot.control.off(riot.EVT.progressStore.out.progressDone, self.onProgressDone);
+    });
+});
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var riot = __webpack_require__(0);
+riot.tag2('pretty-json', '<pre>{JSON.stringify(this.obj, null, 2)}</pre>', '', '', function (opts) {
+    var self = this;
+    self.obj = opts.obj;
+});
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var riot = __webpack_require__(0);
+riot.tag2('sidebar', '<a each="{state.items}" onclick="{parent.route}" class="{parent.routeState.route === this.route? \'active list-group-item\':\'list-group-item\'}">{this.title}</a> </div>', '', '', function (opts) {
+	var self = this;
+	self.state = riot.state.sidebar;
+	self.routeState = riot.routeState;
+
+	self.on('mount', function () {
+		console.log('sidebar mount');
+		riot.control.on(riot.EVT.routeStore.out.riotRouteDispatchAck, self.onRiotRouteDispatchAck);
+	});
+	self.on('unmount', function () {
+		console.log('sidebar unmount');
+		riot.control.off(riot.EVT.routeStore.out.riotRouteDispatchAck, self.onRiotRouteDispatchAck);
+	});
+
+	self.onRiotRouteDispatchAck = function () {
+		console.log('sidebar', riot.EVT.routeStore.out.riotRouteDispatchAck);
+		self.update();
+	};
+
+	self.route = function (evt) {
+		riot.control.trigger(riot.EVT.routeStore.in.routeDispatch, evt.item.route);
+	};
+});
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var riot = __webpack_require__(0);
+riot.tag2('error', '<div class="panel panel-default"> <div class="panel-heading"> <h3 class="panel-title">Error Code: {state.code} </h3> </div> <div class="panel-body"> <div class="alert alert-danger"> <strong>Well Hell!</strong> We have dispatched the minions to determine who was responsible for this defect. Once they have been dealt with, we will fix the issue. </div> </div> </div>', '', '', function (opts) {
+  var self = this;
+  self.name = "error";
+  self.error = false;
+
+  self.on('before-mount', function () {
+    self.state = riot.state.error;
+  });
+
+  self.on('mount', function () {
+    console.log(self.name, 'mount');
+  });
+
+  self.on('unmount', function () {
+    console.log(self.name, 'unmount');
+  });
+});
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+__webpack_require__(16);
+
+var riot = __webpack_require__(0);
+
+
+riot.tag2('home', '<div class="progress"> <div class="progress-bar progress-bar-info" riot-style="width: {times[0]}%"></div> </div <div class="progress"> <div class="progress-bar progress-bar-success" riot-style="width: {times[1]}%"></div> </div> <div class="progress"> <div class="progress-bar progress-bar-warning" riot-style="width: {times[2]}%"></div> </div> <div class="progress"> <div class="progress-bar progress-bar-danger" riot-style="width: {times[3]}%"></div> </div> <div class="progress progress-striped"> <div class="progress-bar progress-bar-info" riot-style="width: {times[4]}%"></div> </div> <div class="progress progress-striped"> <div class="progress-bar progress-bar-success" riot-style="width: {times[5]}%"></div> </div> <div class="progress progress-striped"> <div class="progress-bar progress-bar-warning" riot-style="width: {times[6]}%"></div> </div> <div class="progress progress-striped"> <div class="progress-bar progress-bar-danger" riot-style="width: {times[7]}%"></div> </div> <div class="progress progress-striped active"> <div class="progress-bar" riot-style="width: {times[8]}%"></div> </div> <div> <a href="#" class="btn {buttonClasses[buttonS[0]]}">Default</a> <a href="#" class="btn {buttonClasses[buttonS[1]]}">Primary</a> <a href="#" class="btn {buttonClasses[buttonS[2]]}">Success</a> <a href="#" class="btn {buttonClasses[buttonS[3]]}">Info</a> <a href="#" class="btn {buttonClasses[buttonS[4]]}">Warning</a> <a href="#" class="btn {buttonClasses[buttonS[5]]}">Danger</a> <a href="#" class="btn {buttonClasses[buttonS[6]]}">Link</a> </div> <div class="spacer"></div> <div> <a class="btn btn-default" onclick="{this.generateAnError}">Generate An Error</a> </div>', '', '', function (opts) {
+	var self = this;
+	self.name = 'home';
+
+	self.times = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+	self.buttonS = [0, 1, 2, 3, 4, 5, 6];
+	self.buttonClasses = ["btn-default", "btn-primary", "btn-success", "btn-info", "btn-warning", "btn-danger", "btn-link"];
+
+	self.a = 0;
+	self.b = 0;
+	self.c = 0;
+
+	self.tick = function () {
+
+		var arrayLength = self.times.length;
+		for (var i = 0; i < arrayLength; i++) {
+			self.times[i] = Math.floor(Math.random() * (100 - 0) + 0);
+		}
+
+		arrayLength = self.buttonS.length;
+		for (var i = 0; i < arrayLength; i++) {
+			self.buttonS[i] = Math.floor(Math.random() * (6 - 0) + 0);
+		}
+
+		self.a = self.times[0];
+		self.b = Math.random() * (100 - self.a) + self.a;
+		self.c = 100 - self.a - self.b;
+
+		self.update();
+	};
+
+	self.on('mount', function () {
+		self.tick();
+		self.timer = setInterval(this.tick, 400);
+	});
+	self.on('unmount', function () {
+		clearInterval(self.timer);
+	});
+
+	self.generateAnError = function () {
+		riot.control.trigger(riot.EVT.errorStore.in.errorCatchAll, { code: 'dancingLights-143523' });
+	};
+});
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+__webpack_require__(18);
+
+var riot = __webpack_require__(0);
+
+
+riot.tag2('projects', '<div each="{component in components}" class="panel panel-default"> <div class="panel-heading"> <h3 class="panel-title">{component.key}</h3> </div> <div class="panel-body"> <div class="well well-lg"> This will load a mini spa which has been pre-bundled. This mini spa was built using the riotjs-partial-tag nested project. </div> <a onclick="{parent.loadMyComponentsSPA}" class="{component.state.loaded == false?\'btn btn-default btn-lg\':\'disabled btn btn-default btn-lg\'}"> Load Component</a> <a onclick="{parent.unloadMyComponentsSPA}" class="{component.state.loaded == true?\'btn btn-default btn-lg\':\'disabled btn btn-default btn-lg\'}"> Unload Component</a> <a onclick="{this.clearLocalStorage}" class="btn btn-primary btn-lg"> Clear Local Storage</a> <div class="spacer"></div> <pretty-json obj="{component}"></pretty-json> </div> </div>', '', '', function (opts) {
+	var self = this;
+	self.mixin("opts-mixin");
+	self.name = 'projects';
+
+	self.on('before-mount', function () {
+		if (riot.state.projects === undefined) {
+			riot.state.projects = { loaded: false, text: "Not Loaded Yet..." };
+		}
+
+		if (riot.state.componentLoaderState != null && riot.state.componentLoaderState.components != null) {
+			self.components = self.getComponentsArray();
+		}
+	});
+
+	self.getComponentsArray = function () {
+		var result = [];
+		riot.state.componentLoaderState.components.forEach(function (value, key, map) {
+			result.push(value);
+		});
+		return result;
+	};
+
+	self.on('mount', function () {
+		console.log(self.name, 'mount');
+		riot.control.on(riot.EVT.componentLoaderStore.out.componentLoaderStoreStateUpdated, self.onComponentLoaderStoreStateUpdated);
+	});
+
+	self.on('unmount', function () {
+		console.log(self.name, 'unmount');
+		riot.control.off(riot.EVT.componentLoaderStore.out.componentLoaderStoreStateUpdated, self.onComponentLoaderStoreStateUpdated);
+	});
+
+	self.onComponentLoaderStoreStateUpdated = function () {
+		console.log(self.name, riot.EVT.componentLoaderStore.out.componentLoaderStoreStateUpdated);
+		if (riot.state.componentLoaderState != null && riot.state.componentLoaderState.components != null) {
+			self.components = self.getComponentsArray();
+			self.update();
+		}
+	};
+
+	self.clearLocalStorage = function () {
+		riot.control.trigger(riot.EVT.localStorageStore.in.localstorageClear);
+	};
+	self.loadMyComponentsSPA = function (e) {
+		var component = e.item.component;
+		var key = component.key;
+		riot.control.trigger(riot.EVT.componentLoaderStore.in.loadDynamicComponent, key);
+	};
+
+	self.unloadMyComponentsSPA = function (e) {
+		var component = e.item.component;
+		var key = component.key;
+		riot.control.trigger(riot.EVT.componentLoaderStore.in.unloadDynamicComponent, key);
+	};
+});
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
 /* WEBPACK VAR INJECTION */(function(riot) {
 
 __webpack_require__(14);
 
-__webpack_require__(13);
+__webpack_require__(9);
 
-__webpack_require__(12);
+__webpack_require__(8);
 
-var _P7HostCore = __webpack_require__(11);
+var _P7HostCore = __webpack_require__(13);
 
 var _P7HostCore2 = _interopRequireDefault(_P7HostCore);
 
-var _optsMixin = __webpack_require__(8);
+var _optsMixin = __webpack_require__(10);
 
 var _optsMixin2 = _interopRequireDefault(_optsMixin);
 
-var _nextConfigStore = __webpack_require__(9);
+var _nextConfigStore = __webpack_require__(11);
 
 var _nextConfigStore2 = _interopRequireDefault(_nextConfigStore);
 
-var _sidebarStore = __webpack_require__(10);
+var _sidebarStore = __webpack_require__(12);
 
 var _sidebarStore2 = _interopRequireDefault(_sidebarStore);
 
@@ -7846,7 +8266,7 @@ riot.mount('startup');
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 16 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7856,11 +8276,11 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-__webpack_require__(23);
-
-__webpack_require__(24);
+__webpack_require__(21);
 
 __webpack_require__(22);
+
+__webpack_require__(20);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -7914,303 +8334,6 @@ var RouteContributer = function () {
 
 exports.default = RouteContributer;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var riot = __webpack_require__(0);
-riot.tag2('header', '<div class="navbar navbar-default navbar-fixed-top"> <div class="container"> <div class="navbar-header"> <a href="../" class="navbar-brand">Bootswatch</a> <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main"> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button> </div> <div class="navbar-collapse collapse" id="navbar-main"> <ul class="nav navbar-nav"> <li> <a href="https://github.com/ghstahl/P7-riotjs-host">github</a> </li> </ul> <ul class="nav navbar-nav navbar-right"> <li each="{navItems}" onclick="{parent.route}" class="{active : parent.routeState.route === this.route}"> <a>{this.title}</a> </li> </ul> </div> </div> </nav>', '', '', function (opts) {
-  var self = this;
-  self.routeState = riot.routeState;
-
-  self.navItems = [{ title: 'Home', route: '/main/home' }, { title: 'Projects', route: '/main/projects' }];
-
-  self.on('mount', function () {
-    console.log('header mount');
-    riot.control.on(riot.EVT.routeStore.out.riotRouteDispatchAck, self._onRiotRouteDispatchAck);
-  });
-  self.on('unmount', function () {
-    console.log('header unmount');
-    riot.control.off(riot.EVT.routeStore.out.riotRouteDispatchAck, self._onRiotRouteDispatchAck);
-  });
-
-  self._onRiotRouteDispatchAck = function () {
-    console.log('header', riot.EVT.routeStore.out.riotRouteDispatchAck);
-    self.update();
-  };
-
-  self.route = function (evt) {
-    riot.control.trigger(riot.EVT.routeStore.in.routeDispatch, evt.item.route);
-  };
-});
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var riot = __webpack_require__(0);
-riot.tag2('itemlist', '<div class="row"> <div class="col-md-6"> <h3>{opts.title}</h3> <ul> <li each="{items}">{this.name}</li> </ul> </div> <div class="col-md-6"> <h3>{opts.title}</h3> <ul> <li each="{items}">{this.name}</li> </ul> </div> </div>', '', '', function (opts) {
-  var _this = this;
-
-  var self = this;
-  self.items = [];
-
-  self.on('mount', function () {
-    console.log('itemlist mount');
-    riot.control.on(riot.EVT.loadItemsSuccess, self.onLoadItemsSuccess);
-    riot.control.trigger(riot.EVT.loadItems);
-  });
-  self.on('unmount', function () {
-    console.log('itemlist unmount');
-    riot.control.off(riot.EVT.loadItemsSuccess, self.onLoadItemsSuccess);
-  });
-  self.onLoadItemsSuccess = function (items) {
-    _this.items = items;
-    _this.update();
-  };
-});
-
-/***/ }),
-/* 19 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _nprogress = __webpack_require__(27);
-
-var nprogress = _interopRequireWildcard(_nprogress);
-
-__webpack_require__(29);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-var riot = __webpack_require__(0);
-
-
-riot.tag2('loading-indicator', '', '', '', function (opts) {
-    var self = this;
-    self.onProgressStart = function () {
-        nprogress.start();
-    };
-    self.onProgressDone = function () {
-        nprogress.done();
-    };
-    self.on('mount', function () {
-        console.log('loading-indicator mount......');
-        riot.control.on(riot.EVT.progressStore.out.progressStart, self.onProgressStart);
-        riot.control.on(riot.EVT.progressStore.out.progressDone, self.onProgressDone);
-    });
-
-    self.on('unmount', function () {
-        console.log('loading-indicator unmount......');
-        riot.control.off(riot.EVT.progressStore.out.progressStart, self.onProgressStart);
-        riot.control.off(riot.EVT.progressStore.out.progressDone, self.onProgressDone);
-    });
-});
-
-/***/ }),
-/* 20 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var riot = __webpack_require__(0);
-riot.tag2('pretty-json', '<pre>{JSON.stringify(this.obj, null, 2)}</pre>', '', '', function (opts) {
-    var self = this;
-    self.obj = opts.obj;
-});
-
-/***/ }),
-/* 21 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var riot = __webpack_require__(0);
-riot.tag2('sidebar', '<a each="{state.items}" onclick="{parent.route}" class="{parent.routeState.route === this.route? \'active list-group-item\':\'list-group-item\'}">{this.title}</a> </div>', '', '', function (opts) {
-	var self = this;
-	self.state = riot.state.sidebar;
-	self.routeState = riot.routeState;
-
-	self.on('mount', function () {
-		console.log('sidebar mount');
-		riot.control.on(riot.EVT.routeStore.out.riotRouteDispatchAck, self.onRiotRouteDispatchAck);
-	});
-	self.on('unmount', function () {
-		console.log('sidebar unmount');
-		riot.control.off(riot.EVT.routeStore.out.riotRouteDispatchAck, self.onRiotRouteDispatchAck);
-	});
-
-	self.onRiotRouteDispatchAck = function () {
-		console.log('sidebar', riot.EVT.routeStore.out.riotRouteDispatchAck);
-		self.update();
-	};
-
-	self.route = function (evt) {
-		riot.control.trigger(riot.EVT.routeStore.in.routeDispatch, evt.item.route);
-	};
-});
-
-/***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var riot = __webpack_require__(0);
-riot.tag2('error', '<div class="panel panel-default"> <div class="panel-heading"> <h3 class="panel-title">Error Code: {state.code} </h3> </div> <div class="panel-body"> <div class="alert alert-danger"> <strong>Well Hell!</strong> We have dispatched the minions to determine who was responsible for this defect. Once they have been dealt with, we will fix the issue. </div> </div> </div>', '', '', function (opts) {
-  var self = this;
-  self.name = "error";
-  self.error = false;
-
-  self.on('before-mount', function () {
-    self.state = riot.state.error;
-  });
-
-  self.on('mount', function () {
-    console.log(self.name, 'mount');
-  });
-
-  self.on('unmount', function () {
-    console.log(self.name, 'unmount');
-  });
-});
-
-/***/ }),
-/* 23 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-__webpack_require__(18);
-
-var riot = __webpack_require__(0);
-
-
-riot.tag2('home', '<div class="progress"> <div class="progress-bar progress-bar-info" riot-style="width: {times[0]}%"></div> </div <div class="progress"> <div class="progress-bar progress-bar-success" riot-style="width: {times[1]}%"></div> </div> <div class="progress"> <div class="progress-bar progress-bar-warning" riot-style="width: {times[2]}%"></div> </div> <div class="progress"> <div class="progress-bar progress-bar-danger" riot-style="width: {times[3]}%"></div> </div> <div class="progress progress-striped"> <div class="progress-bar progress-bar-info" riot-style="width: {times[4]}%"></div> </div> <div class="progress progress-striped"> <div class="progress-bar progress-bar-success" riot-style="width: {times[5]}%"></div> </div> <div class="progress progress-striped"> <div class="progress-bar progress-bar-warning" riot-style="width: {times[6]}%"></div> </div> <div class="progress progress-striped"> <div class="progress-bar progress-bar-danger" riot-style="width: {times[7]}%"></div> </div> <div class="progress progress-striped active"> <div class="progress-bar" riot-style="width: {times[8]}%"></div> </div> <div> <a href="#" class="btn {buttonClasses[buttonS[0]]}">Default</a> <a href="#" class="btn {buttonClasses[buttonS[1]]}">Primary</a> <a href="#" class="btn {buttonClasses[buttonS[2]]}">Success</a> <a href="#" class="btn {buttonClasses[buttonS[3]]}">Info</a> <a href="#" class="btn {buttonClasses[buttonS[4]]}">Warning</a> <a href="#" class="btn {buttonClasses[buttonS[5]]}">Danger</a> <a href="#" class="btn {buttonClasses[buttonS[6]]}">Link</a> </div> <div class="spacer"></div> <div> <a class="btn btn-default" onclick="{this.generateAnError}">Generate An Error</a> </div>', '', '', function (opts) {
-	var self = this;
-	self.name = 'home';
-
-	self.times = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-	self.buttonS = [0, 1, 2, 3, 4, 5, 6];
-	self.buttonClasses = ["btn-default", "btn-primary", "btn-success", "btn-info", "btn-warning", "btn-danger", "btn-link"];
-
-	self.a = 0;
-	self.b = 0;
-	self.c = 0;
-
-	self.tick = function () {
-
-		var arrayLength = self.times.length;
-		for (var i = 0; i < arrayLength; i++) {
-			self.times[i] = Math.floor(Math.random() * (100 - 0) + 0);
-		}
-
-		arrayLength = self.buttonS.length;
-		for (var i = 0; i < arrayLength; i++) {
-			self.buttonS[i] = Math.floor(Math.random() * (6 - 0) + 0);
-		}
-
-		self.a = self.times[0];
-		self.b = Math.random() * (100 - self.a) + self.a;
-		self.c = 100 - self.a - self.b;
-
-		self.update();
-	};
-
-	self.on('mount', function () {
-		self.tick();
-		self.timer = setInterval(this.tick, 400);
-	});
-	self.on('unmount', function () {
-		clearInterval(self.timer);
-	});
-
-	self.generateAnError = function () {
-		riot.control.trigger(riot.EVT.errorStore.in.errorCatchAll, { code: 'dancingLights-143523' });
-	};
-});
-
-/***/ }),
-/* 24 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-__webpack_require__(20);
-
-var riot = __webpack_require__(0);
-
-
-riot.tag2('projects', '<div each="{component in components}" class="panel panel-default"> <div class="panel-heading"> <h3 class="panel-title">{component.key}</h3> </div> <div class="panel-body"> <div class="well well-lg"> This will load a mini spa which has been pre-bundled. This mini spa was built using the riotjs-partial-tag nested project. </div> <a onclick="{parent.loadMyComponentsSPA}" class="{component.state.loaded == false?\'btn btn-default btn-lg\':\'disabled btn btn-default btn-lg\'}"> Load Component</a> <a onclick="{parent.unloadMyComponentsSPA}" class="{component.state.loaded == true?\'btn btn-default btn-lg\':\'disabled btn btn-default btn-lg\'}"> Unload Component</a> <a onclick="{this.clearLocalStorage}" class="btn btn-primary btn-lg"> Clear Local Storage</a> <div class="spacer"></div> <pretty-json obj="{component}"></pretty-json> </div> </div>', '', '', function (opts) {
-	var self = this;
-	self.mixin("opts-mixin");
-	self.name = 'projects';
-
-	self.on('before-mount', function () {
-		if (riot.state.projects === undefined) {
-			riot.state.projects = { loaded: false, text: "Not Loaded Yet..." };
-		}
-
-		if (riot.state.componentLoaderState != null && riot.state.componentLoaderState.components != null) {
-			self.components = self.getComponentsArray();
-		}
-	});
-
-	self.getComponentsArray = function () {
-		var result = [];
-		riot.state.componentLoaderState.components.forEach(function (value, key, map) {
-			result.push(value);
-		});
-		return result;
-	};
-
-	self.on('mount', function () {
-		console.log(self.name, 'mount');
-		riot.control.on(riot.EVT.componentLoaderStore.out.componentLoaderStoreStateUpdated, self.onComponentLoaderStoreStateUpdated);
-	});
-
-	self.on('unmount', function () {
-		console.log(self.name, 'unmount');
-		riot.control.off(riot.EVT.componentLoaderStore.out.componentLoaderStoreStateUpdated, self.onComponentLoaderStoreStateUpdated);
-	});
-
-	self.onComponentLoaderStoreStateUpdated = function () {
-		console.log(self.name, riot.EVT.componentLoaderStore.out.componentLoaderStoreStateUpdated);
-		if (riot.state.componentLoaderState != null && riot.state.componentLoaderState.components != null) {
-			self.components = self.getComponentsArray();
-			self.update();
-		}
-	};
-
-	self.clearLocalStorage = function () {
-		riot.control.trigger(riot.EVT.localStorageStore.in.localstorageClear);
-	};
-	self.loadMyComponentsSPA = function (e) {
-		var component = e.item.component;
-		var key = component.key;
-		riot.control.trigger(riot.EVT.componentLoaderStore.in.loadDynamicComponent, key);
-	};
-
-	self.unloadMyComponentsSPA = function (e) {
-		var component = e.item.component;
-		var key = component.key;
-		riot.control.trigger(riot.EVT.componentLoaderStore.in.unloadDynamicComponent, key);
-	};
-});
 
 /***/ }),
 /* 25 */
@@ -8866,37 +8989,6 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/* NProgress, 
 
 /***/ }),
 /* 29 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(26);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// Prepare cssTransformation
-var transform;
-
-var options = {}
-options.transform = transform
-// add the styles to the DOM
-var update = __webpack_require__(6)(content, options);
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(false) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept("!!../css-loader/index.js!./nprogress.css", function() {
-			var newContent = require("!!../css-loader/index.js!./nprogress.css");
-			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-/* 30 */
 /***/ (function(module, exports) {
 
 
@@ -8991,7 +9083,7 @@ module.exports = function (css) {
 
 
 /***/ }),
-/* 31 */
+/* 30 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -9017,6 +9109,37 @@ module.exports = function(module) {
 	return module;
 };
 
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(26);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(6)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../css-loader/index.js!./nprogress.css", function() {
+			var newContent = require("!!../css-loader/index.js!./nprogress.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
 
 /***/ })
 /******/ ]);

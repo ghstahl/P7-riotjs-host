@@ -25,6 +25,7 @@ import RiotControlExt from '../riotcontrol-ext.js';
 import '../router.js';
 import DynamicJsCssLoader from '../dynamic-jscss-loader.js';
 import ComponentLoaderStore from './component-loader-store.js';
+import StoreBase from './store-base.js';
 
 class Constants {}
 Constants.NAME = 'plugin-registration-store';
@@ -41,12 +42,13 @@ Constants.WELLKNOWN_EVENTS = {
 };
 DeepFreeze.freeze(Constants);
 
-export default class PluginRegistrationStore {
+export default class PluginRegistrationStore extends StoreBase {
   static get constants() {
     return Constants;
   }
 
   constructor(riotControlExt, dynamicJsCssLoader, componentLoaderStore) {
+    super();
     Validator.validateType(riotControlExt, RiotControlExt, 'riotControlExt');
     Validator.validateType(dynamicJsCssLoader, DynamicJsCssLoader, 'dynamicJsCssLoader');
     Validator.validateType(componentLoaderStore, ComponentLoaderStore, 'componentLoaderStore');
@@ -56,24 +58,13 @@ export default class PluginRegistrationStore {
     this.dynamicJsCssLoader = dynamicJsCssLoader;
     this.componentLoaderStore = componentLoaderStore;
 
-    this._bound = false;
+    this.riotHandlers = [
+      {event: Constants.WELLKNOWN_EVENTS.in.pluginRegistration, handler: this._registerPlugin},
+      {event: Constants.WELLKNOWN_EVENTS.in.pluginUnregistration, handler: this._unregisterPlugin}
+    ];
     this.bindEvents();
     riot.state.registeredPlugins = new Set();
 
-  }
-  bindEvents() {
-    if (this._bound === false) {
-      this.on(Constants.WELLKNOWN_EVENTS.in.pluginRegistration, this._registerPlugin);
-      this.on(Constants.WELLKNOWN_EVENTS.in.pluginUnregistration, this._unregisterPlugin);
-      this._bound = !this._bound;
-    }
-  }
-  unbindEvents() {
-    if (this._bound === true) {
-      this.off(Constants.WELLKNOWN_EVENTS.in.pluginRegistration, this._registerPlugin);
-      this.off(Constants.WELLKNOWN_EVENTS.in.pluginUnregistration, this._unregisterPlugin);
-      this._bound = !this._bound;
-    }
   }
 
   _findRegistration(registrationName) {

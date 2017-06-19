@@ -16,6 +16,11 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.js$/,
+        use: ['source-map-loader'],
+        enforce: 'pre'
+      },
+      {
         test: /bootstrap\/js\//,
         loader: 'imports?jQuery=jquery'
       },
