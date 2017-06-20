@@ -1,6 +1,6 @@
 const webpack = require('webpack');
 var path = require('path');
-var CompressionPlugin = require("compression-webpack-plugin");
+var CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = {
   entry: './app/index.js',
@@ -69,8 +69,8 @@ module.exports = {
       'riotcontrol': 'riotcontrol'
     }),
     new CompressionPlugin({
-      asset: "[path].gz[query]",
-      algorithm: "gzip",
+      asset: '[path].gz[query]',
+      algorithm: 'gzip',
       test: /\.(js|html)$/,
       threshold: 10240,
       minRatio: 0.8
