@@ -4116,8 +4116,24 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
 
+      var _storeBase = __webpack_require__(1);
+
+      var _storeBase2 = _interopRequireDefault(_storeBase);
+
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : { default: obj };
+      }
+
+      function _possibleConstructorReturn(self, call) {
+        if (!self) {
+          throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }return call && ((typeof call === 'undefined' ? 'undefined' : _typeof2(call)) === "object" || typeof call === "function") ? call : self;
+      }
+
+      function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+          throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === 'undefined' ? 'undefined' : _typeof2(superClass)));
+        }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
       }
 
       function _classCallCheck(instance, Constructor) {
@@ -4143,7 +4159,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       };
       _deepFreeze2.default.freeze(Constants);
 
-      var RouteStore = function () {
+      var RouteStore = function (_StoreBase) {
+        _inherits(RouteStore, _StoreBase);
+
         _createClass(RouteStore, null, [{
           key: 'constants',
           get: function get() {
@@ -4154,27 +4172,15 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         function RouteStore() {
           _classCallCheck(this, RouteStore);
 
-          riot.observable(this);
-          this._bound = false;
-          this.postResetRoute = null;
-          this.bindEvents();
+          var _this = _possibleConstructorReturn(this, _StoreBase.call(this));
+
+          riot.observable(_this);
+
+          _this.postResetRoute = null;
+          _this.riotHandlers = [{ event: Constants.WELLKNOWN_EVENTS.in.routeDispatch, handler: _this._onRouteDispatch }, { event: Constants.WELLKNOWN_EVENTS.in.riotRouteLoadView, handler: _this._onRiotRouteLoadView }];
+          _this.bindEvents();
+          return _this;
         }
-
-        RouteStore.prototype.bindEvents = function bindEvents() {
-          if (this._bound === false) {
-            this.on(Constants.WELLKNOWN_EVENTS.in.routeDispatch, this._onRouteDispatch);
-            this.on(Constants.WELLKNOWN_EVENTS.in.riotRouteLoadView, this._onRiotRouteLoadView);
-            this._bound = !this._bound;
-          }
-        };
-
-        RouteStore.prototype.unbindEvents = function unbindEvents() {
-          if (this._bound === true) {
-            this.off(Constants.WELLKNOWN_EVENTS.in.routeDispatch, this._onRouteDispatch);
-            this.off(Constants.WELLKNOWN_EVENTS.in.riotRouteLoadView, this._onRiotRouteLoadView);
-            this._bound = !this._bound;
-          }
-        };
 
         RouteStore.prototype._onRouteDispatch = function _onRouteDispatch(route, force) {
           console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.routeDispatch, route);
@@ -4203,7 +4209,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         };
 
         return RouteStore;
-      }();
+      }(_storeBase2.default);
 
       exports.default = RouteStore;
       module.exports = exports['default'];
@@ -5180,7 +5186,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
               // 2.1 Tell the stores to START listening.  Doing a bind, which may not be neccessary
               //    but it has to match the unbind that I am doing later in the unregister.
               //    It is required to be implemented, even if it is a noop.
-              registration.stores[i].store.bind();
+              registration.stores[i].store.bindEvents();
 
               // 2.2 Add the stores
               registration.stores[i].name = registration.name + '-store-' + i; // need this for my own tracking
@@ -5225,7 +5231,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
             for (var i = 0; i < foundRegistration.stores.length; i++) {
 
               // 2.1. Tell the store to STOP listening.
-              foundRegistration.stores[i].store.unbind(); // stop listening
+              foundRegistration.stores[i].store.unbindEvents(); // stop listening
 
               // 2.2. Remove the store.
               this.riotControlExt.remove(foundRegistration.stores[i].name);
@@ -5273,8 +5279,24 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
 
+      var _storeBase = __webpack_require__(1);
+
+      var _storeBase2 = _interopRequireDefault(_storeBase);
+
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : { default: obj };
+      }
+
+      function _possibleConstructorReturn(self, call) {
+        if (!self) {
+          throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }return call && ((typeof call === 'undefined' ? 'undefined' : _typeof2(call)) === "object" || typeof call === "function") ? call : self;
+      }
+
+      function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+          throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === 'undefined' ? 'undefined' : _typeof2(superClass)));
+        }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
       }
 
       function _classCallCheck(instance, Constructor) {
@@ -5297,7 +5319,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       };
       _deepFreeze2.default.freeze(Constants);
 
-      var RiotControlDispatchStore = function () {
+      var RiotControlDispatchStore = function (_StoreBase) {
+        _inherits(RiotControlDispatchStore, _StoreBase);
+
         _createClass(RiotControlDispatchStore, null, [{
           key: 'constants',
           get: function get() {
@@ -5308,24 +5332,13 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         function RiotControlDispatchStore() {
           _classCallCheck(this, RiotControlDispatchStore);
 
-          riot.observable(this);
-          this._bound = false;
-          this.bindEvents();
+          var _this = _possibleConstructorReturn(this, _StoreBase.call(this));
+
+          riot.observable(_this);
+          _this.riotHandlers = [{ event: Constants.WELLKNOWN_EVENTS.in.dispatch, handler: _this._onDispatch }];
+          _this.bindEvents();
+          return _this;
         }
-
-        RiotControlDispatchStore.prototype.bindEvents = function bindEvents() {
-          if (this._bound === false) {
-            this.on(Constants.WELLKNOWN_EVENTS.in.dispatch, this._onDispatch);
-            this._bound = !this._bound;
-          }
-        };
-
-        RiotControlDispatchStore.prototype.bindEvents = function bindEvents() {
-          if (this._bound === true) {
-            this.off(Constants.WELLKNOWN_EVENTS.in.dispatch, this._onDispatch);
-            this._bound = !this._bound;
-          }
-        };
 
         RiotControlDispatchStore.prototype._onDispatch = function _onDispatch(event, data) {
           console.log(Constants.WELLKNOWN_EVENTS.in.dispatch, event, data);
@@ -5333,7 +5346,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         };
 
         return RiotControlDispatchStore;
-      }();
+      }(_storeBase2.default);
 
       exports.default = RiotControlDispatchStore;
       module.exports = exports['default'];
@@ -5367,8 +5380,24 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _router2 = _interopRequireDefault(_router);
 
+      var _storeBase = __webpack_require__(1);
+
+      var _storeBase2 = _interopRequireDefault(_storeBase);
+
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : { default: obj };
+      }
+
+      function _possibleConstructorReturn(self, call) {
+        if (!self) {
+          throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }return call && ((typeof call === 'undefined' ? 'undefined' : _typeof2(call)) === "object" || typeof call === "function") ? call : self;
+      }
+
+      function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+          throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === 'undefined' ? 'undefined' : _typeof2(superClass)));
+        }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
       }
 
       function _classCallCheck(instance, Constructor) {
@@ -5399,7 +5428,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       _deepFreeze2.default.freeze(Constants);
 
-      var StartupStore = function () {
+      var StartupStore = function (_StoreBase) {
+        _inherits(StartupStore, _StoreBase);
+
         _createClass(StartupStore, null, [{
           key: 'constants',
           get: function get() {
@@ -5410,56 +5441,16 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         function StartupStore() {
           _classCallCheck(this, StartupStore);
 
-          riot.observable(this);
-          this._bound = false;
-          this._startupComplete = false;
-          this._done = false;
-          this.bindEvents();
+          var _this = _possibleConstructorReturn(this, _StoreBase.call(this));
+
+          riot.observable(_this);
+
+          _this._startupComplete = false;
+          _this._done = false;
+          _this.riotHandlers = [{ event: Constants.WELLKNOWN_EVENTS.in.start, handler: _this._onStart }, { event: Constants.WELLKNOWN_EVENTS.in.fetchConfig, handler: _this._onFetchConfig }, { event: Constants.WELLKNOWN_EVENTS.in.fetchConfigResult2, handler: _this._onFetchConfigResult2 }, { event: Constants.WELLKNOWN_EVENTS.in.fetchConfigResult, handler: _this._onFetchConfigResult }, { event: Constants.WELLKNOWN_EVENTS.in.componentsAdded, handler: _this._onComponentsAdded }];
+          _this.bindEvents();
+          return _this;
         }
-
-        StartupStore.prototype.bindEvents = function bindEvents() {
-
-          if (this._bound === false) {
-            // ------------------------------------------------------------
-            this.on(Constants.WELLKNOWN_EVENTS.in.start, this._onStart);
-
-            // ------------------------------------------------------------
-            this.on(Constants.WELLKNOWN_EVENTS.in.fetchConfig, this._onFetchConfig);
-
-            // ------------------------------------------------------------
-            this.on(Constants.WELLKNOWN_EVENTS.in.fetchConfigResult2, this._onFetchConfigResult2);
-
-            // ------------------------------------------------------------
-            this.on(Constants.WELLKNOWN_EVENTS.in.fetchConfigResult, this._onFetchConfigResult);
-
-            // ------------------------------------------------------------
-            this.on(Constants.WELLKNOWN_EVENTS.in.componentsAdded, this._onComponentsAdded);
-
-            this._bound = !this._bound;
-          }
-        };
-
-        StartupStore.prototype.unbindEvents = function unbindEvents() {
-
-          if (this._bound === true) {
-            // ------------------------------------------------------------
-            this.off(Constants.WELLKNOWN_EVENTS.in.start, this._onStart);
-
-            // ------------------------------------------------------------
-            this.off(Constants.WELLKNOWN_EVENTS.in.fetchConfig, this._onFetchConfig);
-
-            // ------------------------------------------------------------
-            this.off(Constants.WELLKNOWN_EVENTS.in.fetchConfigResult2, this._onFetchConfigResult2);
-
-            // ------------------------------------------------------------
-            this.off(Constants.WELLKNOWN_EVENTS.in.fetchConfigResult, this._onFetchConfigResult);
-
-            // ------------------------------------------------------------
-            this.off(Constants.WELLKNOWN_EVENTS.in.componentsAdded, this._onComponentsAdded);
-
-            this._bound = !this._bound;
-          }
-        };
 
         StartupStore.prototype._onComponentsAdded = function _onComponentsAdded(ack) {
           console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.componentsAdded, ack);
@@ -5516,7 +5507,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         };
 
         return StartupStore;
-      }();
+      }(_storeBase2.default);
 
       exports.default = StartupStore;
       module.exports = exports['default'];
@@ -5791,6 +5782,13 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       exports.P7HostCore = _p7HostCore2.default;
       exports.Validator = _validators2.default;
       exports.StoreBase = _storeBase2.default;
+
+      window['p7-host-core'] = {
+        DeepFreeze: _deepFreeze2.default,
+        RandomString: _randomString2.default,
+        Validator: _validators2.default,
+        StoreBase: _storeBase2.default
+      };
 
       /***/
     },
@@ -7187,11 +7185,9 @@ var NextConfigStore = function (_StoreBase) {
 
     var _this = _possibleConstructorReturn(this, _StoreBase.call(this));
 
-    var self = _this;
-
     riot.observable(_this);
     _this.riotHandlers = [{ event: Constants.WELLKNOWN_EVENTS.in.fetchConfig, handler: _this._onFetchConfig }, { event: Constants.WELLKNOWN_EVENTS.in.fetchConfigResult, handler: _this._onFetchConfigResult }];
-    self.bindEvents();
+    _this.bindEvents();
     return _this;
   }
 
@@ -7234,6 +7230,8 @@ exports.default = NextConfigStore;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _P7HostCore = __webpack_require__(1);
 
@@ -7357,6 +7355,13 @@ var SidebarStore = function (_StoreBase) {
     this._deleteItem(item);
     this._commitToState();
   };
+
+  _createClass(SidebarStore, null, [{
+    key: 'constants',
+    get: function get() {
+      return Constants;
+    }
+  }]);
 
   return SidebarStore;
 }(_P7HostCore.StoreBase);

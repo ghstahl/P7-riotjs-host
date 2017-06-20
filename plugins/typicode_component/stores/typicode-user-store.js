@@ -1,30 +1,42 @@
 
 const userCache = 'typicodeUserCache';
 
-export default class TypicodeUserStore {
+class Constants {}
+Constants.NAME = 'typicode-user-store';
+Constants.NAMESPACE = Constants.NAME + ':';
+Constants.WELLKNOWN_EVENTS = {
+  in: {
+    typicodeInit: 'typicode-init',
+    typicodeUninit: 'typicode-uninit',
+    typicodeUsersFetchResult: 'typicode-users-fetch-result',
+    typicodeUsersFetch: 'typicode-users-fetch',
+    typicodeUserFetch: 'typicode-user-fetch'
+  },
+  out: {
+    typicodeUsersChanged: 'typicode-users-changed',
+    typicodeUserChanged: 'typicode-user-changed'
+  }
+};
+window['p7-host-core'].DeepFreeze.freeze(Constants);
+
+export default class TypicodeUserStore extends window['p7-host-core'].StoreBase {
 
   constructor() {
+    super();
     riot.observable(this); // Riot provides our event emitter.
     this.name = 'TypicodeUserStore';
-    riot.EVT.typicodeUserStore = {
-      in: {
-        typicodeInit: 'typicode-init',
-        typicodeUninit: 'typicode-uninit',
-        typicodeUsersFetchResult: 'typicode-users-fetch-result',
-        typicodeUsersFetch: 'typicode-users-fetch',
-        typicodeUserFetch: 'typicode-user-fetch'
-      },
-      out: {
-        typicodeUsersChanged: 'typicode-users-changed',
-        typicodeUserChanged: 'typicode-user-changed'
-      }
-    };
-
+    riot.EVT.typicodeUserStore = Constants.WELLKNOWN_EVENTS;
     this.fetchException = null;
-    this.bound = false;
-    this.bind();
+    this.riotHandlers = [
+      {event: Constants.WELLKNOWN_EVENTS.in.typicodeUsersFetch, handler: this._onTypicodeUsersFetch},
+      {event: Constants.WELLKNOWN_EVENTS.in.typicodeUserFetch, handler: this._onTypicodeUserFetch},
+      {event: Constants.WELLKNOWN_EVENTS.in.typicodeUsersFetchResult, handler: this._onUsersResult}
+    ];
+    this.bindEvents();
   }
-
+  static get constants() {
+    return Constants;
+  }
   _onTypicodeUsersFetch(query) {
     console.log(riot.EVT.typicodeUserStore.in.typicodeUsersFetch);
     let url = 'https://jsonplaceholder.typicode.com/users';
@@ -67,26 +79,6 @@ export default class TypicodeUserStore {
       riot.control.trigger(riot.EVT.typicodeUserStore.in.typicodeUsersFetch, myQuery);
     }
   }
-
-  unbind() {
-    if (this.bound === true) {
-      this.off(riot.EVT.typicodeUserStore.in.typicodeUsersFetch, this._onTypicodeUsersFetch);
-      this.off(riot.EVT.typicodeUserStore.in.typicodeUserFetch, this._onTypicodeUserFetch);
-      this.off(riot.EVT.typicodeUserStore.in.typicodeUsersFetchResult, this._onUsersResult);
-
-      this.bound = !this.bound ;
-    }
-  }
-  bind() {
-    if (this.bound === false) {
-      this.on(riot.EVT.typicodeUserStore.in.typicodeUsersFetchResult, this._onUsersResult);
-      this.on(riot.EVT.typicodeUserStore.in.typicodeUsersFetch, this._onTypicodeUsersFetch);
-      this.on(riot.EVT.typicodeUserStore.in.typicodeUserFetch, this._onTypicodeUserFetch);
-
-      this.bound = !this.bound ;
-    }
-  }
-
   /**
      * Reset tag attributes to hide the errors and cleaning the results list
      */

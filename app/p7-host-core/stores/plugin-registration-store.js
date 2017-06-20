@@ -104,7 +104,7 @@ export default class PluginRegistrationStore extends StoreBase {
         // 2.1 Tell the stores to START listening.  Doing a bind, which may not be neccessary
         //    but it has to match the unbind that I am doing later in the unregister.
         //    It is required to be implemented, even if it is a noop.
-        registration.stores[i].store.bind();
+        registration.stores[i].store.bindEvents();
 
         // 2.2 Add the stores
         registration.stores[i].name = registration.name + '-store-' + i; // need this for my own tracking
@@ -149,7 +149,7 @@ export default class PluginRegistrationStore extends StoreBase {
       for (let i = 0; i < foundRegistration.stores.length; i++) {
 
         // 2.1. Tell the store to STOP listening.
-        foundRegistration.stores[i].store.unbind(); // stop listening
+        foundRegistration.stores[i].store.unbindEvents(); // stop listening
 
         // 2.2. Remove the store.
         this.riotControlExt.remove(foundRegistration.stores[i].name);

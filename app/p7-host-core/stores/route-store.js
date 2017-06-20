@@ -1,4 +1,5 @@
 import DeepFreeze from '../utils/deep-freeze.js';
+import StoreBase from './store-base.js';
 
 class Constants {}
 Constants.NAME = 'route-store';
@@ -14,35 +15,23 @@ Constants.WELLKNOWN_EVENTS = {
 };
 DeepFreeze.freeze(Constants);
 
-export default class RouteStore {
+export default class RouteStore extends StoreBase {
 
   static get constants() {
     return Constants;
   }
 
   constructor() {
+    super();
     riot.observable(this);
-    this._bound = false;
+
     this.postResetRoute = null;
+    this.riotHandlers = [
+      {event: Constants.WELLKNOWN_EVENTS.in.routeDispatch, handler: this._onRouteDispatch},
+      {event: Constants.WELLKNOWN_EVENTS.in.riotRouteLoadView, handler: this._onRiotRouteLoadView}
+    ];
     this.bindEvents();
   }
-
-  bindEvents() {
-    if (this._bound === false) {
-      this.on(Constants.WELLKNOWN_EVENTS.in.routeDispatch, this._onRouteDispatch);
-      this.on(Constants.WELLKNOWN_EVENTS.in.riotRouteLoadView, this._onRiotRouteLoadView);
-      this._bound = !this._bound;
-    }
-  }
-
-  unbindEvents() {
-    if (this._bound === true) {
-      this.off(Constants.WELLKNOWN_EVENTS.in.routeDispatch, this._onRouteDispatch);
-      this.off(Constants.WELLKNOWN_EVENTS.in.riotRouteLoadView, this._onRiotRouteLoadView);
-      this._bound = !this._bound;
-    }
-  }
-
   _onRouteDispatch(route, force) {
     console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.routeDispatch, route);
     let current = riot.route.currentPath();

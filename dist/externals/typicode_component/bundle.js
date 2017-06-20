@@ -162,33 +162,52 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var userCache = 'typicodeUserCache';
 
-var TypicodeUserStore = function () {
+var Constants = function Constants() {
+  _classCallCheck(this, Constants);
+};
+
+Constants.NAME = 'typicode-user-store';
+Constants.NAMESPACE = Constants.NAME + ':';
+Constants.WELLKNOWN_EVENTS = {
+  in: {
+    typicodeInit: 'typicode-init',
+    typicodeUninit: 'typicode-uninit',
+    typicodeUsersFetchResult: 'typicode-users-fetch-result',
+    typicodeUsersFetch: 'typicode-users-fetch',
+    typicodeUserFetch: 'typicode-user-fetch'
+  },
+  out: {
+    typicodeUsersChanged: 'typicode-users-changed',
+    typicodeUserChanged: 'typicode-user-changed'
+  }
+};
+window['p7-host-core'].DeepFreeze.freeze(Constants);
+
+var TypicodeUserStore = function (_window$p7HostCore$) {
+  _inherits(TypicodeUserStore, _window$p7HostCore$);
+
   function TypicodeUserStore() {
     _classCallCheck(this, TypicodeUserStore);
 
-    riot.observable(this); // Riot provides our event emitter.
-    this.name = 'TypicodeUserStore';
-    riot.EVT.typicodeUserStore = {
-      in: {
-        typicodeInit: 'typicode-init',
-        typicodeUninit: 'typicode-uninit',
-        typicodeUsersFetchResult: 'typicode-users-fetch-result',
-        typicodeUsersFetch: 'typicode-users-fetch',
-        typicodeUserFetch: 'typicode-user-fetch'
-      },
-      out: {
-        typicodeUsersChanged: 'typicode-users-changed',
-        typicodeUserChanged: 'typicode-user-changed'
-      }
-    };
+    var _this = _possibleConstructorReturn(this, _window$p7HostCore$.call(this));
 
-    this.fetchException = null;
-    this.bound = false;
-    this.bind();
+    riot.observable(_this); // Riot provides our event emitter.
+    _this.name = 'TypicodeUserStore';
+    riot.EVT.typicodeUserStore = Constants.WELLKNOWN_EVENTS;
+    _this.fetchException = null;
+    _this.riotHandlers = [{ event: Constants.WELLKNOWN_EVENTS.in.typicodeUsersFetch, handler: _this._onTypicodeUsersFetch }, { event: Constants.WELLKNOWN_EVENTS.in.typicodeUserFetch, handler: _this._onTypicodeUserFetch }, { event: Constants.WELLKNOWN_EVENTS.in.typicodeUsersFetchResult, handler: _this._onUsersResult }];
+    _this.bindEvents();
+    return _this;
   }
 
   TypicodeUserStore.prototype._onTypicodeUsersFetch = function _onTypicodeUsersFetch(query) {
@@ -233,27 +252,6 @@ var TypicodeUserStore = function () {
       riot.control.trigger(riot.EVT.typicodeUserStore.in.typicodeUsersFetch, myQuery);
     }
   };
-
-  TypicodeUserStore.prototype.unbind = function unbind() {
-    if (this.bound === true) {
-      this.off(riot.EVT.typicodeUserStore.in.typicodeUsersFetch, this._onTypicodeUsersFetch);
-      this.off(riot.EVT.typicodeUserStore.in.typicodeUserFetch, this._onTypicodeUserFetch);
-      this.off(riot.EVT.typicodeUserStore.in.typicodeUsersFetchResult, this._onUsersResult);
-
-      this.bound = !this.bound;
-    }
-  };
-
-  TypicodeUserStore.prototype.bind = function bind() {
-    if (this.bound === false) {
-      this.on(riot.EVT.typicodeUserStore.in.typicodeUsersFetchResult, this._onUsersResult);
-      this.on(riot.EVT.typicodeUserStore.in.typicodeUsersFetch, this._onTypicodeUsersFetch);
-      this.on(riot.EVT.typicodeUserStore.in.typicodeUserFetch, this._onTypicodeUserFetch);
-
-      this.bound = !this.bound;
-    }
-  };
-
   /**
      * Reset tag attributes to hide the errors and cleaning the results list
      */
@@ -285,8 +283,15 @@ var TypicodeUserStore = function () {
     }
   };
 
+  _createClass(TypicodeUserStore, null, [{
+    key: 'constants',
+    get: function get() {
+      return Constants;
+    }
+  }]);
+
   return TypicodeUserStore;
-}();
+}(window['p7-host-core'].StoreBase);
 
 exports.default = TypicodeUserStore;
 
@@ -326,6 +331,13 @@ var registerRecord = {
   },
   postLoadEvents: [{ event: 'typicode-init', data: {} }]
 };
+
+if (window.RandomString) {
+  var randomString = new window.RandomString();
+  var hash = randomString.randomHash();
+
+  window.hash = hash;
+}
 
 riot.control.trigger('plugin-registration', registerRecord);
 

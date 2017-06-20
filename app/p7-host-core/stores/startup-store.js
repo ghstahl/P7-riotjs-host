@@ -1,5 +1,6 @@
 import DeepFreeze from '../utils/deep-freeze.js';
 import Router from '../router.js';
+import StoreBase from './store-base.js';
 
 class Constants {}
 Constants.NAME = 'startup-store';
@@ -20,60 +21,24 @@ Constants.WELLKNOWN_EVENTS = {
 
 DeepFreeze.freeze(Constants);
 
-export default class StartupStore {
+export default class StartupStore extends StoreBase {
   static get constants() {
     return Constants;
   }
   constructor() {
+    super();
     riot.observable(this);
-    this._bound = false;
+
     this._startupComplete = false;
     this._done = false;
+    this.riotHandlers = [
+      {event: Constants.WELLKNOWN_EVENTS.in.start, handler: this._onStart},
+      {event: Constants.WELLKNOWN_EVENTS.in.fetchConfig, handler: this._onFetchConfig},
+      {event: Constants.WELLKNOWN_EVENTS.in.fetchConfigResult2, handler: this._onFetchConfigResult2},
+      {event: Constants.WELLKNOWN_EVENTS.in.fetchConfigResult, handler: this._onFetchConfigResult},
+      {event: Constants.WELLKNOWN_EVENTS.in.componentsAdded, handler: this._onComponentsAdded}
+    ];
     this.bindEvents();
-  }
-  bindEvents() {
-
-    if (this._bound === false) {
-      // ------------------------------------------------------------
-      this.on(Constants.WELLKNOWN_EVENTS.in.start, this._onStart);
-
-      // ------------------------------------------------------------
-      this.on(Constants.WELLKNOWN_EVENTS.in.fetchConfig, this._onFetchConfig);
-
-      // ------------------------------------------------------------
-      this.on(Constants.WELLKNOWN_EVENTS.in.fetchConfigResult2, this._onFetchConfigResult2);
-
-      // ------------------------------------------------------------
-      this.on(Constants.WELLKNOWN_EVENTS.in.fetchConfigResult, this._onFetchConfigResult);
-
-      // ------------------------------------------------------------
-      this.on(Constants.WELLKNOWN_EVENTS.in.componentsAdded, this._onComponentsAdded);
-
-      this._bound = !this._bound;
-
-    }
-  }
-  unbindEvents() {
-
-    if (this._bound === true) {
-      // ------------------------------------------------------------
-      this.off(Constants.WELLKNOWN_EVENTS.in.start, this._onStart);
-
-      // ------------------------------------------------------------
-      this.off(Constants.WELLKNOWN_EVENTS.in.fetchConfig, this._onFetchConfig);
-
-      // ------------------------------------------------------------
-      this.off(Constants.WELLKNOWN_EVENTS.in.fetchConfigResult2, this._onFetchConfigResult2);
-
-      // ------------------------------------------------------------
-      this.off(Constants.WELLKNOWN_EVENTS.in.fetchConfigResult, this._onFetchConfigResult);
-
-      // ------------------------------------------------------------
-      this.off(Constants.WELLKNOWN_EVENTS.in.componentsAdded, this._onComponentsAdded);
-
-      this._bound = !this._bound;
-
-    }
   }
 
   _onComponentsAdded(ack) {

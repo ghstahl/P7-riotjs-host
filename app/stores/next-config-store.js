@@ -21,14 +21,12 @@ export default class NextConfigStore extends StoreBase {
   }
   constructor() {
     super();
-    let self = this;
-
     riot.observable(this);
     this.riotHandlers = [
       {event: Constants.WELLKNOWN_EVENTS.in.fetchConfig, handler: this._onFetchConfig},
       {event: Constants.WELLKNOWN_EVENTS.in.fetchConfigResult, handler: this._onFetchConfigResult}
     ];
-    self.bindEvents();
+    this.bindEvents();
   }
 
   _onFetchConfig(path) {

@@ -17,5 +17,12 @@ let registerRecord = {
   ]
 };
 
+if (window.RandomString) {
+  let randomString = new window.RandomString();
+  let hash = randomString.randomHash();
+
+  window.hash = hash;
+}
+
 riot.control.trigger('plugin-registration', registerRecord);
 

@@ -1,4 +1,5 @@
 import DeepFreeze from '../utils/deep-freeze.js';
+import StoreBase from './store-base.js';
 
 class Constants {}
 Constants.NAME = 'riotcontrol-dispatch-store';
@@ -12,29 +13,18 @@ Constants.WELLKNOWN_EVENTS = {
 };
 DeepFreeze.freeze(Constants);
 
-export default class RiotControlDispatchStore {
+export default class RiotControlDispatchStore extends StoreBase {
   static get constants() {
     return Constants;
   }
   constructor() {
+    super();
     riot.observable(this);
-    this._bound = false;
+    this.riotHandlers = [
+      {event: Constants.WELLKNOWN_EVENTS.in.dispatch, handler: this._onDispatch}
+    ];
     this.bindEvents();
   }
-
-  bindEvents() {
-    if (this._bound === false) {
-      this.on(Constants.WELLKNOWN_EVENTS.in.dispatch, this._onDispatch);
-      this._bound = !this._bound;
-    }
-  }
-  bindEvents() {
-    if (this._bound === true) {
-      this.off(Constants.WELLKNOWN_EVENTS.in.dispatch, this._onDispatch);
-      this._bound = !this._bound;
-    }
-  }
-
   _onDispatch(event, data) {
     console.log(Constants.WELLKNOWN_EVENTS.in.dispatch, event, data);
     this.trigger(event, data);

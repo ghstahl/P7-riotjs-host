@@ -29,7 +29,9 @@ export default class SidebarStore extends StoreBase {
     ];
     this.bindEvents();
   }
-
+  static get constants() {
+    return Constants;
+  }
   _commitToState() {
     this.state.items = Array.from(this.itemsSet);
     this.trigger(riot.EVT.routeStore.out.riotRouteDispatchAck);
