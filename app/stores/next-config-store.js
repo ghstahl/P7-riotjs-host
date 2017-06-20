@@ -1,4 +1,4 @@
-import DeepFreeze from '../p7-host-core/utils/deep-freeze.js';
+import {DeepFreeze} from '../../lib/P7HostCore.js';
 
 class Constants {}
 Constants.NAME = 'next-config-store';
@@ -21,6 +21,7 @@ export default class NextConfigStore {
   }
   constructor() {
     var self = this;
+
     riot.observable(this);
     self._bound = false;
     self.bindEvents();
@@ -40,7 +41,7 @@ export default class NextConfigStore {
       this._bound = !this._bound;
     }
   }
- 
+
   _onFetchConfig(path) {
     console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.fetchConfig, path);
     this.off(Constants.WELLKNOWN_EVENTS.in.fetchConfig, this._onFetchConfig); // done with this one.

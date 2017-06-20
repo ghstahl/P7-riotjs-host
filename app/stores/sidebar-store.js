@@ -1,5 +1,3 @@
-import DeepFreeze from '../p7-host-core/utils/deep-freeze.js';
-
 export default class SidebarStore {
 
   constructor() {

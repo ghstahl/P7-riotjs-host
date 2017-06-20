@@ -4,15 +4,16 @@
 import './css/index.css';
 import './components/my-next-startup.tag';
 import './app.tag';
-//import FetchWrapper from './fetch-wrapper.js';
-//let fetchWrapper = new FetchWrapper();
+// import FetchWrapper from './fetch-wrapper.js';
+// let fetchWrapper = new FetchWrapper();
 /*
 import P7HostCore from './p7-host-core/index.js';
 */
-import P7HostCore from '../lib/P7HostCore.js';
-
+import {P7HostCore, RandomString} from '../lib/P7HostCore.js';
 
 let p7HostCore = new P7HostCore(riot);
+let randomString = new RandomString();
+let hash = randomString.randomHash();
 
 p7HostCore.Initialize();
 riot.state.route.defaultRoute = '/main/home';
