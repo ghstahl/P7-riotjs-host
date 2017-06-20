@@ -1,5 +1,6 @@
 const webpack = require('webpack');
 var path = require('path');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
   entry: './app/index.js',
@@ -34,7 +35,10 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: [ 'style-loader', 'css-loader' ]
+        use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: 'css-loader'
+        })
       },
       {
         test: /\.(png|woff|woff2|eot|ttf|svg)$/,
@@ -58,7 +62,9 @@ module.exports = {
       'riot': 'riot',
       'riot-route': 'riot-route',
       'riotcontrol': 'riotcontrol'
-    })
+    }),
+    new ExtractTextPlugin('styles.css')
+
   ],
   devServer: {
     contentBase: './dist/',

@@ -1,5 +1,6 @@
 const webpack = require('webpack');
 var path = require('path');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 var CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = {
@@ -29,7 +30,10 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: [ 'style-loader', 'css-loader' ]
+        use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: 'css-loader'
+        })
       },
       {
         test: /\.(png|woff|woff2|eot|ttf|svg)$/,
@@ -57,9 +61,15 @@ module.exports = {
       mangle: {
         screw_ie8: true,
         keep_fnames: true
+
       },
       compress: {
-        screw_ie8: true
+        screw_ie8: true,
+         // remove warnings
+        warnings: false,
+
+         // Drop console statements
+        drop_console: true
       },
       comments: false
     }),
@@ -68,10 +78,11 @@ module.exports = {
       'riot-route': 'riot-route',
       'riotcontrol': 'riotcontrol'
     }),
+    new ExtractTextPlugin('styles.css'),
     new CompressionPlugin({
       asset: '[path].gz[query]',
       algorithm: 'gzip',
-      test: /\.(js|html)$/,
+      test: /\.(js|html|css)$/,
       threshold: 10240,
       minRatio: 0.8
     })

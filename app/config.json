@@ -10,14 +10,14 @@
 
     "trigger": {
       "onLoad": [{
-        "event": "SidebarStore:sidebar-add-item",
+        "event": "sidebar-store:sidebar-add-item",
         "data": {
           "title": "My Components Page",
           "route": "my-component-page/home"
         }
       }],
       "onUnload": [{
-          "event": "SidebarStore:sidebar-remove-item",
+          "event": "sidebar-store:sidebar-remove-item",
           "data": {
             "title": "My Components Page"
           }

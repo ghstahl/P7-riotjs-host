@@ -1,4 +1,4 @@
-import {DeepFreeze} from '../../lib/P7HostCore.js';
+import {DeepFreeze, StoreBase} from '../../lib/P7HostCore.js';
 
 class Constants {}
 Constants.NAME = 'next-config-store';
@@ -15,31 +15,20 @@ Constants.WELLKNOWN_EVENTS = {
 };
 DeepFreeze.freeze(Constants);
 
-export default class NextConfigStore {
+export default class NextConfigStore extends StoreBase {
   static get constants() {
     return Constants;
   }
   constructor() {
-    var self = this;
+    super();
+    let self = this;
 
     riot.observable(this);
-    self._bound = false;
+    this.riotHandlers = [
+      {event: Constants.WELLKNOWN_EVENTS.in.fetchConfig, handler: this._onFetchConfig},
+      {event: Constants.WELLKNOWN_EVENTS.in.fetchConfigResult, handler: this._onFetchConfigResult}
+    ];
     self.bindEvents();
-  }
-
-  bindEvents() {
-    if (this._bound === false) {
-      this.on(Constants.WELLKNOWN_EVENTS.in.fetchConfig, this._onFetchConfig);
-      this.on(riot.EVT.nextConfigStore.in.fetchConfigResult, this._onFetchConfigResult);
-      this._bound = !this._bound;
-    }
-  }
-  unbindEvents() {
-    if (this._bound === true) {
-      this.off(Constants.WELLKNOWN_EVENTS.in.fetchConfig, this._onFetchConfig);
-      this.off(riot.EVT.nextConfigStore.in.fetchConfigResult, this._onFetchConfigResult);
-      this._bound = !this._bound;
-    }
   }
 
   _onFetchConfig(path) {
@@ -53,6 +42,7 @@ export default class NextConfigStore {
 
     riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, null, myAck);
   }
+
   _onFetchConfigResult(result, ack) {
     console.log(Constants.NAME, riot.EVT.nextConfigStore.in.fetchConfigResult, result, ack);
     this.off(riot.EVT.nextConfigStore.in.fetchConfigResult, this._onFetchConfigResult); // done with this one

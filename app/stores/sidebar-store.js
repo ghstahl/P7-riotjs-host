@@ -1,30 +1,38 @@
-export default class SidebarStore {
+import {DeepFreeze, StoreBase} from '../../lib/P7HostCore.js';
+
+class Constants {}
+Constants.NAME = 'sidebar-store';
+Constants.NAMESPACE = Constants.NAME + ':';
+Constants.WELLKNOWN_EVENTS = {
+  in: {
+    sidebarAddItem: Constants.NAMESPACE + 'sidebar-add-item',
+    sidebarRemoveItem: Constants.NAMESPACE + 'sidebar-remove-item'
+  },
+  out: {
+
+  }
+};
+DeepFreeze.freeze(Constants);
+
+export default class SidebarStore extends StoreBase {
 
   constructor() {
+    super();
     riot.observable(this);
-    this.name = 'SidebarStore';
-    this.namespace = this.name + ':';
-    riot.EVT.sidebarStore = {
-      in: {
-        sidebarAddItem: this.namespace + 'sidebar-add-item',
-        sidebarRemoveItem: this.namespace + 'sidebar-remove-item'
-      },
-      out: {
-        riotRouteDispatchAck: riot.EVT.routeStore.out.riotRouteDispatchAck
-      }
-    };
-
     this.state = riot.state.sidebar;
     this.itemsSet = new Set();
 
     this._loadFromState();
-    this._bound = false;
+    this.riotHandlers = [
+      {event: Constants.WELLKNOWN_EVENTS.in.sidebarAddItem, handler: this._onSidebarAddItem},
+      {event: Constants.WELLKNOWN_EVENTS.in.sidebarRemoveItem, handler: this._onSidebarRemoveItem}
+    ];
     this.bindEvents();
   }
 
   _commitToState() {
     this.state.items = Array.from(this.itemsSet);
-    this.trigger(riot.EVT.sidebarStore.out.riotRouteDispatchAck);
+    this.trigger(riot.EVT.routeStore.out.riotRouteDispatchAck);
   }
 
   _loadFromState() {
@@ -65,19 +73,4 @@ export default class SidebarStore {
     this._commitToState();
   }
 
-  bindEvents() {
-    if (this._bound === false) {
-      this.on(riot.EVT.sidebarStore.in.sidebarAddItem, this._onSidebarAddItem);
-      this.on(riot.EVT.sidebarStore.in.sidebarRemoveItem, this._onSidebarRemoveItem);
-      this._bound = !this._bound;
-    }
-  }
-
-  unbindEvents() {
-    if (this._bound === true) {
-      this.off(riot.EVT.sidebarStore.in.sidebarAddItem, this._onSidebarAddItem);
-      this.off(riot.EVT.sidebarStore.in.sidebarRemoveItem, this._onSidebarRemoveItem);
-      this._bound = !this._bound;
-    }
-  }
 }

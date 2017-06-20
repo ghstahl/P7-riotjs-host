@@ -1,4 +1,4 @@
-import										'riot';
+import 'riot';
 import './css/index.css';
 import TypicodeUserStore 			from 	'./stores/typicode-user-store.js';
 import RouteContributer 		from 	'./route-contributer.js';
