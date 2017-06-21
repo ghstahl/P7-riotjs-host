@@ -5783,7 +5783,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       exports.Validator = _validators2.default;
       exports.StoreBase = _storeBase2.default;
 
-      window['p7-host-core'] = {
+      window.P7HostCore = {
         DeepFreeze: _deepFreeze2.default,
         RandomString: _randomString2.default,
         Validator: _validators2.default,

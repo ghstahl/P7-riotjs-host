@@ -191,15 +191,15 @@ Constants.WELLKNOWN_EVENTS = {
     typicodeUserChanged: 'typicode-user-changed'
   }
 };
-window['p7-host-core'].DeepFreeze.freeze(Constants);
+window.P7HostCore.DeepFreeze.freeze(Constants);
 
-var TypicodeUserStore = function (_window$p7HostCore$) {
-  _inherits(TypicodeUserStore, _window$p7HostCore$);
+var TypicodeUserStore = function (_window$P7HostCore$St) {
+  _inherits(TypicodeUserStore, _window$P7HostCore$St);
 
   function TypicodeUserStore() {
     _classCallCheck(this, TypicodeUserStore);
 
-    var _this = _possibleConstructorReturn(this, _window$p7HostCore$.call(this));
+    var _this = _possibleConstructorReturn(this, _window$P7HostCore$St.call(this));
 
     riot.observable(_this); // Riot provides our event emitter.
     _this.name = 'TypicodeUserStore';
@@ -291,7 +291,7 @@ var TypicodeUserStore = function (_window$p7HostCore$) {
   }]);
 
   return TypicodeUserStore;
-}(window['p7-host-core'].StoreBase);
+}(window.P7HostCore.StoreBase);
 
 exports.default = TypicodeUserStore;
 

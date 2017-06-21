@@ -17,9 +17,9 @@ Constants.WELLKNOWN_EVENTS = {
     typicodeUserChanged: 'typicode-user-changed'
   }
 };
-window['p7-host-core'].DeepFreeze.freeze(Constants);
+window.P7HostCore.DeepFreeze.freeze(Constants);
 
-export default class TypicodeUserStore extends window['p7-host-core'].StoreBase {
+export default class TypicodeUserStore extends window.P7HostCore.StoreBase {
 
   constructor() {
     super();

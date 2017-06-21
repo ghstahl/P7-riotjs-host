@@ -8,7 +8,7 @@ export {
   DeepFreeze, RandomString, P7HostCore, Validator, StoreBase
  };
 
-window['p7-host-core'] = {
+window.P7HostCore = {
   DeepFreeze: DeepFreeze,
   RandomString: RandomString,
   Validator: Validator,
