@@ -35,14 +35,19 @@ export default class FetchStore extends StoreBase {
     this.bindEvents();
   }
 
-  _onFetch(input, init, ack, jsonFixup = true) {
+  _onFetch(input, init, ack, antiforgery = null, jsonFixup = true) {
     console.log(Constants.WELLKNOWN_EVENTS.in.fetch, input, init, ack, jsonFixup);
-
-        // we are a json shop
-    let token = riot.Cookies.get('XSRF-TOKEN');
 
     riot.control.trigger(riot.EVT.fetchStore.out.inprogressStart);
     if (jsonFixup === true) {
+      if (!antiforgery) {
+        antiforgery = {
+          cookieName: 'XSRF-TOKEN',
+          headerName: 'X-XSRF-TOKEN'
+        };
+      }
+      let token = riot.Cookies.get(antiforgery.cookieName);
+
       if (!init) {
         init = {};
       }
@@ -51,13 +56,13 @@ export default class FetchStore extends StoreBase {
       }
 
       if (token) {
-        init.headers['X-XSRF-TOKEN'] = token;
+        init.headers[antiforgery.headerName] = token;
       }
 
       if (!init.credentials) {
         init.credentials = 'include';
       }
-
+      // we are a json shop
       if (!init.headers['Content-Type']) {
         init.headers['Content-Type'] = 'application/json';
       }
