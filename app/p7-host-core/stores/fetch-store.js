@@ -35,9 +35,28 @@ export default class FetchStore extends StoreBase {
     this.bindEvents();
   }
 
+  _onLocalFetch(input, ack) {
+    console.log(Constants.WELLKNOWN_EVENTS.in.fetch, '_onLocalFetch', input, ack, window.boundAsync);
+    if (window.boundAsync) {
+      let result = { response: {}};
+
+      window.boundAsync.fetchLocal(input).then(function (data) {
+        result.json = JSON.parse(data);
+        console.log(result.json);
+        result.error = null;
+        result.response.ok = true;
+        riot.control.trigger(ack.evt, result, ack);
+      });
+    }
+  }
+
   _onFetch(input, init, ack, jsonFixup = true) {
     console.log(Constants.WELLKNOWN_EVENTS.in.fetch, input, init, ack, jsonFixup);
 
+    if (window.location.protocol === 'localfolder:' && !input.startsWith('http')) {
+      this._onLocalFetch(input, ack);
+      return;
+    }
         // we are a json shop
     let token = riot.Cookies.get('XSRF-TOKEN');
 

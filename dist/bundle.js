@@ -2975,7 +2975,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
 				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));else if ((typeof exports === 'undefined' ? 'undefined' : _typeof2(exports)) === 'object') exports["P7HostCore"] = factory(require("riot"), require("js-cookie"), require("riot-route"), require("riotcontrol"), require("whatwg-fetch"));else root["P7HostCore"] = factory(root["riot"], root["js-cookie"], root["riot-route"], root["riotcontrol"], root["whatwg-fetch"]);
-})(undefined, function (__WEBPACK_EXTERNAL_MODULE_17__, __WEBPACK_EXTERNAL_MODULE_23__, __WEBPACK_EXTERNAL_MODULE_24__, __WEBPACK_EXTERNAL_MODULE_25__, __WEBPACK_EXTERNAL_MODULE_26__) {
+})(undefined, function (__WEBPACK_EXTERNAL_MODULE_18__, __WEBPACK_EXTERNAL_MODULE_24__, __WEBPACK_EXTERNAL_MODULE_25__, __WEBPACK_EXTERNAL_MODULE_26__, __WEBPACK_EXTERNAL_MODULE_27__) {
   return (/******/function (modules) {
       // webpackBootstrap
       /******/ // The module cache
@@ -3055,7 +3055,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       /******/__webpack_require__.p = "";
       /******/
       /******/ // Load entry module and return exports
-      /******/return __webpack_require__(__webpack_require__.s = 20);
+      /******/return __webpack_require__(__webpack_require__.s = 21);
       /******/
     }(
     /************************************************************************/
@@ -3168,6 +3168,129 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         value: true
       });
 
+      var _createClass = function () {
+        function defineProperties(target, props) {
+          for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+          }
+        }return function (Constructor, protoProps, staticProps) {
+          if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+        };
+      }();
+
+      var _deepFreeze = __webpack_require__(0);
+
+      var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
+
+      var _storeBase = __webpack_require__(1);
+
+      var _storeBase2 = _interopRequireDefault(_storeBase);
+
+      function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : { default: obj };
+      }
+
+      function _possibleConstructorReturn(self, call) {
+        if (!self) {
+          throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }return call && ((typeof call === 'undefined' ? 'undefined' : _typeof2(call)) === "object" || typeof call === "function") ? call : self;
+      }
+
+      function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+          throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === 'undefined' ? 'undefined' : _typeof2(superClass)));
+        }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+      }
+
+      function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+          throw new TypeError("Cannot call a class as a function");
+        }
+      }
+
+      var Constants = function Constants() {
+        _classCallCheck(this, Constants);
+      };
+
+      Constants.NAME = 'route-store';
+      Constants.NAMESPACE = Constants.NAME + ':';
+      Constants.WELLKNOWN_EVENTS = {
+        in: {
+          routeDispatch: 'riot-route-dispatch',
+          riotRouteLoadView: 'riot-route-load-view'
+        },
+        out: {
+          riotRouteDispatchAck: 'riot-route-dispatch-ack'
+        }
+      };
+      _deepFreeze2.default.freeze(Constants);
+
+      var RouteStore = function (_StoreBase) {
+        _inherits(RouteStore, _StoreBase);
+
+        _createClass(RouteStore, null, [{
+          key: 'constants',
+          get: function get() {
+            return Constants;
+          }
+        }]);
+
+        function RouteStore() {
+          _classCallCheck(this, RouteStore);
+
+          var _this = _possibleConstructorReturn(this, _StoreBase.call(this));
+
+          riot.observable(_this);
+
+          _this.postResetRoute = null;
+          _this.riotHandlers = [{ event: Constants.WELLKNOWN_EVENTS.in.routeDispatch, handler: _this._onRouteDispatch }, { event: Constants.WELLKNOWN_EVENTS.in.riotRouteLoadView, handler: _this._onRiotRouteLoadView }];
+          _this.bindEvents();
+          return _this;
+        }
+
+        RouteStore.prototype._onRouteDispatch = function _onRouteDispatch(route, force) {
+          console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.routeDispatch, route);
+          var current = riot.route.currentPath();
+
+          var same = current === route;
+
+          if (!same) {
+            same = '/' + current === route;
+          }
+          if (!same) {
+            riot.route(route);
+          } else {
+            if (force) {
+              riot.route.exec();
+            }
+          }
+
+          riot.routeState.route = route;
+          this.trigger(Constants.WELLKNOWN_EVENTS.out.routeDispatchAck, route);
+        };
+
+        RouteStore.prototype._onRiotRouteLoadView = function _onRiotRouteLoadView(view) {
+          console.log(Constants.NAME, 'riot-route-load-view', view);
+          riot.router.loadView(view);
+        };
+
+        return RouteStore;
+      }(_storeBase2.default);
+
+      exports.default = RouteStore;
+      module.exports = exports['default'];
+
+      /***/
+    },
+    /* 3 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+
       function _classCallCheck(instance, Constructor) {
         if (!(instance instanceof Constructor)) {
           throw new TypeError("Cannot call a class as a function");
@@ -3196,7 +3319,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 3 */
+    /* 4 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -3465,7 +3588,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 4 */
+    /* 5 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -3621,7 +3744,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 5 */
+    /* 6 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -3644,11 +3767,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
 
-      var _validators = __webpack_require__(2);
+      var _validators = __webpack_require__(3);
 
       var _validators2 = _interopRequireDefault(_validators);
 
-      var _dynamicJscssLoader = __webpack_require__(3);
+      var _dynamicJscssLoader = __webpack_require__(4);
 
       var _dynamicJscssLoader2 = _interopRequireDefault(_dynamicJscssLoader);
 
@@ -3971,7 +4094,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 6 */
+    /* 7 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -4089,129 +4212,6 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       }(_storeBase2.default);
 
       exports.default = ProgressStore;
-      module.exports = exports['default'];
-
-      /***/
-    },
-    /* 7 */
-    /***/function (module, exports, __webpack_require__) {
-
-      "use strict";
-
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-
-      var _createClass = function () {
-        function defineProperties(target, props) {
-          for (var i = 0; i < props.length; i++) {
-            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-          }
-        }return function (Constructor, protoProps, staticProps) {
-          if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-        };
-      }();
-
-      var _deepFreeze = __webpack_require__(0);
-
-      var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
-
-      var _storeBase = __webpack_require__(1);
-
-      var _storeBase2 = _interopRequireDefault(_storeBase);
-
-      function _interopRequireDefault(obj) {
-        return obj && obj.__esModule ? obj : { default: obj };
-      }
-
-      function _possibleConstructorReturn(self, call) {
-        if (!self) {
-          throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        }return call && ((typeof call === 'undefined' ? 'undefined' : _typeof2(call)) === "object" || typeof call === "function") ? call : self;
-      }
-
-      function _inherits(subClass, superClass) {
-        if (typeof superClass !== "function" && superClass !== null) {
-          throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === 'undefined' ? 'undefined' : _typeof2(superClass)));
-        }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-      }
-
-      function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-          throw new TypeError("Cannot call a class as a function");
-        }
-      }
-
-      var Constants = function Constants() {
-        _classCallCheck(this, Constants);
-      };
-
-      Constants.NAME = 'route-store';
-      Constants.NAMESPACE = Constants.NAME + ':';
-      Constants.WELLKNOWN_EVENTS = {
-        in: {
-          routeDispatch: 'riot-route-dispatch',
-          riotRouteLoadView: 'riot-route-load-view'
-        },
-        out: {
-          riotRouteDispatchAck: 'riot-route-dispatch-ack'
-        }
-      };
-      _deepFreeze2.default.freeze(Constants);
-
-      var RouteStore = function (_StoreBase) {
-        _inherits(RouteStore, _StoreBase);
-
-        _createClass(RouteStore, null, [{
-          key: 'constants',
-          get: function get() {
-            return Constants;
-          }
-        }]);
-
-        function RouteStore() {
-          _classCallCheck(this, RouteStore);
-
-          var _this = _possibleConstructorReturn(this, _StoreBase.call(this));
-
-          riot.observable(_this);
-
-          _this.postResetRoute = null;
-          _this.riotHandlers = [{ event: Constants.WELLKNOWN_EVENTS.in.routeDispatch, handler: _this._onRouteDispatch }, { event: Constants.WELLKNOWN_EVENTS.in.riotRouteLoadView, handler: _this._onRiotRouteLoadView }];
-          _this.bindEvents();
-          return _this;
-        }
-
-        RouteStore.prototype._onRouteDispatch = function _onRouteDispatch(route, force) {
-          console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.routeDispatch, route);
-          var current = riot.route.currentPath();
-
-          var same = current === route;
-
-          if (!same) {
-            same = '/' + current === route;
-          }
-          if (!same) {
-            riot.route(route);
-          } else {
-            if (force) {
-              riot.route.exec();
-            }
-          }
-
-          riot.routeState.route = route;
-          this.trigger(Constants.WELLKNOWN_EVENTS.out.routeDispatchAck, route);
-        };
-
-        RouteStore.prototype._onRiotRouteLoadView = function _onRiotRouteLoadView(view) {
-          console.log(Constants.NAME, 'riot-route-load-view', view);
-          riot.router.loadView(view);
-        };
-
-        return RouteStore;
-      }(_storeBase2.default);
-
-      exports.default = RouteStore;
       module.exports = exports['default'];
 
       /***/
@@ -4380,7 +4380,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
 
-      var _routeStore = __webpack_require__(7);
+      var _routeStore = __webpack_require__(2);
 
       var _routeStore2 = _interopRequireDefault(_routeStore);
 
@@ -4452,7 +4452,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         }
 
         ErrorStore.prototype._onError = function _onError(error) {
-          console.log(this.name, Constants.WELLKNOWN_EVENTS.in.errorCatchAll, error);
+          console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.errorCatchAll, error);
           this._error = error;
           riot.state.error = error;
           riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.routeDispatch, '/error');
@@ -4491,13 +4491,13 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         };
       }();
 
-      __webpack_require__(26);
+      __webpack_require__(27);
 
       var _deepFreeze = __webpack_require__(0);
 
       var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
 
-      var _progressStore = __webpack_require__(6);
+      var _progressStore = __webpack_require__(7);
 
       var _progressStore2 = _interopRequireDefault(_progressStore);
 
@@ -4569,11 +4569,30 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
           return _this;
         }
 
+        FetchStore.prototype._onLocalFetch = function _onLocalFetch(input, ack) {
+          console.log(Constants.WELLKNOWN_EVENTS.in.fetch, '_onLocalFetch', input, ack, window.boundAsync);
+          if (window.boundAsync) {
+            var result = { response: {} };
+
+            window.boundAsync.fetchLocal(input).then(function (data) {
+              result.json = JSON.parse(data);
+              console.log(result.json);
+              result.error = null;
+              result.response.ok = true;
+              riot.control.trigger(ack.evt, result, ack);
+            });
+          }
+        };
+
         FetchStore.prototype._onFetch = function _onFetch(input, init, ack) {
           var jsonFixup = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
 
           console.log(Constants.WELLKNOWN_EVENTS.in.fetch, input, init, ack, jsonFixup);
 
+          if (window.location.protocol === 'localfolder:' && !input.startsWith('http')) {
+            this._onLocalFetch(input, ack);
+            return;
+          }
           // we are a json shop
           var token = riot.Cookies.get('XSRF-TOKEN');
 
@@ -4652,6 +4671,124 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       /***/
     },
     /* 12 */
+    /***/function (module, exports, __webpack_require__) {
+
+      "use strict";
+
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+
+      var _createClass = function () {
+        function defineProperties(target, props) {
+          for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+          }
+        }return function (Constructor, protoProps, staticProps) {
+          if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+        };
+      }();
+
+      var _deepFreeze = __webpack_require__(0);
+
+      var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
+
+      var _storeBase = __webpack_require__(1);
+
+      var _storeBase2 = _interopRequireDefault(_storeBase);
+
+      var _routeStore = __webpack_require__(2);
+
+      var _routeStore2 = _interopRequireDefault(_routeStore);
+
+      function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : { default: obj };
+      }
+
+      function _possibleConstructorReturn(self, call) {
+        if (!self) {
+          throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }return call && ((typeof call === 'undefined' ? 'undefined' : _typeof2(call)) === "object" || typeof call === "function") ? call : self;
+      }
+
+      function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+          throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === 'undefined' ? 'undefined' : _typeof2(superClass)));
+        }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+      }
+
+      function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+          throw new TypeError("Cannot call a class as a function");
+        }
+      }
+
+      var RSWKE = _routeStore2.default.constants.WELLKNOWN_EVENTS;
+
+      var Constants = function Constants() {
+        _classCallCheck(this, Constants);
+      };
+
+      Constants.NAME = 'history-store';
+      Constants.NAMESPACE = Constants.NAME + ':';
+      Constants.WELLKNOWN_EVENTS = {
+        in: {
+          errorCatchAll: Constants.NAMESPACE + 'catch-all:'
+        },
+        out: {
+          routeDispatch: RSWKE.in.routeDispatch
+        }
+      };
+      _deepFreeze2.default.freeze(Constants);
+
+      var HistoryStore = function (_StoreBase) {
+        _inherits(HistoryStore, _StoreBase);
+
+        _createClass(HistoryStore, null, [{
+          key: 'constants',
+          get: function get() {
+            return Constants;
+          }
+        }]);
+
+        function HistoryStore() {
+          _classCallCheck(this, HistoryStore);
+
+          var _this = _possibleConstructorReturn(this, _StoreBase.call(this));
+
+          var self = _this;
+
+          riot.observable(_this);
+          _this._bound = false;
+          _this._error = {};
+          _this.riotHandlers = [{ event: Constants.WELLKNOWN_EVENTS.in.errorCatchAll, handler: _this._onError }];
+          _this.bindEvents();
+          window.onpopstate = function (event) {
+            self._onPopState(event);
+          };
+          return _this;
+        }
+
+        HistoryStore.prototype._onError = function _onError(error) {
+          console.log(Constants.NAME, Constants.WELLKNOWN_EVENTS.in.errorCatchAll, error);
+          this._error = error;
+          riot.state.error = error;
+          riot.control.trigger(Constants.WELLKNOWN_EVENTS.out.routeDispatch, '/error');
+        };
+
+        HistoryStore.prototype._onPopState = function _onPopState(event) {
+          console.log(Constants.NAME, 'location: ' + document.location + ', state: ', event.state);
+        };
+
+        return HistoryStore;
+      }(_storeBase2.default);
+
+      exports.default = HistoryStore;
+      module.exports = exports['default'];
+
+      /***/
+    },
+    /* 13 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -4829,7 +4966,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 13 */
+    /* 14 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -4984,7 +5121,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 14 */
+    /* 15 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -5007,7 +5144,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
 
-      var _validators = __webpack_require__(2);
+      var _validators = __webpack_require__(3);
 
       var _validators2 = _interopRequireDefault(_validators);
 
@@ -5015,13 +5152,13 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _riotcontrolExt2 = _interopRequireDefault(_riotcontrolExt);
 
-      __webpack_require__(4);
+      __webpack_require__(5);
 
-      var _dynamicJscssLoader = __webpack_require__(3);
+      var _dynamicJscssLoader = __webpack_require__(4);
 
       var _dynamicJscssLoader2 = _interopRequireDefault(_dynamicJscssLoader);
 
-      var _componentLoaderStore = __webpack_require__(5);
+      var _componentLoaderStore = __webpack_require__(6);
 
       var _componentLoaderStore2 = _interopRequireDefault(_componentLoaderStore);
 
@@ -5256,7 +5393,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 15 */
+    /* 16 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -5353,7 +5490,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 16 */
+    /* 17 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -5376,7 +5513,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _deepFreeze2 = _interopRequireDefault(_deepFreeze);
 
-      var _router = __webpack_require__(4);
+      var _router = __webpack_require__(5);
 
       var _router2 = _interopRequireDefault(_router);
 
@@ -5514,14 +5651,14 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 17 */
+    /* 18 */
     /***/function (module, exports) {
 
-      module.exports = __WEBPACK_EXTERNAL_MODULE_17__;
+      module.exports = __WEBPACK_EXTERNAL_MODULE_18__;
 
       /***/
     },
-    /* 18 */
+    /* 19 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -5540,17 +5677,17 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         };
       }();
 
-      __webpack_require__(17);
+      __webpack_require__(18);
 
-      var _riotRoute = __webpack_require__(24);
+      var _riotRoute = __webpack_require__(25);
 
       var _riotRoute2 = _interopRequireDefault(_riotRoute);
 
-      var _jsCookie = __webpack_require__(23);
+      var _jsCookie = __webpack_require__(24);
 
       var _jsCookie2 = _interopRequireDefault(_jsCookie);
 
-      var _riotcontrol = __webpack_require__(25);
+      var _riotcontrol = __webpack_require__(26);
 
       var _riotcontrol2 = _interopRequireDefault(_riotcontrol);
 
@@ -5558,19 +5695,19 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _randomString2 = _interopRequireDefault(_randomString);
 
-      var _riotRouteExtension = __webpack_require__(19);
+      var _riotRouteExtension = __webpack_require__(20);
 
       var _riotRouteExtension2 = _interopRequireDefault(_riotRouteExtension);
 
-      var _progressStore = __webpack_require__(6);
+      var _progressStore = __webpack_require__(7);
 
       var _progressStore2 = _interopRequireDefault(_progressStore);
 
-      var _dynamicJscssLoader = __webpack_require__(3);
+      var _dynamicJscssLoader = __webpack_require__(4);
 
       var _dynamicJscssLoader2 = _interopRequireDefault(_dynamicJscssLoader);
 
-      var _componentLoaderStore = __webpack_require__(5);
+      var _componentLoaderStore = __webpack_require__(6);
 
       var _componentLoaderStore2 = _interopRequireDefault(_componentLoaderStore);
 
@@ -5578,11 +5715,15 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _errorStore2 = _interopRequireDefault(_errorStore);
 
+      var _historyStore = __webpack_require__(12);
+
+      var _historyStore2 = _interopRequireDefault(_historyStore);
+
       var _fetchStore = __webpack_require__(11);
 
       var _fetchStore2 = _interopRequireDefault(_fetchStore);
 
-      var _localstorageStore = __webpack_require__(13);
+      var _localstorageStore = __webpack_require__(14);
 
       var _localstorageStore2 = _interopRequireDefault(_localstorageStore);
 
@@ -5590,31 +5731,31 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _riotcontrolExt2 = _interopRequireDefault(_riotcontrolExt);
 
-      var _routeStore = __webpack_require__(7);
+      var _routeStore = __webpack_require__(2);
 
       var _routeStore2 = _interopRequireDefault(_routeStore);
 
-      var _pluginRegistrationStore = __webpack_require__(14);
+      var _pluginRegistrationStore = __webpack_require__(15);
 
       var _pluginRegistrationStore2 = _interopRequireDefault(_pluginRegistrationStore);
 
-      var _startupStore = __webpack_require__(16);
+      var _startupStore = __webpack_require__(17);
 
       var _startupStore2 = _interopRequireDefault(_startupStore);
 
-      var _riotcontrolDispatchStore = __webpack_require__(15);
+      var _riotcontrolDispatchStore = __webpack_require__(16);
 
       var _riotcontrolDispatchStore2 = _interopRequireDefault(_riotcontrolDispatchStore);
 
-      var _keepAliveStore = __webpack_require__(12);
+      var _keepAliveStore = __webpack_require__(13);
 
       var _keepAliveStore2 = _interopRequireDefault(_keepAliveStore);
 
-      var _masterEventTable = __webpack_require__(21);
+      var _masterEventTable = __webpack_require__(22);
 
       var _masterEventTable2 = _interopRequireDefault(_masterEventTable);
 
-      __webpack_require__(22);
+      __webpack_require__(23);
 
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : { default: obj };
@@ -5667,6 +5808,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
           this._riotControlExt = new _riotcontrolExt2.default();
           this._routeStore = new _routeStore2.default();
           this._keepAliveStore = new _keepAliveStore2.default();
+          this._historyStore = new _historyStore2.default();
 
           this._componentLoaderStore = new _componentLoaderStore2.default(this._dynamicJsCssLoader);
           this._pluginRegistrationStore = new _pluginRegistrationStore2.default(this._riotControlExt, this._dynamicJsCssLoader, this._componentLoaderStore);
@@ -5684,6 +5826,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
           riot.control.addStore(this._riotControlDispatchStore);
           riot.control.addStore(this._keepAliveStore);
           riot.control.addStore(this._startupStore);
+          riot.control.addStore(this._historyStore);
 
           return riot;
         };
@@ -5703,7 +5846,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 19 */
+    /* 20 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -5743,7 +5886,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 20 */
+    /* 21 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -5761,11 +5904,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _randomString2 = _interopRequireDefault(_randomString);
 
-      var _p7HostCore = __webpack_require__(18);
+      var _p7HostCore = __webpack_require__(19);
 
       var _p7HostCore2 = _interopRequireDefault(_p7HostCore);
 
-      var _validators = __webpack_require__(2);
+      var _validators = __webpack_require__(3);
 
       var _validators2 = _interopRequireDefault(_validators);
 
@@ -5792,7 +5935,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 21 */
+    /* 22 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
@@ -5801,7 +5944,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         value: true
       });
 
-      var _progressStore = __webpack_require__(6);
+      var _progressStore = __webpack_require__(7);
 
       var _progressStore2 = _interopRequireDefault(_progressStore);
 
@@ -5809,11 +5952,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _fetchStore2 = _interopRequireDefault(_fetchStore);
 
-      var _componentLoaderStore = __webpack_require__(5);
+      var _componentLoaderStore = __webpack_require__(6);
 
       var _componentLoaderStore2 = _interopRequireDefault(_componentLoaderStore);
 
-      var _localstorageStore = __webpack_require__(13);
+      var _localstorageStore = __webpack_require__(14);
 
       var _localstorageStore2 = _interopRequireDefault(_localstorageStore);
 
@@ -5821,27 +5964,31 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       var _errorStore2 = _interopRequireDefault(_errorStore);
 
-      var _routeStore = __webpack_require__(7);
+      var _historyStore = __webpack_require__(12);
+
+      var _historyStore2 = _interopRequireDefault(_historyStore);
+
+      var _routeStore = __webpack_require__(2);
 
       var _routeStore2 = _interopRequireDefault(_routeStore);
 
-      var _riotcontrolDispatchStore = __webpack_require__(15);
+      var _riotcontrolDispatchStore = __webpack_require__(16);
 
       var _riotcontrolDispatchStore2 = _interopRequireDefault(_riotcontrolDispatchStore);
 
-      var _pluginRegistrationStore = __webpack_require__(14);
+      var _pluginRegistrationStore = __webpack_require__(15);
 
       var _pluginRegistrationStore2 = _interopRequireDefault(_pluginRegistrationStore);
 
-      var _startupStore = __webpack_require__(16);
+      var _startupStore = __webpack_require__(17);
 
       var _startupStore2 = _interopRequireDefault(_startupStore);
 
-      var _keepAliveStore = __webpack_require__(12);
+      var _keepAliveStore = __webpack_require__(13);
 
       var _keepAliveStore2 = _interopRequireDefault(_keepAliveStore);
 
-      var _router = __webpack_require__(4);
+      var _router = __webpack_require__(5);
 
       var _router2 = _interopRequireDefault(_router);
 
@@ -5871,6 +6018,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         riot.EVT.pluginRegistrationStore = _pluginRegistrationStore2.default.constants.WELLKNOWN_EVENTS;
         riot.EVT.startupStore = _startupStore2.default.constants.WELLKNOWN_EVENTS;
         riot.EVT.router = _router2.default.constants.WELLKNOWN_EVENTS;
+        riot.EVT.historyStore = _historyStore2.default.constants.WELLKNOWN_EVENTS;
       };
 
       exports.default = MasterEventTable;
@@ -5878,12 +6026,12 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 22 */
+    /* 23 */
     /***/function (module, exports, __webpack_require__) {
 
       "use strict";
 
-      var riot = __webpack_require__(17);
+      var riot = __webpack_require__(18);
       riot.tag2('startup', '', '', '', function (opts) {
         var self = this;
 
@@ -5930,13 +6078,6 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       /***/
     },
-    /* 23 */
-    /***/function (module, exports) {
-
-      module.exports = __WEBPACK_EXTERNAL_MODULE_23__;
-
-      /***/
-    },
     /* 24 */
     /***/function (module, exports) {
 
@@ -5955,6 +6096,13 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
     /***/function (module, exports) {
 
       module.exports = __WEBPACK_EXTERNAL_MODULE_26__;
+
+      /***/
+    },
+    /* 27 */
+    /***/function (module, exports) {
+
+      module.exports = __WEBPACK_EXTERNAL_MODULE_27__;
 
       /***/
     }])

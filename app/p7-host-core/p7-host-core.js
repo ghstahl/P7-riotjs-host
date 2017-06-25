@@ -8,6 +8,7 @@ import ProgressStore from './stores/progress-store.js';
 import DynamicJsCssLoader from './dynamic-jscss-loader.js';
 import ComponentLoaderStore from './stores/component-loader-store.js';
 import ErrorStore from './stores/error-store.js';
+import HistoryStore from './stores/history-store.js';
 import FetchStore from './stores/fetch-store.js';
 import LocalStorageStore from './stores/localstorage-store.js';
 import RiotControlExt from './riotcontrol-ext.js';
@@ -63,6 +64,7 @@ export default class P7HostCore {
     this._riotControlExt = new RiotControlExt();
     this._routeStore = new RouteStore();
     this._keepAliveStore = new KeepAliveStore();
+    this._historyStore = new HistoryStore();
 
     this._componentLoaderStore = new ComponentLoaderStore(this._dynamicJsCssLoader);
     this._pluginRegistrationStore = new PluginRegistrationStore(this._riotControlExt,
@@ -82,6 +84,7 @@ export default class P7HostCore {
     riot.control.addStore(this._riotControlDispatchStore);
     riot.control.addStore(this._keepAliveStore);
     riot.control.addStore(this._startupStore);
+    riot.control.addStore(this._historyStore);
 
     return riot;
   }
