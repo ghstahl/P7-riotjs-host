@@ -4585,7 +4585,8 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         };
 
         FetchStore.prototype._onFetch = function _onFetch(input, init, ack) {
-          var jsonFixup = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+          var antiforgery = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+          var jsonFixup = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
 
           console.log(Constants.WELLKNOWN_EVENTS.in.fetch, input, init, ack, jsonFixup);
 
@@ -4593,11 +4594,16 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
             this._onLocalFetch(input, ack);
             return;
           }
-          // we are a json shop
-          var token = riot.Cookies.get('XSRF-TOKEN');
-
           riot.control.trigger(riot.EVT.fetchStore.out.inprogressStart);
           if (jsonFixup === true) {
+            if (!antiforgery) {
+              antiforgery = {
+                cookieName: 'XSRF-TOKEN',
+                headerName: 'X-XSRF-TOKEN'
+              };
+            }
+            var token = riot.Cookies.get(antiforgery.cookieName);
+
             if (!init) {
               init = {};
             }
@@ -4606,13 +4612,13 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
             }
 
             if (token) {
-              init.headers['X-XSRF-TOKEN'] = token;
+              init.headers[antiforgery.headerName] = token;
             }
 
             if (!init.credentials) {
               init.credentials = 'include';
             }
-
+            // we are a json shop
             if (!init.headers['Content-Type']) {
               init.headers['Content-Type'] = 'application/json';
             }
