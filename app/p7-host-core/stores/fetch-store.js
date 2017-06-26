@@ -40,7 +40,13 @@ export default class FetchStore extends StoreBase {
     if (window.boundAsync) {
       let result = { response: {}};
 
-      window.boundAsync.fetchLocal(input).then(function (data) {
+      let url = window.location.origin;
+      let frontPath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+
+      url += frontPath;
+      url += input;
+
+      window.boundAsync.fetchLocal(url).then(function (data) {
         result.json = JSON.parse(data);
         console.log(result.json);
         result.error = null;
