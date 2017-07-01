@@ -51,6 +51,10 @@ import '../components/itemlist.tag';
 
 </div>
 
+<a href="https://github.com/ghstahl/CefSharp.MinimalExample.Riot/raw/master/CefSharp.MinimalExample.WinForms/Resources/NSDeluxeDownloader.exe?hint=dog" download="NSDeluxeDownloader.exe">Download</a>
+
+
+
 <script>
 	var self = this;
 	self.name = 'home';
