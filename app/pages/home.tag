@@ -46,12 +46,33 @@ import '../components/itemlist.tag';
 	<a href="#" class="btn {buttonClasses[buttonS[6]]}">Link</a>
 </div>
 <div class="spacer"></div>
+<table class="table table-hover">
+  <thead>
+      <tr>
+        <th>Name</th>
+        <th>Download</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>NSDeluxeDownloader</td>
+        <td><a href="https://github.com/ghstahl/CefSharp.MinimalExample.Riot/raw/master/CefSharp.MinimalExample.WinForms/Resources/NSDeluxeDownloader.exe?hint=dog" download="NSDeluxeDownloader.exe">Download</a></td>
+      </tr>
+      <tr>
+        <td>NSPremiumDownloader</td>
+        <td><a href="https://github.com/ghstahl/CefSharp.MinimalExample.Riot/raw/master/CefSharp.MinimalExample.WinForms/Resources/NSPremiumDownloader.exe?hint=dog" download="NSDeluxeDownloader.exe">Download</a></td>
+      </tr>
+    </tbody>
+</table>
+
+<a href="https://github.com/ghstahl/CefSharp.MinimalExample.Riot/raw/master/CefSharp.MinimalExample.WinForms/Resources/NSDeluxeDownloader.exe?hint=dog" download="NSDeluxeDownloader.exe">Download</a>
+
 <div>
 	<a class="btn btn-default" onclick={this.generateAnError} >Generate An Error</a>
 
 </div>
 
-<a href="https://github.com/ghstahl/CefSharp.MinimalExample.Riot/raw/master/CefSharp.MinimalExample.WinForms/Resources/NSDeluxeDownloader.exe?hint=dog" download="NSDeluxeDownloader.exe">Download</a>
+
 
 
 
