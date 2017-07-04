@@ -35,8 +35,8 @@ export default class FetchStore extends StoreBase {
     this.bindEvents();
   }
 
-  _onLocalFetch(input, ack) {
-    console.log(Constants.WELLKNOWN_EVENTS.in.fetch, '_onLocalFetch', input, ack, window.boundAsync);
+  _onLocalFolderFetch(input, ack) {
+    console.log(Constants.WELLKNOWN_EVENTS.in.fetch, '_onLocalFolderFetch', input, ack, window.boundAsync);
     if (window.boundAsync) {
       let result = { response: {}};
 
@@ -55,14 +55,36 @@ export default class FetchStore extends StoreBase {
       });
     }
   }
+  _onLocalFetch(input, body, ack) {
+    console.log(Constants.WELLKNOWN_EVENTS.in.fetch, '_onLocalFetch', input, ack, window.boundAsync);
+    if (window.boundAsync) {
+      let result = { response: {}};
+
+      let bodyInput = JSON.stringify(body);
+
+      window.boundAsync.fetch(input, bodyInput).then(function (data) {
+        result.json = JSON.parse(data);
+        console.log(data, result.json);
+        result.error = null;
+        result.response.ok = true;
+        riot.control.trigger(ack.evt, result, ack);
+      });
+    }
+  }
 
   _onFetch(input, init, ack, antiforgery = null, jsonFixup = true) {
     console.log(Constants.WELLKNOWN_EVENTS.in.fetch, input, init, ack, jsonFixup);
 
-    if (window.location.protocol === 'localfolder:' && !input.startsWith('http')) {
-      this._onLocalFetch(input, ack);
+    if (input.startsWith('local://')) {
+      this._onLocalFetch(input, init, ack);
       return;
     }
+
+    if (window.location.protocol === 'localfolder:' && !input.startsWith('http')) {
+      this._onLocalFolderFetch(input, ack);
+      return;
+    }
+
     riot.control.trigger(riot.EVT.fetchStore.out.inprogressStart);
     if (jsonFixup === true) {
       if (!antiforgery) {

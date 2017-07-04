@@ -7,7 +7,8 @@ Constants.WELLKNOWN_EVENTS = {
   in: {
     fetchConfig: Constants.NAMESPACE + 'fetch-config',
     fetchConfigResult: Constants.NAMESPACE + 'fetch-config-result',
-    fetchConfigHeadResult: Constants.NAMESPACE + 'fetch-config-head-result'
+    fetchConfigHeadResult: Constants.NAMESPACE + 'fetch-config-head-result',
+    downloadRecordsResult: Constants.NAMESPACE + 'download-records-result'
   },
   out: {
     configComplete: Constants.NAMESPACE + 'config-complete'
@@ -24,7 +25,9 @@ export default class NextConfigStore extends StoreBase {
     riot.observable(this);
     this.riotHandlers = [
       {event: Constants.WELLKNOWN_EVENTS.in.fetchConfig, handler: this._onFetchConfig},
-      {event: Constants.WELLKNOWN_EVENTS.in.fetchConfigResult, handler: this._onFetchConfigResult}
+      {event: Constants.WELLKNOWN_EVENTS.in.fetchConfigResult, handler: this._onFetchConfigResult},
+      {event: Constants.WELLKNOWN_EVENTS.in.fetchConfigHeadResult, handler: this._onFetchConfigHeadResult},
+      {event: Constants.WELLKNOWN_EVENTS.in.downloadRecordsResult, handler: this._onDownloadRecordsResult}
     ];
     this.bindEvents();
   }
@@ -39,6 +42,22 @@ export default class NextConfigStore extends StoreBase {
     };
 
     riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, null, myAck);
+
+    let myAck2 = {
+      evt: riot.EVT.nextConfigStore.in.fetchConfigHeadResult
+    };
+
+    riot.control.trigger(riot.EVT.fetchStore.in.fetch, 'local://my-command/my-action', {
+      someString: 'Hello from riot',
+      someInt: 41
+    }, myAck2);
+
+    let myAck3 = {
+      evt: riot.EVT.nextConfigStore.in.downloadRecordsResult
+    };
+
+    riot.control.trigger(riot.EVT.fetchStore.in.fetch, 'local://download/records', null, myAck3);
+
   }
 
   _onFetchConfigResult(result, ack) {
@@ -50,6 +69,14 @@ export default class NextConfigStore extends StoreBase {
     } else {
       this.trigger(Constants.WELLKNOWN_EVENTS.out.configComplete);
     }
+  }
+  _onFetchConfigHeadResult(result, ack) {
+    console.log(Constants.NAME, riot.EVT.nextConfigStore.in.fetchConfigHeadResult, result, ack);
+
+  }
+  _onDownloadRecordsResult(result, ack) {
+    console.log(Constants.NAME, riot.EVT.nextConfigStore.in.downloadRecordsResult, result, ack);
+
   }
 }
 
