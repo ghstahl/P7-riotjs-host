@@ -12,6 +12,10 @@
     "public": "cpx ./dist/**/*                        public    -v",
     "build:dev-typicode": "webpack --env=dev-typicode --progress --profile --colors",
     "build:prod-typicode": "webpack --env=prod-typicode --progress --profile --colors",
+    "build:dev-download-manager": "webpack --env=dev-download-manager --progress --profile --colors",
+    "build:prod-download-manager": "webpack --env=prod-download-manager --progress --profile --colors",
+
+
     "build:dev": "webpack --env=dev --progress --profile --colors",
     "build:prod": "webpack --env=prod --progress --profile --colors",
     "build:library": "webpack --env=library --progress --profile --colors",
@@ -19,8 +23,8 @@
     "serve": "webpack-dev-server --env=dev --hot",
     "dev-typicode": "npm-run-all build:dev-typicode",
     "prod-typicode": "npm-run-all build:prod-typicode",
-    "dev:0": "npm-run-all dev-typicode build:dev",
-    "prod:0": "npm-run-all prod-typicode build:prod",
+    "dev:0": "npm-run-all dev-typicode build:dev-download-manager build:dev",
+    "prod:0": "npm-run-all prod-typicode build:prod-download-manager build:prod",
     "dev": "npm-run-all library dev:0 postBuild serve",
     "prod": "npm-run-all library dev:0 prod:0 postBuild public",
     "library": "npm-run-all build:library  "
