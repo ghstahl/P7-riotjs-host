@@ -6,14 +6,12 @@ Constants.NAME = 'download-manager-store';
 Constants.NAMESPACE = Constants.NAME + ':';
 Constants.WELLKNOWN_EVENTS = {
   in: {
-    typicodeInit: 'typicode-init',
-    typicodeUninit: 'typicode-uninit',
-    typicodeUsersFetchResult: 'download-managers-fetch-result',
-    typicodeUsersFetch: 'download-managers-fetch',
+    downloadManagerFetchResult: 'download-manager-fetch-result',
+    downloadManagerFetch: 'download-manager-fetch',
     typicodeUserFetch: 'download-manager-fetch'
   },
   out: {
-    typicodeUsersChanged: 'download-managers-changed',
+    downloadManagerChanged: 'download-managers-changed',
     typicodeUserChanged: 'download-manager-changed'
   }
 };
@@ -25,23 +23,26 @@ export default class DownloadManagerStore extends window.P7HostCore.StoreBase {
     super();
     riot.observable(this); // Riot provides our event emitter.
     this.name = 'TypicodeUserStore';
-    riot.EVT.typicodeUserStore = Constants.WELLKNOWN_EVENTS;
+    riot.EVT.downloadManagerStore = Constants.WELLKNOWN_EVENTS;
     this.fetchException = null;
     this.riotHandlers = [
-      {event: Constants.WELLKNOWN_EVENTS.in.typicodeUsersFetch, handler: this._onTypicodeUsersFetch},
-      {event: Constants.WELLKNOWN_EVENTS.in.typicodeUserFetch, handler: this._onTypicodeUserFetch},
-      {event: Constants.WELLKNOWN_EVENTS.in.typicodeUsersFetchResult, handler: this._onUsersResult}
+      {event: Constants.WELLKNOWN_EVENTS.in.downloadManagerFetch, handler: this._onDownloadManagerFetch},
+      {event: Constants.WELLKNOWN_EVENTS.in.downloadManagerFetchResult, handler: this._onDownloadManagerFetchResult}
     ];
     this.bindEvents();
+
+    riot.state.downloadManagerState = {};
+    this.state = riot.state.downloadManagerState;
   }
+
   static get constants() {
     return Constants;
   }
-  _onTypicodeUsersFetch(query) {
-    console.log(riot.EVT.typicodeUserStore.in.typicodeUsersFetch);
-    let url = 'https://jsonplaceholder.typicode.com/users';
+  _onDownloadManagerFetch(query) {
+    console.log(Constants.WELLKNOWN_EVENTS.in.downloadManagerFetch);
+    let url = 'download-manager.json';
     let myAck = {
-      evt: riot.EVT.typicodeUserStore.in.typicodeUsersFetchResult
+      evt: Constants.WELLKNOWN_EVENTS.in.downloadManagerFetchResult
     };
 
     if (query) {
@@ -50,7 +51,25 @@ export default class DownloadManagerStore extends window.P7HostCore.StoreBase {
 
     riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, null, myAck);
   }
+  _onDownloadManagerFetchResult(result, ack) {
+    console.log(Constants.WELLKNOWN_EVENTS.in.downloadManagerFetchResult, result, ack);
+    if (result.error == null && result.response.ok && result.json) {
+          // good
+      let data = result.json;
 
+      this.state.data = data;
+      let url = 'local://download/init-download';
+
+      data.forEach(function (element) {
+        riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, element, null);
+      });
+
+      this.trigger(Constants.WELLKNOWN_EVENTS.out.downloadManagerChanged);
+
+    } else {
+      this.state.data = [];
+    }
+  }
   _onTypicodeUserFetch(query) {
     console.log(riot.EVT.typicodeUserStore.in.typicodeUserFetch);
     let restoredSession = JSON.parse(localStorage.getItem(userCache));
@@ -85,28 +104,6 @@ export default class DownloadManagerStore extends window.P7HostCore.StoreBase {
   _resetData() {
     this.fetchException = null;
   };
-
-  _onUsersResult(result, ack) {
-    console.log(riot.EVT.typicodeUserStore.in.typicodeUsersFetchResult, result, ack);
-    if (result.error == null && result.response.ok && result.json) {
-            // good
-      let data = result.json;
-
-      riot.control.trigger(riot.EVT.localStorageStore.in.localstorageSet, {key: userCache, data: data});
-      this.trigger(riot.EVT.typicodeUserStore.out.typicodeUsersChanged, data);
-      if (ack.query) {
-        let query = ack.query;
-
-        if (query.type === 'riotControlTrigger') {
-          riot.control.trigger(query.evt, query.query);
-        }
-      }
-    } else {
-            // Bad.. Wipe the local storage
-      riot.control.trigger(riot.EVT.localStorageStore.in.localstorageRemove, {key: userCache});
-      riot.control.trigger('ErrorStore:error-catch-all', {code: 'typeicode-143523'});
-    }
-  }
 
 }
 

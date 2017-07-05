@@ -33,10 +33,10 @@
     {
       "key": "download-manager",
       "jsBundle": {
-        "path": "externals/download-manager/bundle.js"
+        "path": "externals/download_manager/bundle.js"
       },
       "cssBundle": {
-        "path": "externals/download-manager/styles.css"
+        "path": "externals/download_manager/styles.css"
       },
 
       "trigger": {

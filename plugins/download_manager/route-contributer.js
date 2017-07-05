@@ -1,4 +1,3 @@
-import './pages/my-component-page.tag';
 import './pages/typicode-user-detail.tag';
 import './pages/home.tag';
 
@@ -21,10 +20,9 @@ export default class RouteContributer {
     let s = self._viewsSet;
 
     s.add('home');
-    s.add('my-component-page');
     s.add('typicode-user-detail');
     self.views = Array.from(s);
-    self.defaultRoute = '/my-component-page/home';
+    self.defaultRoute = '/download-manager/home';
   }
   uninitialize() {
 
@@ -36,23 +34,23 @@ export default class RouteContributer {
     var self = this;
 
     console.log(self.name, riot.EVT.router.out.contributeRoutes, r);
-    r('/my-component-page/typicode-user-detail?id=*', ()=>{
-      console.log('route handler of /my-component-page/typicode-user-detail');
+    r('/download-manager/download-detail?id=*', ()=>{
+      console.log('route handler of /download-manager/download-detail');
       riot.control.trigger(riot.EVT.routeStore.in.riotRouteLoadView, 'mpc-typicode-user-detail');
     });
 
-    r('/my-component-page/*', (name)=>{
-      console.log('route handler of /my-component-page/' + name);
+    r('/download-manager/*', (name)=>{
+      console.log('route handler of /download-manager/' + name);
       let view = name;
 
       if (self.views.indexOf(view) === -1) {
         riot.control.trigger(riot.EVT.routeStore.in.routeDispatch, self.defaultRoute);
       } else {
-        riot.control.trigger(riot.EVT.routeStore.in.riotRouteLoadView, 'mpc-' + view);
+        riot.control.trigger(riot.EVT.routeStore.in.riotRouteLoadView, 'download-manager-' + view);
       }
     });
-    r('/my-component-page..', ()=>{
-      console.log('route handler of /my-component-page..');
+    r('/download-manager..', ()=>{
+      console.log('route handler of /download-manager..');
       riot.control.trigger(riot.EVT.routeStore.in.routeDispatch, self.defaultRoute);
     });
   }

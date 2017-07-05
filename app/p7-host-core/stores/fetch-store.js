@@ -62,12 +62,18 @@ export default class FetchStore extends StoreBase {
 
       let bodyInput = JSON.stringify(body);
 
-      window.boundAsync.fetch(input, bodyInput).then(function (data) {
-        result.json = JSON.parse(data);
-        console.log(data, result.json);
+      window.boundAsync.fetch(input, bodyInput).then(function (response) {
+        let jsonResponse = JSON.parse(response);
+
+        result.json = jsonResponse.data;
+        result.response = jsonResponse.status;
+
+        console.log(response, result.json);
         result.error = null;
         result.response.ok = true;
-        riot.control.trigger(ack.evt, result, ack);
+        if (ack) {
+          riot.control.trigger(ack.evt, result, ack);
+        }
       });
     }
   }
