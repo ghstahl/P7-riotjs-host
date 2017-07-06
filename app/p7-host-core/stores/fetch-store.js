@@ -63,6 +63,7 @@ export default class FetchStore extends StoreBase {
       let bodyInput = JSON.stringify(body);
 
       window.boundAsync.fetch(input, bodyInput).then(function (response) {
+        console.log(response);
         let jsonResponse = JSON.parse(response);
 
         result.json = jsonResponse.data;
