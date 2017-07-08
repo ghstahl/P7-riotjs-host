@@ -1,7 +1,20 @@
 [{
-	"Url": "https://raw.githubusercontent.com/ghstahl/CefSharp.MinimalExample.Riot/master/CefSharp.MinimalExample.WinForms/Resources/NSDeluxeDownloader.exe",
-	"FileName": "NSDeluxeDownloader.exe"
+	"url": "https://raw.githubusercontent.com/ghstahl/CefSharp.MinimalExample.Riot/master/CefSharp.MinimalExample.WinForms/Resources/NSDeluxeDownloader.exe",
+	"fileName": "NSDeluxeDownloader.exe"
 }, {
-	"Url": "https://raw.githubusercontent.com/ghstahl/CefSharp.MinimalExample.Riot/master/CefSharp.MinimalExample.WinForms/Resources/NSPremiumDownloader.exe",
-	"FileName": "NSPremiumDownloader.exe"
-}]
+	"url": "https://raw.githubusercontent.com/ghstahl/CefSharp.MinimalExample.Riot/master/CefSharp.MinimalExample.WinForms/Resources/NSPremiumDownloader.exe",
+	"fileName": "NSPremiumDownloader.exe"
+}, {
+	"url": "http://ipv4.download.thinkbroadband.com/200MB.zip",
+	"fileName": "200MB.zip"
+}, {
+	"url": "http://ipv4.download.thinkbroadband.com/1GB.zip",
+	"fileName": "1GB.zip"
+}, {
+	"url": "http://ipv4.download.thinkbroadband.com/512MB.zip",
+	"fileName": "512MB.zip"
+}
+
+]
+
+

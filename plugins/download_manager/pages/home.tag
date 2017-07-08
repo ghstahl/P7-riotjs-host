@@ -6,18 +6,29 @@
     <div class="well">
       This pulls download from /download-manager.json     
 </div>
-    <table if={state.data} class="table table-striped table-hover ">
+    <table if={state.localData} class="table table-striped table-hover ">
 	    <thead>
 	      <tr>
 	        <th>File</th>
+          <th>Complete</th>
+          <th>percentComplete</th>
 	        <th>link</th>
 	      </tr>
 	    </thead>
 	    <tbody>
-	      <tr each={ state.data }>
-	        <td>{ this.FileName }</td>
-	        <td>
-	        	<a href="{ this.Url }" download="{ this.FileName }">Download</a></td>
+	      <tr each={ state.localData.records }>
+	        <td>{ this.fileName }</td>
+          <td>{ this.downloadItem.isComplete }</td>
+          <td>{ this.downloadItem.percentComplete }</td>
+	        <td if={!this.downloadItem.isComplete && !this.downloadItem.isInProgress}>
+	        	<a  href="{ this.url }" download="{ this.fileName }">Download</a></td>
+          </td>
+          <td if={!this.downloadItem.isComplete && this.downloadItem.isInProgress}>
+            Cancel
+          </td>
+          <td if={this.downloadItem.isComplete}>
+            <a class="btn btn-default" onclick={this.onInstall} >Install</a>
+          </td>
 	      </tr>
 	       
 	    </tbody>
@@ -40,23 +51,39 @@
     self.error = false;
   }
 
+  self.tick = () => {
+    riot.control.trigger(riot.EVT.downloadManagerStore.in.downloadManagerLocalFetch);
+
+  }
+
 	self.on('mount', () => {
       console.log('typicode-users mount')
-      riot.control.on(riot.EVT.downloadManagerStore.out.downloadManagerChanged,self.onDownloadManagerChanged);
+      riot.control.on(riot.EVT.downloadManagerStore.out.downloadManagerLocalChanged,self.onDownloadManagerLocalChanged);
       riot.control.trigger(riot.EVT.downloadManagerStore.in.downloadManagerFetch);
+      self.tick();
+      self.timer =  setInterval(this.tick,2000)
     });
-    self.on('unmount', () => {
+  self.on('unmount', () => {
       console.log('typicode-users unmount')
-      riot.control.off(riot.EVT.downloadManagerStore.out.downloadManagerChanged,self.onDownloadManagerChanged);
+      clearInterval(self.timer)
+      riot.control.off(riot.EVT.downloadManagerStore.out.downloadManagerLocalChanged,self.onDownloadManagerLocalChanged);
     });
-	self.onDownloadManagerChanged = (result) =>{
-       console.log(riot.EVT.downloadManagerStore.out.downloadManagerChanged);
+	
+  self.onDownloadManagerLocalChanged = (result) =>{
+       console.log(riot.EVT.downloadManagerStore.out.downloadManagerLocalChanged);
        self.update();
     }
+  
   self.route = (evt) => {
 		riot.control.trigger('riot-route-dispatch',
 		'my-component-page/typicode-user-detail?id='+evt.item.id);
 	  };
+
+  self.onInstall = (evt) => {
+      let url = 'local://download/launch-executable';
+
+      riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, {url:evt.item.url}, null);
+  };
 </script>
 
 
