@@ -24,7 +24,7 @@
 	        	<a  href="{ this.url }" download="{ this.fileName }">Download</a></td>
           </td>
           <td if={!this.downloadItem.isComplete && this.downloadItem.isInProgress}>
-            Cancel
+            <a class="btn btn-default" onclick={this.onCancel} >Cancel</a>
           </td>
           <td if={this.downloadItem.isComplete}>
             <a class="btn btn-default" onclick={this.onInstall} >Install</a>
@@ -81,7 +81,10 @@
 
   self.onInstall = (evt) => {
       let url = 'local://download/launch-executable';
-
+      riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, {url:evt.item.url}, null);
+  };
+  self.onCancel = (evt) => {
+      let url = 'local://download/Cancel';
       riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, {url:evt.item.url}, null);
   };
 </script>
