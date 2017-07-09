@@ -66,7 +66,14 @@ export default class DownloadManagerStore extends window.P7HostCore.StoreBase {
       let url = 'local://download/init-download';
 
       data.forEach(function (element) {
-        riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, element, null);
+        riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Symc-Fetch-App-Version': '1.0'
+          },
+          body: element
+        }, null);
       });
 
       this.trigger(Constants.WELLKNOWN_EVENTS.out.downloadManagerChanged);
@@ -82,7 +89,15 @@ export default class DownloadManagerStore extends window.P7HostCore.StoreBase {
       evt: Constants.WELLKNOWN_EVENTS.in.downloadManagerLocalFetchResult
     };
 
-    riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, null, myAck);
+    riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Symc-Fetch-App-Version': '1.0'
+      },
+      body: {
+      }
+    }, myAck);
   }
   _onDownloadManagerLocalFetchResult(result, ack) {
     console.log(Constants.WELLKNOWN_EVENTS.in.downloadManagerLocalFetchResult, result, ack);

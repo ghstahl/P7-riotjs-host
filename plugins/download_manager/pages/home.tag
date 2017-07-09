@@ -81,11 +81,26 @@
 
   self.onInstall = (evt) => {
       let url = 'local://download/launch-executable';
-      riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, {url:evt.item.url}, null);
+      riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Symc-Fetch-App-Version': '1.0'
+      },
+      body: {url:evt.item.url}
+    }
+    , null);
   };
   self.onCancel = (evt) => {
-      let url = 'local://download/Cancel';
-      riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, {url:evt.item.url}, null);
+      let url = 'local://download/cancel';
+      riot.control.trigger(riot.EVT.fetchStore.in.fetch, url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Symc-Fetch-App-Version': '1.0'
+      },
+      body: {url:evt.item.url}
+    }, null);
   };
 </script>
 
