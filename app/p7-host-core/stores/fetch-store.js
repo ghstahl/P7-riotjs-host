@@ -66,12 +66,10 @@ export default class FetchStore extends StoreBase {
         console.log(response);
         let jsonResponse = JSON.parse(response);
 
-        result.json = jsonResponse.data;
-        result.response = jsonResponse.status;
+        result.response = jsonResponse;
+        result.json = jsonResponse.json;
 
-        console.log(response, result.json);
         result.error = null;
-        result.response.ok = true;
         if (ack) {
           riot.control.trigger(ack.evt, result, ack);
         }
