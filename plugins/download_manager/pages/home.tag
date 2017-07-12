@@ -16,7 +16,7 @@
 	      </tr>
 	    </thead>
 	    <tbody>
-	      <tr each={ state.localData.items }>
+	      <tr each={ state.localData }>
 	        <td>{ this.fileName }</td>
           <td>{ this.downloadItem.isComplete }</td>
           <td>{ this.downloadItem.percentComplete }</td>
