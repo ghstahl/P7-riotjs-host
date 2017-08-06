@@ -1,6 +1,6 @@
 import DeepFreeze from './utils/deep-freeze.js';
 
-class Constants {}
+class Constants { }
 Constants.NAME = 'router';
 Constants.NAMESPACE = Constants.NAME + ':';
 Constants.WELLKNOWN_EVENTS = {
@@ -40,7 +40,7 @@ export default class Router {
         let component = item[1];
 
         if (component.state.loaded === false) {
-          r(component.routeLoad.route, ()=>{
+          r(component.routeLoad.route, () => {
             console.log('catchall route handler of:', component.routeLoad.route);
 
             let path = riot.route.currentPath();
@@ -52,7 +52,7 @@ export default class Router {
       }
     }
 
-    r('/..', ()=>{
+    r('/..', () => {
       console.log('route handler of /  ');
       riot.control.trigger(riot.EVT.routeStore.in.routeDispatch, riot.state.route.defaultRoute);
     });

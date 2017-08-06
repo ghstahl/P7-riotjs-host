@@ -70,7 +70,7 @@
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(riot) {/* Riot v3.6.0, @license MIT */
+/* WEBPACK VAR INJECTION */(function(riot) {/* Riot v3.6.1, @license MIT */
 (function (global, factory) {
 	 true ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -2225,7 +2225,7 @@ function unregister$1(name) {
   __TAG_IMPL[name] = null;
 }
 
-var version$1 = 'v3.6.0';
+var version$1 = 'v3.6.1';
 
 
 var core = Object.freeze({
@@ -4537,8 +4537,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
       Constants.NAME = 'fetch-store';
       Constants.NAMESPACE = Constants.NAME + ':';
-      Constants.WELLKNOWN_EVENTS = {
-        in: {
+      Constants.WELLKNOWN_EVENTS = { in: {
           fetch: Constants.NAMESPACE + 'fetch'
         },
         out: {
@@ -4564,7 +4563,10 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
           var _this = _possibleConstructorReturn(this, _StoreBase.call(this));
 
           riot.observable(_this);
-          _this.riotHandlers = [{ event: Constants.WELLKNOWN_EVENTS.in.fetch, handler: _this._onFetch }];
+          _this.riotHandlers = [{
+            event: Constants.WELLKNOWN_EVENTS.in.fetch,
+            handler: _this._onFetch
+          }];
           _this.bindEvents();
           return _this;
         }
@@ -4572,7 +4574,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
         FetchStore.prototype._onLocalFolderFetch = function _onLocalFolderFetch(input, ack) {
           console.log(Constants.WELLKNOWN_EVENTS.in.fetch, '_onLocalFolderFetch', input, ack, window.boundAsync);
           if (window.boundAsync) {
-            var result = { response: {} };
+            var result = {
+              response: {}
+            };
 
             var url = window.location.origin;
             var frontPath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
@@ -4590,10 +4594,31 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
           }
         };
 
+        FetchStore.prototype._onLocaljsonFetch = function _onLocaljsonFetch(input, ack) {
+          console.log(Constants.WELLKNOWN_EVENTS.in.fetch, '_onLocaljsonFetch', input, ack, window.boundAsync);
+          if (window.boundAsync) {
+            var result = {
+              response: {}
+            };
+
+            var url = input;
+
+            window.boundAsync.fetchLocalJson(url).then(function (data) {
+              result.json = data;
+              console.log(result.json);
+              result.error = null;
+              result.response.ok = true;
+              riot.control.trigger(ack.evt, result, ack);
+            });
+          }
+        };
+
         FetchStore.prototype._onLocalFetch = function _onLocalFetch(input, body, ack) {
           console.log(Constants.WELLKNOWN_EVENTS.in.fetch, '_onLocalFetch', input, ack, window.boundAsync);
           if (window.boundAsync) {
-            var result = { response: {} };
+            var result = {
+              response: {}
+            };
 
             var bodyInput = JSON.stringify(body);
 
@@ -4625,6 +4650,11 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
           if (window.location.protocol === 'localfolder:' && !input.startsWith('http')) {
             this._onLocalFolderFetch(input, ack);
+            return;
+          }
+
+          if (window.location.protocol === 'file:' && !input.startsWith('http')) {
+            this._onLocaljsonFetch(input, ack);
             return;
           }
 
@@ -4674,7 +4704,9 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 
           fetch(input, init).then(function (response) {
             riot.control.trigger(riot.EVT.fetchStore.out.inprogressDone);
-            var result = { response: response };
+            var result = {
+              response: response
+            };
 
             if (response.status === 204) {
               result.error = 'Fire the person that returns this 204 garbage!';
@@ -6145,7 +6177,8 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
       module.exports = __WEBPACK_EXTERNAL_MODULE_27__;
 
       /***/
-    }])
+    }]
+    /******/)
   );
 });
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(25)(module)))
@@ -6340,7 +6373,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
  * @module riot-route
  */
 
-var RE_ORIGIN = /^.+?\/\/+[^\/]+/;
+var RE_ORIGIN = /^.+?\/\/+[^/]+/;
 var EVENT_LISTENER = 'EventListener';
 var REMOVE_EVENT_LISTENER = 'remove' + EVENT_LISTENER;
 var ADD_EVENT_LISTENER = 'add' + EVENT_LISTENER;

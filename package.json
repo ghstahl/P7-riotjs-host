@@ -14,8 +14,6 @@
     "build:prod-typicode": "webpack --env=prod-typicode --progress --profile --colors",
     "build:dev-download-manager": "webpack --env=dev-download-manager --progress --profile --colors",
     "build:prod-download-manager": "webpack --env=prod-download-manager --progress --profile --colors",
-
-
     "build:dev": "webpack --env=dev --progress --profile --colors",
     "build:prod": "webpack --env=prod --progress --profile --colors",
     "build:library": "webpack --env=library --progress --profile --colors",
